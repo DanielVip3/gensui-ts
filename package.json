@@ -1,0 +1,48 @@
+{
+  "name": "gensui",
+  "version": "1.0.0",
+  "description": "A Discord bot framework which supports Discord.js and TypeScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc mocha -r ts-node/register 'tests/**/*.ts'"
+  },
+  "keywords": [
+    "discord",
+    "discord.js",
+    "discord",
+    "bot",
+    "typescript",
+    "commands",
+    "commando"
+  ],
+  "author": "DanielVip3",
+  "license": "MIT",
+  "dependencies": {
+    "@types/ioredis": "^4.17.7",
+    "@types/joi": "^14.3.4",
+    "@types/randomstring": "^1.1.6",
+    "@types/redis": "^2.8.28",
+    "bufferutil": "^4.0.1",
+    "discord.js": "^12.3.1",
+    "erlpack": "github:discord/erlpack",
+    "ioredis": "^4.19.2",
+    "ioredis-mock": "^5.1.0",
+    "joi": "^17.2.1",
+    "joi-extract-type": "^15.0.8",
+    "nyc": "^15.1.0",
+    "randomstring": "^1.1.5",
+    "redis": "^3.0.2",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3",
+    "utf-8-validate": "^5.0.2",
+    "yup": "^0.29.3",
+    "zlib-sync": "^0.1.7"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.3",
+    "@types/yup": "^0.29.9",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.0"
+  }
+}
