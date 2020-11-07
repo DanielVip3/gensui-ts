@@ -23,7 +23,7 @@ const bot: Bot = new Bot({
         Rendere cooldown un interceptor
         Exception per cooldown
 
-    Consumers
+    Consumers/Side-effects
     ^ i consumers sono le funzioni eseguite DOPO il comando che ricevono il return del comando e ne operano di conseguenza, es. settano qualcosa nel db etc.
 
     Transformers
@@ -61,10 +61,10 @@ class Commands {
     @bot.Scope(1) id: CommandIdentifier;
 
     @bot.Command({
-        filters: [Filters._NSFW]
+        filters: [Filters._NSFW],
     })
-    testf({ command, message }: CommandContext): void {
-        console.log(message.content);
+    testf({ command, message, data }: CommandContext): void {
+        console.log(data, message.content);
     }
 
     @bot.Except({

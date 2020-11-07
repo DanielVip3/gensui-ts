@@ -1,8 +1,12 @@
 import { CommandContext } from "./Command";
 
+export interface CommandInterceptorData {
+    [key: string]: any;
+}
+
 export interface CommandInterceptorResponse {
     next?: boolean,
-    data?: Object,
+    data?: CommandInterceptorData,
 };
 
 export abstract class CommandInterceptor {

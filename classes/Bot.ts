@@ -6,6 +6,7 @@ import { MemoryCooldownStore, RedisCooldownStore } from './CommandCooldownStores
 import { ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler } from './ExceptionHandler';
 import { CommandFilter } from './CommandFilter';
+import { CommandInterceptor } from './CommandInterceptor';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -114,6 +115,7 @@ export default class Bot extends BotCommands {
             else if (useFunctionNameAsCommandName === undefined && !propertyKey.startsWith("_")) commandNames.push(propertyKey);
 
             let filters: CommandFilter[] = [];
+            let interceptors: CommandInterceptor[] = [];
 
             if (options) {
                 if (options.names) {
@@ -125,6 +127,11 @@ export default class Bot extends BotCommands {
                     if (Array.isArray(options.filters)) filters = options.filters;
                     else if (!Array.isArray(options.filters)) filters = [options.filters];
                 }
+
+                if (options.interceptors) {
+                    if (Array.isArray(options.interceptors)) interceptors = options.interceptors;
+                    else if (!Array.isArray(options.interceptors)) interceptors = [options.interceptors];
+                }
             }
 
             this.addCommand(new Command({
@@ -134,6 +141,7 @@ export default class Bot extends BotCommands {
                 cooldownStore: !!options && !!options.cooldownStore ? options.cooldownStore : null,
                 methodName: propertyKey,
                 filters: filters,
+                interceptors: interceptors,
                 handler: descriptor.value,
             } as CommandOptions));
         };

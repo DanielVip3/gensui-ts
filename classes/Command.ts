@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { CommandNoIDError, CommandNoNameError, CommandCooldownError } from '../errors';
 import { MemoryCooldownStore, RedisCooldownStore, CooldownStoreObject } from './CommandCooldownStores';
 import { CommandFilter } from './CommandFilter';
-import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterceptor';
+import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
 import { ExceptionHandler } from './ExceptionHandler';
 
 export type CommandIdentifier = string|number;
@@ -31,7 +31,7 @@ export interface CommandOptions {
 export interface CommandContext {
     command: Command,
     message: Message,
-    data?: Object,
+    data?: CommandInterceptorData,
 }
 
 export class Command {
@@ -132,7 +132,7 @@ export class Command {
 
     handleInterceptors(ctx: CommandContext): CommandInterceptorResponse {
         let continueFlow: boolean = true;
-        let mergedData: Object = {};
+        let mergedData: object = {};
 
         if (this.interceptors) {
             for (let interceptor of this.interceptors) {
@@ -153,6 +153,8 @@ export class Command {
                 } catch(err) {
                     this.callExceptionHandlers(ctx, err);
                     continueFlow = false;
+
+                    break;
                 }
             }
         }
@@ -165,8 +167,11 @@ export class Command {
 
     async call(message: Message): Promise<boolean> {
         const context: CommandContext = { command: this, message };
+
         if (!this.handleFilters(context)) return false;
-        if (!this.handleInterceptors(context).next) return false;
+
+        const interceptorsResponse: CommandInterceptorResponse = this.handleInterceptors(context);
+        if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
         /*if (this.cooldownEnabled && this.cooldownStore) {
             if (await this.isInCooldown(message.author.id)) {
@@ -181,7 +186,7 @@ export class Command {
             }
         }*/
 
-        this.handler(message);
+        this.handler(context);
 
         return true;
     }
