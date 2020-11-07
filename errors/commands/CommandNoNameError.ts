@@ -1,4 +1,4 @@
-import { CommandIdentifier } from '../classes/Command';
+import { CommandIdentifier } from '../../classes/Command';
 
 /* Called when a command is instantiated and it doesn't have at least a name */
 export default class CommandNoNameError extends Error {
