@@ -29,7 +29,7 @@ export default class CooldownInterceptor implements CommandInterceptor {
                 data: {
                     cooldown: {
                         store: this.store,
-                        cooldown: cooldown
+                        info: cooldown
                     }
                 },
             };

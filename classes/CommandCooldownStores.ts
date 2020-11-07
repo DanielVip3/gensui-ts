@@ -20,7 +20,6 @@ interface RedisCooldownStoreOptions extends CooldownStoreOptions {
 
 export abstract class CooldownStore {
     public id: number = Math.random();
-    public abstract name: string;
     protected abstract store;
     public readonly abstract cooldownTime: number = 60 * 60 * 1000;
     protected abstract maxTimes: number = 1;
@@ -34,7 +33,6 @@ export abstract class CooldownStore {
 }
 
 export class MemoryCooldownStore extends CooldownStore {
-    public name: string = "memory";
     protected store: {};
     public readonly cooldownTime: number = 60 * 60 * 1000;
     protected maxTimes: number = 1;
@@ -103,7 +101,6 @@ export class MemoryCooldownStore extends CooldownStore {
 }
 
 export class RedisCooldownStore extends CooldownStore {
-    public name: string = "redis";
     protected store: IORedis.Redis;
     public readonly cooldownTime: number = 60 * 60 * 1000;
     protected cooldownHashKey: string = "bot.commands.cooldown";

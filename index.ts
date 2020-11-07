@@ -2,8 +2,10 @@ import './config/yup-locale';
 import Bot from './classes/Bot';
 
 import { Filters } from './filters/Filters';
-import { NSFWError } from './errors';
+import { Interceptors} from './interceptors/Interceptors';
+import { CommandCooldownError } from './errors';
 import { CommandContext, CommandIdentifier } from './classes/Command';
+import { MemoryCooldownStore } from './classes/CommandCooldownStores';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
@@ -20,7 +22,6 @@ const bot: Bot = new Bot({
     InlineFilter async
 
     Interceptors
-        Rendere cooldown un interceptor
         Exception per cooldown
 
     Consumers/Side-effects
@@ -62,13 +63,14 @@ class Commands {
 
     @bot.Command({
         filters: [Filters._NSFW],
+        interceptors: [Interceptors.CooldownInterceptor(new MemoryCooldownStore())]
     })
     testf({ command, message, data }: CommandContext): void {
         console.log(data, message.content);
     }
 
     @bot.Except({
-        exceptions: [NSFWError]
+        exceptions: [CommandCooldownError]
     })
     testErrorHandler(): void {
         console.log("test ERRORE");

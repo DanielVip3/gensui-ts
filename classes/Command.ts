@@ -48,7 +48,7 @@ export class Command {
     protected interceptors: CommandInterceptor[] = [];
     protected exceptions: ExceptionHandler[] = [];
     private handler: Function;
-    public metadata: CommandMetadata;
+    public metadata: CommandMetadata = {};
 
     constructor(options: CommandOptions) {
         /* Checks names for eventual errors and sets the _names array */
@@ -113,7 +113,7 @@ export class Command {
             const toCallHandlers: ExceptionHandler[] = this.exceptions.filter(e => !e.exceptions || e.exceptions.length <= 0 || e.exceptions.some((e) => exception instanceof e));
             if (toCallHandlers) {
                 for (const h of toCallHandlers) await h.handler(ctx, exception);
-                
+
                 return true;
             } else return false;
         } else return false;
@@ -157,7 +157,7 @@ export class Command {
 
                     ctx.data = mergedData;
                 } catch(err) {
-                    this.callExceptionHandlers(ctx, err);
+                    await this.callExceptionHandlers(ctx, err);
                     continueFlow = false;
 
                     break;
@@ -179,32 +179,8 @@ export class Command {
         const interceptorsResponse: CommandInterceptorResponse = await this.handleInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
-        /*if (this.cooldownEnabled && this.cooldownStore) {
-            if (await this.isInCooldown(message.author.id)) {
-                const cooldown: CooldownStoreObject|null = await this.cooldownStore.getCooldown(message.author.id);
-                if (cooldown) throw new CommandCooldownError("Command is in cooldown.", cooldown.called, this.cooldownStore.cooldownTime);
-                else throw new CommandCooldownError("Command is in cooldown.");
-            } else {
-                this.cooldownStore.increaseCooldown(message.author.id);
-                this.handler(message);
-
-                return true;
-            }
-        }*/
-
         this.handler(context);
 
         return true;
-    }
-
-    isInCooldown(userId?: string): boolean {
-        if (!userId) return false;
-
-        if (!this.cooldownEnabled) return false;
-        else {
-            if (this.cooldownStore && this.cooldownStore.isInCooldown(userId)) return true;
-
-            return false;
-        }
     }
 }
