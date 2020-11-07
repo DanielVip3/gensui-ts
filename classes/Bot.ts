@@ -137,8 +137,6 @@ export default class Bot extends BotCommands {
             this.addCommand(new Command({
                 id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
                 names: commandNames,
-                cooldown: (!!options && !!options.cooldownStore && (options.cooldownStore instanceof MemoryCooldownStore || options.cooldownStore instanceof RedisCooldownStore) && options.cooldownStore.cooldownTime),
-                cooldownStore: !!options && !!options.cooldownStore ? options.cooldownStore : null,
                 methodName: propertyKey,
                 filters: filters,
                 interceptors: interceptors,

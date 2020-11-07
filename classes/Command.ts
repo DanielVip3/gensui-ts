@@ -1,6 +1,5 @@
 import { Message } from 'discord.js';
-import { CommandNoIDError, CommandNoNameError, CommandCooldownError } from '../errors';
-import { MemoryCooldownStore, RedisCooldownStore, CooldownStoreObject } from './CommandCooldownStores';
+import { CommandNoIDError, CommandNoNameError } from '../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
 import { ExceptionHandler } from './ExceptionHandler';
@@ -10,7 +9,6 @@ export type CommandIdentifier = string|number;
 export interface CommandDecoratorOptions {
     id?: CommandIdentifier,
     names?: string|string[],
-    cooldownStore?: MemoryCooldownStore|RedisCooldownStore|null|undefined,
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
 }
@@ -18,8 +16,6 @@ export interface CommandDecoratorOptions {
 export interface CommandOptions {
     id?: CommandIdentifier,
     names: string|string[],
-    cooldown?: boolean,
-    cooldownStore?: MemoryCooldownStore|RedisCooldownStore|null|undefined,
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     exceptions?: ExceptionHandler[],
@@ -41,9 +37,6 @@ export interface CommandMetadata {
 export class Command {
     public readonly id: CommandIdentifier;
     private _names: string[];
-    readonly cooldown: boolean = false;
-    readonly cooldownStore: MemoryCooldownStore|RedisCooldownStore|null|undefined;
-    readonly cooldownEnabled: boolean = false;
     protected filters: CommandFilter[] = [];
     protected interceptors: CommandInterceptor[] = [];
     protected exceptions: ExceptionHandler[] = [];
@@ -68,13 +61,6 @@ export class Command {
             this.id = options.names[0];
         }
 
-        if (options.cooldownStore && (options.cooldownStore instanceof MemoryCooldownStore || options.cooldownStore instanceof RedisCooldownStore)) {
-            this.cooldown = !!options.cooldown;
-            this.cooldownStore = options.cooldownStore;
-        } else {
-            this.cooldown = false;
-        }
-
         if (options.filters) {
             if (Array.isArray(options.filters)) this.filters = options.filters;
             else if (!Array.isArray(options.filters)) this.filters = [options.filters];
@@ -90,8 +76,6 @@ export class Command {
             else if (!Array.isArray(options.exceptions)) this.exceptions = [options.exceptions];
         }
         if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
-
-        if (this.cooldown && this.cooldownStore) this.cooldownEnabled = true;
 
         this.handler = options.handler;
     }
