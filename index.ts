@@ -37,6 +37,14 @@ const bot: Bot = new Bot({
         DB e DB injection nelle classi
         Cache e cache injection nelle classi
 
+    Sandbox
+
+    Safe runtime
+    ^ questo decoratore, se aggiunto ad un metodo, lo esegue ogni volta in un child_process.fork e gli rende impossibile accedere a qualunque cosa del programma se non esplicitamente importata nel metodo
+
+    Expectations
+    ^ sistema di testing dei comandi e delle loro funzioni integrato nel framework (?)
+
     Custom events
     ^ wrappers di eventi più complicati uniti assieme (es. guildMemberUpdate) per definire eventi unici più semplici (es. il cambio di canale vocale, proveniente da un guildMemberUpdate)
 
