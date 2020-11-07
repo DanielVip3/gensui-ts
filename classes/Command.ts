@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { CommandNoIDError, CommandNoNameError, CommandCooldownError } from '../errors';
 import { MemoryCooldownStore, RedisCooldownStore, CooldownStoreObject } from './CommandCooldownStores';
 import { CommandFilter } from './CommandFilter';
+import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterceptor';
 import { ExceptionHandler } from './ExceptionHandler';
 
 export type CommandIdentifier = string|number;
@@ -10,7 +11,8 @@ export interface CommandDecoratorOptions {
     id?: CommandIdentifier,
     names?: string|string[],
     cooldownStore?: MemoryCooldownStore|RedisCooldownStore|null|undefined,
-    filters?: CommandFilter[]
+    filters?: CommandFilter[]|CommandFilter,
+    interceptors?: CommandInterceptor[]|CommandInterceptor,
 }
 
 export interface CommandOptions {
@@ -18,7 +20,8 @@ export interface CommandOptions {
     names: string|string[],
     cooldown?: boolean,
     cooldownStore?: MemoryCooldownStore|RedisCooldownStore|null|undefined,
-    filters: CommandFilter[],
+    filters?: CommandFilter[]|CommandFilter,
+    interceptors?: CommandInterceptor[]|CommandInterceptor,
     exceptions?: ExceptionHandler[],
     handler: Function,
     /* Eventually, the method who instantiated the command (using the decorator) */
@@ -28,6 +31,7 @@ export interface CommandOptions {
 export interface CommandContext {
     command: Command,
     message: Message,
+    data?: Object,
 }
 
 export class Command {
@@ -37,6 +41,7 @@ export class Command {
     readonly cooldownStore: MemoryCooldownStore|RedisCooldownStore|null|undefined;
     readonly cooldownEnabled: boolean = false;
     protected filters: CommandFilter[] = [];
+    protected interceptors: CommandInterceptor[] = [];
     protected exceptions: ExceptionHandler[] = [];
     private handler: Function;
 
@@ -68,6 +73,11 @@ export class Command {
         if (options.filters) {
             if (Array.isArray(options.filters)) this.filters = options.filters;
             else if (!Array.isArray(options.filters)) this.filters = [options.filters];
+        }
+
+        if (options.interceptors) {
+            if (Array.isArray(options.interceptors)) this.interceptors = options.interceptors;
+            else if (!Array.isArray(options.interceptors)) this.interceptors = [options.interceptors];
         }
 
         if (options.exceptions) {
@@ -105,6 +115,7 @@ export class Command {
 
     handleFilters(ctx: CommandContext): boolean {
         let valid: boolean = true;
+
         if (this.filters) {
             for (let filter of this.filters) {
                 try {
@@ -119,10 +130,45 @@ export class Command {
         return valid;
     }
 
-    async call(message: Message): Promise<boolean> {
-        if (!this.handleFilters({ command: this, message } as CommandContext)) return false;
+    handleInterceptors(ctx: CommandContext): CommandInterceptorResponse {
+        let continueFlow: boolean = true;
+        let mergedData: Object = {};
 
-        if (this.cooldownEnabled && this.cooldownStore) {
+        if (this.interceptors) {
+            for (let interceptor of this.interceptors) {
+                try {
+                    const response: CommandInterceptorResponse = interceptor.intercept(ctx);
+
+                    if (!!response.next || response.next === undefined) continueFlow = true;
+                    else if (!response.next) continueFlow = false;
+                    else continueFlow = true;
+
+                    if (!response.data || typeof response.data !== "object") continue;
+                    mergedData = {
+                        ...mergedData,
+                        ...response.data,
+                    };
+
+                    ctx.data = mergedData;
+                } catch(err) {
+                    this.callExceptionHandlers(ctx, err);
+                    continueFlow = false;
+                }
+            }
+        }
+        
+        return {
+            next: continueFlow,
+            data: mergedData
+        } as CommandInterceptorResponse;
+    }
+
+    async call(message: Message): Promise<boolean> {
+        const context: CommandContext = { command: this, message };
+        if (!this.handleFilters(context)) return false;
+        if (!this.handleInterceptors(context).next) return false;
+
+        /*if (this.cooldownEnabled && this.cooldownStore) {
             if (await this.isInCooldown(message.author.id)) {
                 const cooldown: CooldownStoreObject|null = await this.cooldownStore.getCooldown(message.author.id);
                 if (cooldown) throw new CommandCooldownError("Command is in cooldown.", cooldown.called, this.cooldownStore.cooldownTime);
@@ -133,11 +179,11 @@ export class Command {
 
                 return true;
             }
-        } else {
-            this.handler(message);
+        }*/
 
-            return true;
-        }   
+        this.handler(message);
+
+        return true;
     }
 
     isInCooldown(userId?: string): boolean {
