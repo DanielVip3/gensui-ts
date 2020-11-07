@@ -5,10 +5,10 @@ export interface CommandInterceptorData {
 }
 
 export interface CommandInterceptorResponse {
-    next?: boolean,
+    next: boolean,
     data?: CommandInterceptorData,
 };
 
 export abstract class CommandInterceptor {
-    public abstract intercept(context: CommandContext, ...any: []): CommandInterceptorResponse;
+    public abstract intercept(context: CommandContext, ...any: []): CommandInterceptorResponse|Promise<CommandInterceptorResponse>;
 };

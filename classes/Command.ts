@@ -34,6 +34,10 @@ export interface CommandContext {
     data?: CommandInterceptorData,
 }
 
+export interface CommandMetadata {
+    [key: string]: any;
+};
+
 export class Command {
     public readonly id: CommandIdentifier;
     private _names: string[];
@@ -44,6 +48,7 @@ export class Command {
     protected interceptors: CommandInterceptor[] = [];
     protected exceptions: ExceptionHandler[] = [];
     private handler: Function;
+    public metadata: CommandMetadata;
 
     constructor(options: CommandOptions) {
         /* Checks names for eventual errors and sets the _names array */
@@ -103,25 +108,26 @@ export class Command {
         return true;
     }
 
-    callExceptionHandlers(ctx: CommandContext, exception: any): boolean {
+    async callExceptionHandlers(ctx: CommandContext, exception: any): Promise<boolean> {
         if (this.exceptions && this.exceptions.length >= 1) {
             const toCallHandlers: ExceptionHandler[] = this.exceptions.filter(e => !e.exceptions || e.exceptions.length <= 0 || e.exceptions.some((e) => exception instanceof e));
             if (toCallHandlers) {
-                toCallHandlers.map(h => h.handler(ctx, exception));
+                for (const h of toCallHandlers) await h.handler(ctx, exception);
+                
                 return true;
             } else return false;
         } else return false;
     }
 
-    handleFilters(ctx: CommandContext): boolean {
+    async handleFilters(ctx: CommandContext): Promise<boolean> {
         let valid: boolean = true;
 
         if (this.filters) {
             for (let filter of this.filters) {
                 try {
-                    filter.handleError(filter.filter(ctx), ctx);
+                    await filter.handleError(await filter.filter(ctx), ctx);
                 } catch(err) {
-                    this.callExceptionHandlers(ctx, err);
+                    await this.callExceptionHandlers(ctx, err);
                     valid = false;
                 }
             }
@@ -130,14 +136,14 @@ export class Command {
         return valid;
     }
 
-    handleInterceptors(ctx: CommandContext): CommandInterceptorResponse {
+    async handleInterceptors(ctx: CommandContext): Promise<CommandInterceptorResponse> {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
         if (this.interceptors) {
             for (let interceptor of this.interceptors) {
                 try {
-                    const response: CommandInterceptorResponse = interceptor.intercept(ctx);
+                    const response: CommandInterceptorResponse = await interceptor.intercept(ctx);
 
                     if (!!response.next || response.next === undefined) continueFlow = true;
                     else if (!response.next) continueFlow = false;
@@ -168,9 +174,9 @@ export class Command {
     async call(message: Message): Promise<boolean> {
         const context: CommandContext = { command: this, message };
 
-        if (!this.handleFilters(context)) return false;
+        if (!await this.handleFilters(context)) return false;
 
-        const interceptorsResponse: CommandInterceptorResponse = this.handleInterceptors(context);
+        const interceptorsResponse: CommandInterceptorResponse = await this.handleInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
         /*if (this.cooldownEnabled && this.cooldownStore) {
