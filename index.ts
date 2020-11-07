@@ -16,6 +16,8 @@ const bot: Bot = new Bot({
 });
 
 /* TODO:
+    Testing delle novità
+
     descrizioni ai comandi
 
     altri filters
