@@ -1,10 +1,10 @@
 import Discord from 'discord.js';
 import * as yup from 'yup';
-import BotCommands from './BotCommands';
+import BotCommands from './bot/BotCommands';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } from './commands/Command';
 import { MemoryCooldownStore, RedisCooldownStore } from './utils/CooldownStores';
 import { ExceptionNoIDError } from '../errors';
-import { ExceptionDecoratorOptions, ExceptionHandler } from './ExceptionHandler';
+import { ExceptionDecoratorOptions, ExceptionHandler } from './bot/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
 

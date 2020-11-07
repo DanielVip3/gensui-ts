@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
-import { ExceptionHandler } from '../ExceptionHandler';
+import { ExceptionHandler } from '../bot/ExceptionHandler';
 
 export type CommandIdentifier = string|number;
 
@@ -103,7 +103,7 @@ export class Command {
         } else return false;
     }
 
-    async handleFilters(ctx: CommandContext): Promise<boolean> {
+    async callFilters(ctx: CommandContext): Promise<boolean> {
         let valid: boolean = true;
 
         if (this.filters) {
@@ -120,7 +120,7 @@ export class Command {
         return valid;
     }
 
-    async handleInterceptors(ctx: CommandContext): Promise<CommandInterceptorResponse> {
+    async callInterceptors(ctx: CommandContext): Promise<CommandInterceptorResponse> {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
@@ -158,9 +158,9 @@ export class Command {
     async call(message: Message): Promise<boolean> {
         const context: CommandContext = { command: this, message };
 
-        if (!await this.handleFilters(context)) return false;
+        if (!await this.callFilters(context)) return false;
 
-        const interceptorsResponse: CommandInterceptorResponse = await this.handleInterceptors(context);
+        const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
         this.handler(context);
