@@ -5,7 +5,7 @@ import { TextChannelsError } from '../errors';
 
 export default class TextChannelsFilter implements CommandFilter {
     private readonly channels: string[]|string;
-    private readonly whitelist: boolean;
+    public readonly whitelist: boolean;
 
     constructor(channels: string[]|string, whitelist: boolean = true) {
         this.channels = channels;

@@ -12,7 +12,7 @@ Also, it can't be asynchronous.
 */
 export default class InlineFilter implements CommandFilter {
     private readonly callback: InlineFilterCallback;
-    private readonly whitelist: boolean;
+    public readonly whitelist: boolean;
     
     constructor(callback: InlineFilterCallback, whitelist: boolean = true) {
         this.callback = callback;

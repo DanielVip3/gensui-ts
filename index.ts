@@ -3,7 +3,7 @@ import Bot from './classes/Bot';
 
 import { Filters } from './filters/Filters';
 import { Interceptors} from './interceptors/Interceptors';
-import { CommandCooldownError } from './errors';
+import { CooldownError } from './errors';
 import { CommandContext, CommandIdentifier } from './classes/Command';
 import { MemoryCooldownStore } from './classes/CommandCooldownStores';
 
@@ -70,7 +70,7 @@ class Commands {
     }
 
     @bot.Except({
-        exceptions: [CommandCooldownError]
+        exceptions: [CooldownError]
     })
     testErrorHandler(): void {
         console.log("test ERRORE");

@@ -3,7 +3,7 @@ import { CommandContext } from '../classes/Command';
 import { NSFWError } from '../errors';
 
 export default class NSFWFilter implements CommandFilter {
-    private readonly whitelist: boolean;
+    public readonly whitelist: boolean;
     
     constructor(whitelist: boolean = true) {
         this.whitelist = whitelist;

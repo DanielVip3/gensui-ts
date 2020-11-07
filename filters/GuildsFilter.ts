@@ -4,7 +4,7 @@ import { GuildsError } from '../errors';
 
 export default class GuildsFilter implements CommandFilter {
     private readonly guilds: string[]|string;
-    private readonly whitelist: boolean;
+    public readonly whitelist: boolean;
 
     constructor(guilds: string[]|string, whitelist: boolean = true) {
         this.guilds = guilds;

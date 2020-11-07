@@ -4,7 +4,7 @@ import { DMError } from '../errors';
 import { DMChannel } from 'discord.js';
 
 export default class DMFilter implements CommandFilter {
-    private readonly whitelist: boolean;
+    public readonly whitelist: boolean;
     
     constructor(whitelist: boolean = true) {
         this.whitelist = whitelist;
