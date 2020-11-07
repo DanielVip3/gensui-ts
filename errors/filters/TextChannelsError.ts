@@ -1,13 +1,13 @@
+import GenericFilterError from "./GenericFilterError";
+
 /* Called when NSFW filter fails */
-export default class TextChannelsError extends Error {
+export default class TextChannelsError extends GenericFilterError {
     channels: string[]|string = [];
-    whitelist: boolean = true;
 
     constructor(m: string, channels: string[]|string, whitelist: boolean) {
-        super(m);
+        super(m, whitelist);
         
         this.name = "TextChannelsError";
         if (channels) this.channels = channels;
-        if (whitelist !== undefined) this.whitelist = whitelist;
     }
 }

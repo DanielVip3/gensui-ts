@@ -1,3 +1,5 @@
+export { default as GenericFilterError } from './GenericFilterError';
+
 export { default as DMError } from './DMError';
 export { default as GuildsError } from './GuildsError';
 export { default as NSFWError } from './NSFWError';

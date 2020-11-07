@@ -1,11 +1,10 @@
-/* Called when DM filter fails */
-export default class DMError extends Error {
-    whitelist: boolean = true;
+import GenericFilterError from "./GenericFilterError";
 
+/* Called when DM filter fails */
+export default class DMError extends GenericFilterError {
     constructor(m: string, whitelist: boolean) {
-        super(m);
+        super(m, whitelist);
         
         this.name = "DMError";
-        if (whitelist !== undefined) this.whitelist = whitelist;
     }
 }

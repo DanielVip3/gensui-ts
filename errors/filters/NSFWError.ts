@@ -1,11 +1,10 @@
-/* Called when NSFW filter fails */
-export default class NSFWError extends Error {
-    whitelist: boolean = true;
+import GenericFilterError from "./GenericFilterError";
 
+/* Called when NSFW filter fails */
+export default class NSFWError extends GenericFilterError {
     constructor(m: string, whitelist: boolean) {
-        super(m);
+        super(m, whitelist);
         
         this.name = "NSFWError";
-        if (whitelist !== undefined) this.whitelist = whitelist;
     }
 }

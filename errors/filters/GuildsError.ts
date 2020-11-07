@@ -1,13 +1,13 @@
+import GenericFilterError from "./GenericFilterError";
+
 /* Called when guilds filter fails */
-export default class GuildsError extends Error {
+export default class GuildsError extends GenericFilterError {
     guilds: string[]|string = [];
-    whitelist: boolean = true;
 
     constructor(m: string, guilds: string[]|string, whitelist: boolean) {
-        super(m);
+        super(m, whitelist);
         
         this.name = "GuildsError";
         if (guilds) this.guilds = guilds;
-        if (whitelist !== undefined) this.whitelist = whitelist;
     }
 }
