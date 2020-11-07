@@ -1,4 +1,4 @@
-import { CooldownStore } from "../classes/CommandCooldownStores";
+import { CooldownStore } from "../classes/utils/CooldownStores";
 
 import CooldownInterceptor from "./CooldownInterceptor";
 

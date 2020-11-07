@@ -1,4 +1,4 @@
-import { CommandIdentifier, CommandContext } from "./Command";
+import { CommandIdentifier, CommandContext } from "./commands/Command";
 
 export interface ExceptionDecoratorOptions {
     id?: CommandIdentifier,

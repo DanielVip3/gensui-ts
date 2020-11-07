@@ -1,6 +1,6 @@
 import { Message, Client } from 'discord.js';
 import { ExceptionNoCommandError } from '../errors';
-import { Command, CommandIdentifier } from './Command';
+import { Command, CommandIdentifier } from './commands/Command';
 import { ExceptionHandler } from './ExceptionHandler';
 
 export default class BotCommands {

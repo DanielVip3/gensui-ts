@@ -1,12 +1,12 @@
 import Discord from 'discord.js';
 import * as yup from 'yup';
 import BotCommands from './BotCommands';
-import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } from './Command';
-import { MemoryCooldownStore, RedisCooldownStore } from './CommandCooldownStores';
+import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } from './commands/Command';
+import { MemoryCooldownStore, RedisCooldownStore } from './utils/CooldownStores';
 import { ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler } from './ExceptionHandler';
-import { CommandFilter } from './CommandFilter';
-import { CommandInterceptor } from './CommandInterceptor';
+import { CommandFilter } from './commands/CommandFilter';
+import { CommandInterceptor } from './commands/CommandInterceptor';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({

@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
-import { CommandNoIDError, CommandNoNameError } from '../errors';
+import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
-import { ExceptionHandler } from './ExceptionHandler';
+import { ExceptionHandler } from '../ExceptionHandler';
 
 export type CommandIdentifier = string|number;
 

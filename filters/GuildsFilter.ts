@@ -1,5 +1,5 @@
-import { CommandFilter } from '../classes/CommandFilter';
-import { CommandContext } from '../classes/Command';
+import { CommandFilter } from '../classes/commands/CommandFilter';
+import { CommandContext } from '../classes/commands/Command';
 import { GuildsError } from '../errors';
 
 export default class GuildsFilter implements CommandFilter {

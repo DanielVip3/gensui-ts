@@ -4,8 +4,8 @@ import Bot from './classes/Bot';
 import { Filters } from './filters/Filters';
 import { Interceptors} from './interceptors/Interceptors';
 import { CooldownError } from './errors';
-import { CommandContext, CommandIdentifier } from './classes/Command';
-import { MemoryCooldownStore } from './classes/CommandCooldownStores';
+import { CommandContext, CommandIdentifier } from './classes/commands/Command';
+import { MemoryCooldownStore } from './classes/utils/CooldownStores';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
@@ -20,9 +20,6 @@ const bot: Bot = new Bot({
 
     altri filters
     InlineFilter async
-
-    Interceptors
-        Exception per cooldown
 
     Consumers/Side-effects
     ^ i consumers sono le funzioni eseguite DOPO il comando che ricevono il return del comando e ne operano di conseguenza, es. settano qualcosa nel db etc.
