@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import BotCommands from './bot/BotCommands';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } from './commands/Command';
 import { ExceptionNoIDError } from '../errors';
-import { ExceptionDecoratorOptions, ExceptionHandler } from './bot/ExceptionHandler';
+import { ExceptionDecoratorOptions, ExceptionHandler } from './exception-handler/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
 import { CommandConsumer } from './commands/CommandConsumer';
