@@ -15,7 +15,7 @@ export class Consumers {
 
     public static Inline(callback: InlineConsumerCallback) {
         return new InlineConsumer(callback);
-    }   
+    }
 }
 
 export default Consumers;

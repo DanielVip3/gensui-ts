@@ -2,10 +2,11 @@ import './config/yup-locale';
 import Bot from './classes/Bot';
 
 import { Filters } from './filters/Filters';
-import { Interceptors} from './interceptors/Interceptors';
+import { Interceptors } from './interceptors/Interceptors';
 import { CooldownError } from './errors';
 import { CommandContext, CommandIdentifier } from './classes/commands/Command';
 import { MemoryCooldownStore } from './classes/utils/CooldownStores';
+import { Consumers } from './consumers/Consumers';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
@@ -20,11 +21,8 @@ const bot: Bot = new Bot({
 
     descrizioni ai comandi
 
-    altri filters
-    InlineFilter async
-
-    Consumers/Side-effects
-    ^ i consumers sono le funzioni eseguite DOPO il comando che ricevono il return del comando e ne operano di conseguenza, es. settano qualcosa nel db etc.
+    altri filters e consumers
+    InlineFilter e InlineConsumer async
 
     Transformers
     ^ i transformers sono funzioni che prendono i dati originali del comando/evento e li trasformano
@@ -62,10 +60,10 @@ class Commands {
 
     @bot.Command({
         filters: [Filters._NSFW],
-        interceptors: [Interceptors.CooldownInterceptor(new MemoryCooldownStore())]
+        interceptors: [Interceptors.Cooldown(new MemoryCooldownStore())],
+        consumers: [Consumers._Log],
     })
     testf({ command, message, data }: CommandContext): void {
-        console.log(data, message.content);
     }
 
     @bot.Except({
