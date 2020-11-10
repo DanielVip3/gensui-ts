@@ -60,6 +60,7 @@ class Commands {
         filters: [Filters._NSFW],
         interceptors: [Interceptors.Cooldown(new MemoryCooldownStore())],
         consumers: [Consumers._Log],
+        metadata: { showHelp: false, },
     })
     testf({ command, message, data }: CommandContext): void {
     }

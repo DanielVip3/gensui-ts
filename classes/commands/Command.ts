@@ -14,6 +14,7 @@ export interface CommandDecoratorOptions {
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
+    metadata?: CommandMetadata,
 }
 
 export interface CommandOptions {
@@ -27,6 +28,8 @@ export interface CommandOptions {
     handler: Function,
     /* Eventually, the method who instantiated the command (using the decorator) */
     methodName?: string,
+    
+    metadata?: CommandMetadata,
 }
 
 export interface CommandContext {
@@ -90,6 +93,8 @@ export class Command {
             else if (!Array.isArray(options.exceptions)) this.exceptions = [options.exceptions];
         }
         if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
+
+        if (options.metadata) this.metadata = options.metadata;
 
         this.handler = options.handler;
     }
