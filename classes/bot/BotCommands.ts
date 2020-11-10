@@ -1,7 +1,7 @@
 import { Message, Client } from 'discord.js';
 import { ExceptionNoCommandError } from '../../errors';
 import { Command, CommandIdentifier } from '../commands/Command';
-import { ExceptionHandler } from './ExceptionHandler';
+import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 
 export default class BotCommands {
     protected prefixValue: string|string[] = "!";
@@ -59,6 +59,10 @@ export default class BotCommands {
 
     getCommand(commandId: CommandIdentifier): Command|undefined {
         return this.commands.find(c => c.id === commandId);
+    }
+
+    getAllCommands(): Command[] {
+        return this.commands;
     }
 
     findCommand(keyword: string): Command|undefined {

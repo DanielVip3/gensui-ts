@@ -3,13 +3,14 @@ import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
 import { CommandConsumer, CommandConsumerResponse, CommandConsumerData } from './CommandConsumer';
-import { ExceptionHandler } from '../bot/ExceptionHandler';
+import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 
 export type CommandIdentifier = string|number;
 
 export interface CommandDecoratorOptions {
     id?: CommandIdentifier,
     names?: string|string[],
+    description?: string,
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
@@ -18,6 +19,7 @@ export interface CommandDecoratorOptions {
 export interface CommandOptions {
     id?: CommandIdentifier,
     names: string|string[],
+    description?: string,
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
@@ -40,6 +42,7 @@ export interface CommandMetadata {
 export class Command {
     public readonly id: CommandIdentifier;
     private _names: string[];
+    private _description?: string;
     protected filters: CommandFilter[] = [];
     protected interceptors: CommandInterceptor[] = [];
     protected consumers: CommandConsumer[] = [];
@@ -64,6 +67,8 @@ export class Command {
             checkForNames();
             this.id = options.names[0];
         }
+
+        if (options.description) this._description = options.description;
 
         if (options.filters) {
             if (Array.isArray(options.filters)) this.filters = options.filters;
@@ -91,6 +96,10 @@ export class Command {
 
     get names(): string[] {
         return this._names;
+    }
+
+    get description(): string|undefined {
+        return this._description;
     }
 
     addExceptionHandler(exceptionHandler: ExceptionHandler): boolean {
