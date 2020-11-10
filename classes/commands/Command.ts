@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
+import { CommandConsumer, CommandConsumerResponse, CommandConsumerData } from './CommandConsumer';
 import { ExceptionHandler } from '../bot/ExceptionHandler';
 
 export type CommandIdentifier = string|number;
@@ -11,6 +12,7 @@ export interface CommandDecoratorOptions {
     names?: string|string[],
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
+    consumers?: CommandConsumer[]|CommandConsumer,
 }
 
 export interface CommandOptions {
@@ -18,6 +20,7 @@ export interface CommandOptions {
     names: string|string[],
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
+    consumers?: CommandConsumer[]|CommandConsumer,
     exceptions?: ExceptionHandler[],
     handler: Function,
     /* Eventually, the method who instantiated the command (using the decorator) */
@@ -39,6 +42,7 @@ export class Command {
     private _names: string[];
     protected filters: CommandFilter[] = [];
     protected interceptors: CommandInterceptor[] = [];
+    protected consumers: CommandConsumer[] = [];
     protected exceptions: ExceptionHandler[] = [];
     private handler: Function;
     public metadata: CommandMetadata = {};
@@ -69,6 +73,11 @@ export class Command {
         if (options.interceptors) {
             if (Array.isArray(options.interceptors)) this.interceptors = options.interceptors;
             else if (!Array.isArray(options.interceptors)) this.interceptors = [options.interceptors];
+        }
+
+        if (options.consumers) {
+            if (Array.isArray(options.consumers)) this.consumers = options.consumers;
+            else if (!Array.isArray(options.consumers)) this.consumers = [options.consumers];
         }
 
         if (options.exceptions) {
@@ -155,6 +164,41 @@ export class Command {
         } as CommandInterceptorResponse;
     }
 
+    async callConsumers(ctx: CommandContext, returnData: any): Promise<CommandConsumerResponse> {
+        let continueFlow: boolean = true;
+        let mergedData: object = {};
+
+        if (this.consumers) {
+            for (let consumer of this.consumers) {
+                try {
+                    const response: CommandConsumerResponse = await consumer.consume(ctx, returnData);
+
+                    if (!!response.next || response.next === undefined) continueFlow = true;
+                    else if (!response.next) continueFlow = false;
+                    else continueFlow = true;
+
+                    if (!response.data || typeof response.data !== "object") continue;
+                    mergedData = {
+                        ...mergedData,
+                        ...response.data,
+                    };
+
+                    ctx.data = mergedData;
+                } catch(err) {
+                    await this.callExceptionHandlers(ctx, err);
+                    continueFlow = false;
+
+                    break;
+                }
+            }
+        }
+        
+        return {
+            next: continueFlow,
+            data: mergedData
+        } as CommandConsumerResponse;
+    }
+
     async call(message: Message): Promise<boolean> {
         const context: CommandContext = { command: this, message };
 
@@ -163,7 +207,10 @@ export class Command {
         const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
-        this.handler(context);
+        const returned: any = await this.handler(context);
+
+        const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
+        if (!consumersResponse || !consumersResponse.next) return false;
 
         return true;
     }

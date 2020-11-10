@@ -1,12 +1,13 @@
 import Discord from 'discord.js';
 import * as yup from 'yup';
+
 import BotCommands from './bot/BotCommands';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } from './commands/Command';
-import { MemoryCooldownStore, RedisCooldownStore } from './utils/CooldownStores';
 import { ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler } from './bot/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
+import { CommandConsumer } from './commands/CommandConsumer';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -116,6 +117,7 @@ export default class Bot extends BotCommands {
 
             let filters: CommandFilter[] = [];
             let interceptors: CommandInterceptor[] = [];
+            let consumers: CommandConsumer[] = [];
 
             if (options) {
                 if (options.names) {
@@ -132,6 +134,11 @@ export default class Bot extends BotCommands {
                     if (Array.isArray(options.interceptors)) interceptors = options.interceptors;
                     else if (!Array.isArray(options.interceptors)) interceptors = [options.interceptors];
                 }
+
+                if (options.consumers) {
+                    if (Array.isArray(options.consumers)) consumers = options.consumers;
+                    else if (!Array.isArray(options.consumers)) consumers = [options.consumers];
+                }
             }
 
             this.addCommand(new Command({
@@ -140,6 +147,7 @@ export default class Bot extends BotCommands {
                 methodName: propertyKey,
                 filters: filters,
                 interceptors: interceptors,
+                consumers: consumers,
                 handler: descriptor.value,
             } as CommandOptions));
         };
@@ -153,9 +161,6 @@ export default class Bot extends BotCommands {
         ) => {
             if (!options.id && (!Array.isArray(options.id) || options.id.length <= 0) && (!target.IDAccessValueName || !target[target.IDAccessValueName])) throw new ExceptionNoIDError(`Exception handler (${propertyKey}) must have an \`id\` property which specifies the command to handle. You can also use @Scope decorator.`);
             if (!options.id && target[target.IDAccessValueName]) options.id = target[target.IDAccessValueName];
-
-            let exceptionsToIntercept: Error[] = [];
-            if (options.exceptions) exceptionsToIntercept = options.exceptions.filter(e => e.prototype && e.prototype instanceof Error);
 
             if (Array.isArray(options.id)) {
                 for (let idV of options.id) {
