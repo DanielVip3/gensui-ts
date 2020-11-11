@@ -1,12 +1,14 @@
 import { Message } from 'discord.js';
 import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
-import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
+import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterceptor';
 import { CommandConsumer, CommandConsumerResponse } from './CommandConsumer';
 import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
+import { CommandContext } from './CommandContext';
+
+export { CommandContext, CommandContextData } from './CommandContext';
 
 export type CommandIdentifier = string|number;
-
 export interface CommandDecoratorOptions {
     id?: CommandIdentifier,
     names?: string|string[],
@@ -15,7 +17,7 @@ export interface CommandDecoratorOptions {
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
     metadata?: CommandMetadata,
-}
+};
 
 export interface CommandOptions {
     id?: CommandIdentifier,
@@ -30,13 +32,7 @@ export interface CommandOptions {
     methodName?: string,
     
     metadata?: CommandMetadata,
-}
-
-export interface CommandContext {
-    command: Command,
-    message: Message,
-    data?: CommandInterceptorData,
-}
+};
 
 export interface CommandMetadata {
     [key: string]: any;

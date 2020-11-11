@@ -1,12 +1,8 @@
-import { CommandContext } from "./Command";
-
-export interface CommandConsumerData {
-    [key: string]: any;
-}
+import { CommandContext, CommandContextData } from "./Command";
 
 export interface CommandConsumerResponse {
     next: boolean,
-    data?: CommandConsumerData,
+    data?: CommandContextData,
 };
 
 export abstract class CommandConsumer {
