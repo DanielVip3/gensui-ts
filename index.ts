@@ -22,9 +22,6 @@ const bot: Bot = new Bot({
     altri filters, interceptors e consumers
     InlineFilter, InlineInterceptors e InlineConsumer async
 
-    Transformers
-    ^ i transformers sono funzioni che prendono i dati originali del comando/evento e li trasformano
-
     Filters, interceptors e consumers globali
 
     Eventi
