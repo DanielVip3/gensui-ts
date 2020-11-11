@@ -2,13 +2,12 @@ import { CommandInterceptor, CommandInterceptorResponse } from '../classes/comma
 import { CommandContext } from '../classes/commands/Command';
 
 export interface InlineInterceptorCallback {
-    (ctx: CommandContext): CommandInterceptorResponse
+    (ctx: CommandContext): CommandInterceptorResponse|Promise<CommandInterceptorResponse>,
 };
 
 /*
 A simple interceptor which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this interceptor (for now).
-Also, it can't be asynchronous.
 */
 export default class InlineInterceptor implements CommandInterceptor {
     private readonly callback: InlineInterceptorCallback;
@@ -17,7 +16,7 @@ export default class InlineInterceptor implements CommandInterceptor {
         this.callback = callback;
     }
 
-    public intercept(ctx: CommandContext): CommandInterceptorResponse {
-        return this.callback(ctx);
+    public async intercept(ctx: CommandContext): Promise<CommandInterceptorResponse> {
+        return await this.callback(ctx);
     }
 };

@@ -20,7 +20,6 @@ const bot: Bot = new Bot({
     Testing delle novità
 
     altri filters, interceptors e consumers
-    InlineFilter, InlineInterceptors e InlineConsumer async
 
     Eventi
         Interceptors per eventi (solo custom, niente di pre-esistente)

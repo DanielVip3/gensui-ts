@@ -2,13 +2,12 @@ import { CommandConsumer, CommandConsumerResponse } from '../classes/commands/Co
 import { CommandContext } from '../classes/commands/Command';
 
 export interface InlineConsumerCallback {
-    (ctx: CommandContext, returnData: any): CommandConsumerResponse
+    (ctx: CommandContext, returnData: any): CommandConsumerResponse|Promise<CommandConsumerResponse>,
 };
 
 /*
 A simple consumer which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this consumer (for now).
-Also, it can't be asynchronous.
 */
 export default class InlineConsumer implements CommandConsumer {
     private readonly callback: InlineConsumerCallback;
@@ -17,7 +16,7 @@ export default class InlineConsumer implements CommandConsumer {
         this.callback = callback;
     }
 
-    public consume(ctx: CommandContext, returnData: any): CommandConsumerResponse {
-        return this.callback(ctx, returnData);
+    public async consume(ctx: CommandContext, returnData: any): Promise<CommandConsumerResponse> {
+        return await this.callback(ctx, returnData);
     }
 };
