@@ -6,8 +6,8 @@ import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } f
 import { ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler } from './exception-handler/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
-import { CommandInterceptorGeneric } from './commands/CommandInterceptor';
-import { CommandConsumerGeneric } from './commands/CommandConsumer';
+import { CommandInterceptor } from './commands/CommandInterceptor';
+import { CommandConsumer } from './commands/CommandConsumer';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -116,8 +116,8 @@ export default class Bot extends BotCommands {
             else if (useFunctionNameAsCommandName === undefined && !propertyKey.startsWith("_")) commandNames.push(propertyKey);
 
             let filters: CommandFilter[] = [];
-            let interceptors: CommandInterceptorGeneric[] = [];
-            let consumers: CommandConsumerGeneric[] = [];
+            let interceptors: CommandInterceptor[] = [];
+            let consumers: CommandConsumer[] = [];
 
             if (options) {
                 if (options.names) {

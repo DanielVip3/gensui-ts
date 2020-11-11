@@ -9,8 +9,6 @@ export interface CommandConsumerResponse {
     data?: CommandConsumerData,
 };
 
-export type CommandConsumerGeneric = CommandConsumer|CommandSideEffect;
-
 export abstract class CommandConsumer {
     public abstract consume(context: CommandContext, returnData: any, ...any: []): CommandConsumerResponse|Promise<CommandConsumerResponse>;
 };

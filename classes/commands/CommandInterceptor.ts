@@ -9,8 +9,6 @@ export interface CommandInterceptorResponse {
     data?: CommandInterceptorData,
 };
 
-export type CommandInterceptorGeneric = CommandInterceptor|CommandTransformer;
-
 export abstract class CommandInterceptor {
     public abstract intercept(context: CommandContext, ...any: []): CommandInterceptorResponse|Promise<CommandInterceptorResponse>;
 };
