@@ -1,6 +1,10 @@
 import { Message, Client } from 'discord.js';
 import { ExceptionNoCommandError } from '../../errors';
+import { GlobalHookError } from '../../errors/bot';
 import { Command, CommandIdentifier } from '../commands/Command';
+import { CommandConsumer } from '../commands/CommandConsumer';
+import { CommandFilter } from '../commands/CommandFilter';
+import { CommandInterceptor } from '../commands/CommandInterceptor';
 import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 
 export default class BotCommands {
@@ -8,6 +12,9 @@ export default class BotCommands {
     protected client: Client;
     protected enableMentionHandling: boolean = false;
     protected commands: Command[] = [];
+    public readonly globalFilters: CommandFilter[] = [];
+    public readonly globalInterceptors: CommandInterceptor[] = [];
+    public readonly globalConsumers: CommandConsumer[] = [];
 
     constructor(startingCommands?: Command|Command[]) {
         if (startingCommands) {
@@ -32,6 +39,30 @@ export default class BotCommands {
         this.enableMentionHandling = enabled;
     }
 
+    addGlobalFilter(filter: CommandFilter): boolean {
+        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new GlobalHookError("Global filter(s) must be added before creating any command.");
+
+        this.globalFilters.push(filter);
+
+        return true;
+    }
+
+    addGlobalInterceptor(interceptor: CommandInterceptor): boolean {
+        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new GlobalHookError("Global interceptor(s) must be added before creating any command.");
+
+        this.globalInterceptors.push(interceptor);
+
+        return true;
+    }
+
+    addGlobalConsumer(consumer: CommandConsumer): boolean {
+        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new GlobalHookError("Global consumer(s) must be added before creating any command.");
+
+        this.globalConsumers.push(consumer);
+
+        return true;
+    }
+
     addExceptionHandler(exceptionHandler: ExceptionHandler): boolean {
         if (!exceptionHandler.id) return false;
         const command: Command|undefined = this.getCommand(exceptionHandler.id);
@@ -43,6 +74,8 @@ export default class BotCommands {
     }
 
     addCommand(command: Command): Command {
+        if (!command.bot) command.bot = this;
+
         this.commands.push(command);
 
         return command;
@@ -90,14 +123,15 @@ export default class BotCommands {
             }
         }
 
+        let command: Command|undefined;
         if (startsWithPrefix) {
-            const command: Command|undefined = await this.findCommand(firstWord.replace(actualCommandPrefix, ""));
-            if (command && command.call) command.call(message);
-
-            return command;
+            command = await this.findCommand(firstWord.replace(actualCommandPrefix, ""));
         } else if (this.enableMentionHandling && client && client.user && message.mentions && message.mentions.has(client.user.id) && message.content.startsWith(`<@${client.user.id}>`)) {
-            const command: Command|undefined = await this.findCommand(firstWord.replace(`<@${client.user.id}> `, ""));
-            if (command && command.call) command.call(message);
+            command = await this.findCommand(firstWord.replace(`<@${client.user.id}> `, ""));
+        }
+
+        if (command && command.call) {
+            command.call(message);
 
             return command;
         }

@@ -22,8 +22,6 @@ const bot: Bot = new Bot({
     altri filters, interceptors e consumers
     InlineFilter, InlineInterceptors e InlineConsumer async
 
-    Filters, interceptors e consumers globali
-
     Eventi
         Interceptors per eventi (solo custom, niente di pre-esistente)
         Consumers per eventi (solo custom, niente di pre-esistente)

@@ -1,4 +1,5 @@
 import { Message } from 'discord.js';
+import BotCommands from '../bot/BotCommands';
 import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterceptor';
@@ -9,6 +10,17 @@ import { CommandContext } from './CommandContext';
 export { CommandContext, CommandContextData } from './CommandContext';
 
 export type CommandIdentifier = string|number;
+
+export interface CommandMetadata {
+    [key: string]: any;
+};
+
+export interface CommandGlobalOptions {
+    filters?: CommandFilter[],
+    interceptors?: CommandInterceptor[],
+    consumers?: CommandConsumer[]
+};
+
 export interface CommandDecoratorOptions {
     id?: CommandIdentifier,
     names?: string|string[],
@@ -20,6 +32,7 @@ export interface CommandDecoratorOptions {
 };
 
 export interface CommandOptions {
+    bot?: BotCommands,
     id?: CommandIdentifier,
     names: string|string[],
     description?: string,
@@ -34,11 +47,8 @@ export interface CommandOptions {
     metadata?: CommandMetadata,
 };
 
-export interface CommandMetadata {
-    [key: string]: any;
-};
-
 export class Command {
+    public bot: BotCommands;
     public readonly id: CommandIdentifier;
     private _names: string[];
     private _description?: string;
@@ -50,6 +60,8 @@ export class Command {
     public metadata: CommandMetadata = {};
 
     constructor(options: CommandOptions) {
+        if (options.bot) this.bot = options.bot;
+
         /* Checks names for eventual errors and sets the _names array */
         const checkForNames: Function = () => {
             if (!options.names || options.names.length <= 0) throw new CommandNoNameError(`Command${this.id ? ` (id ${this.id})` : (options && options.methodName ? ` (method ${options.methodName})` : "")} must have at least one name.`, this.id);
@@ -89,6 +101,12 @@ export class Command {
             else if (!Array.isArray(options.exceptions)) this.exceptions = [options.exceptions];
         }
         if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
+
+        if (this.bot) {
+            if (this.bot.globalFilters) this.filters.unshift(...this.bot.globalFilters);
+            if (this.bot.globalInterceptors) this.interceptors.unshift(...this.bot.globalInterceptors);
+            if (this.bot.globalConsumers) this.consumers.unshift(...this.bot.globalConsumers);
+        }
 
         if (options.metadata) this.metadata = options.metadata;
 
