@@ -29,7 +29,7 @@ const bot: Bot = new Bot({
 
     Eventi
         Interceptors per eventi (solo custom, niente di pre-esistente)
-        Transformers per eventi (solo custom, niente di pre-esistente)
+        Consumers per eventi (solo custom, niente di pre-esistente)
 
     Injectables
         DB e DB injection nelle classi

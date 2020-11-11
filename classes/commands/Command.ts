@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse, CommandInterceptorData } from './CommandInterceptor';
-import { CommandConsumer, CommandConsumerResponse, CommandConsumerData } from './CommandConsumer';
+import { CommandConsumer, CommandConsumerResponse } from './CommandConsumer';
 import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 
 export type CommandIdentifier = string|number;
