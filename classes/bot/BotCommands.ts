@@ -9,7 +9,6 @@ import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 
 export default class BotCommands {
     protected prefixValue: string|string[] = "!";
-    protected client: Client;
     protected enableMentionHandling: boolean = false;
     protected commands: Command[] = [];
     public readonly globalFilters: CommandFilter[] = [];
