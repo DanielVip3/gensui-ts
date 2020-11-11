@@ -39,9 +39,9 @@ const BotOptionsSchema = yup.object({
 type BotOptions = yup.InferType<typeof BotOptionsSchema>;
 
 export default class Bot extends BotCommands {
-    errored: boolean = false;
-    options: BotOptions;
-    client: Discord.Client;
+    protected errored: boolean = false;
+    public readonly options: BotOptions;
+    public client: Discord.Client;
 
     constructor(options: BotOptions, readyHandler?: Function) {
         super();
