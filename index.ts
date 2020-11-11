@@ -25,6 +25,8 @@ const bot: Bot = new Bot({
     Transformers
     ^ i transformers sono funzioni che prendono i dati originali del comando/evento e li trasformano
 
+    Filters, interceptors e consumers globali
+
     Eventi
         Interceptors per eventi (solo custom, niente di pre-esistente)
         Transformers per eventi (solo custom, niente di pre-esistente)
@@ -45,8 +47,6 @@ const bot: Bot = new Bot({
     ^ wrappers di eventi più complicati uniti assieme (es. guildMemberUpdate) per definire eventi unici più semplici (es. il cambio di canale vocale, proveniente da un guildMemberUpdate)
 
     Sistema per conservare variabili critiche es. id dei ruoli, id dei canali, id dei servers etc.
-
-    Sistema per organizzare i comandi etc. in cartelle e realizzare poi un help o compendio totale
 
     Sistema di internazionalizzazione per-server o per-utente (I18N) per le descrizioni dei comandi e gli errori
 
