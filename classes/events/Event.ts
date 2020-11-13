@@ -2,6 +2,9 @@ import { ClientEvents } from 'discord.js';
 import { EventAlreadyExistingIDError, EventNoIDError, EventNoTypeError } from '../../errors/events';
 import BotEvents from '../bot/BotEvents';
 import { EventContext } from './EventContext';
+import { EventFilter } from './EventFilter';
+import { EventInterceptor, EventInterceptorResponse } from './EventInterceptor';
+import { EventConsumer, EventConsumerResponse } from './EventConsumer';
 
 export { EventContext, EventContextData } from './EventContext';
 
