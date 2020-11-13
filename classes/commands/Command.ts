@@ -41,6 +41,7 @@ export interface CommandOptions {
     consumers?: CommandConsumer[]|CommandConsumer,
     exceptions?: CommandExceptionHandler[],
     handler: (context: CommandContext) => any|void,
+    
     /* Eventually, the method who instantiated the command (using the decorator) */
     methodName?: string,
     

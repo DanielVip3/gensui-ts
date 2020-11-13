@@ -50,9 +50,9 @@ class Commands {
     @bot.Scope(1) id: CommandIdentifier;
 
     @bot.Apply(
-        Filters._NSFW,
-        Interceptors.Cooldown(new MemoryCooldownStore()),
-        Consumers._Log
+        Filters.Commands._NSFW,
+        Interceptors.Commands.Cooldown(new MemoryCooldownStore()),
+        Consumers.Commands._Log
     )
     @bot.Metadata({ showHelp: false })
     @bot.Command()
@@ -60,9 +60,12 @@ class Commands {
         console.log(data);
     }
 
+    @bot.Apply(
+        Consumers.Commands._Log
+    )
     @bot.Event()
-    guildMemberUpdate([message]: EventPayload<"message">, update: EventContext): void {
-        console.log(message, update);
+    guildMemberUpdate([oldMember, newMember]: EventPayload<"guildMemberUpdate">, update: EventContext): void {
+        // console.log(oldMember.displayName, newMember.displayName, update);
     }
 }
 

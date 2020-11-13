@@ -1,8 +1,8 @@
-import { CommandConsumer, CommandConsumerResponse } from '../classes/commands/CommandConsumer';
-import { CommandContext } from '../classes/commands/Command';
+import { CommandConsumer, CommandConsumerResponse } from '../../classes/commands/CommandConsumer';
+import { CommandContext } from '../../classes/commands/Command';
 
 export interface InlineConsumerCallback {
-    (ctx: CommandContext, returnData: any): CommandConsumerResponse|Promise<CommandConsumerResponse>,
+    (ctx: CommandContext, returnData?: any): CommandConsumerResponse|Promise<CommandConsumerResponse>,
 };
 
 /*
@@ -16,7 +16,7 @@ export default class InlineConsumer implements CommandConsumer {
         this.callback = callback;
     }
 
-    public async consume(ctx: CommandContext, returnData: any): Promise<CommandConsumerResponse> {
+    public async consume(ctx: CommandContext, returnData?: any): Promise<CommandConsumerResponse> {
         return await this.callback(ctx, returnData);
     }
 };

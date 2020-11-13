@@ -1,5 +1,5 @@
-import { CommandInterceptor, CommandInterceptorResponse } from '../classes/commands/CommandInterceptor';
-import { CommandContext } from '../classes/commands/Command';
+import { CommandInterceptor, CommandInterceptorResponse } from '../../classes/commands/CommandInterceptor';
+import { CommandContext } from '../../classes/commands/Command';
 
 export interface InlineInterceptorCallback {
     (ctx: CommandContext): CommandInterceptorResponse|Promise<CommandInterceptorResponse>,

@@ -1,6 +1,6 @@
-import { CommandFilter } from '../classes/commands/CommandFilter';
-import { CommandContext } from '../classes/commands/Command';
-import { DMError } from '../errors';
+import { CommandFilter } from '../../classes/commands/CommandFilter';
+import { CommandContext } from '../../classes/commands/Command';
+import { DMError } from '../../errors';
 import { DMChannel } from 'discord.js';
 
 export default class DMFilter implements CommandFilter {

@@ -1,5 +1,5 @@
-import { CommandFilter } from '../classes/commands/CommandFilter';
-import { CommandContext } from '../classes/commands/Command';
+import { CommandFilter } from '../../classes/commands/CommandFilter';
+import { CommandContext } from '../../classes/commands/Command';
 
 export interface InlineFilterCallback {
     (ctx: CommandContext): boolean|Promise<boolean>,

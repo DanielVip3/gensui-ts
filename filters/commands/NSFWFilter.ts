@@ -1,6 +1,6 @@
-import { CommandFilter } from '../classes/commands/CommandFilter';
-import { CommandContext } from '../classes/commands/Command';
-import { NSFWError } from '../errors';
+import { CommandFilter } from '../../classes/commands/CommandFilter';
+import { CommandContext } from '../../classes/commands/Command';
+import { NSFWError } from '../../errors';
 
 export default class NSFWFilter implements CommandFilter {
     public readonly whitelist: boolean;

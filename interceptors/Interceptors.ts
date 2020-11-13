@@ -1,17 +1,26 @@
 import { CooldownStore } from "../classes/utils/CooldownStores";
 
-import CooldownInterceptor from "./CooldownInterceptor";
-import { default as InlineInterceptor, InlineInterceptorCallback } from './InlineInterceptor';
+import CooldownInterceptor from "./commands/CooldownInterceptor";
+import { default as InlineCommandInterceptor, InlineInterceptorCallback as InlineCommandInterceptorCallback } from './commands/InlineInterceptor';
+import { default as InlineEventInterceptor, InlineInterceptorCallback as InlineEventInterceptorCallback } from './events/InlineInterceptor';
 
-export * as CooldownInterceptor from './CooldownInterceptor';
+export * as CooldownInterceptor from './commands/CooldownInterceptor';
 
-export class Interceptors {
-    public static Cooldown(store: CooldownStore): CooldownInterceptor {
-        return new CooldownInterceptor(store);
+export namespace Interceptors {
+    export class Commands {
+        public static Cooldown(store: CooldownStore): CooldownInterceptor {
+            return new CooldownInterceptor(store);
+        }
+        
+        public static Inline(callback: InlineCommandInterceptorCallback) {
+            return new InlineCommandInterceptor(callback);
+        }
     }
-    
-    public static Inline(callback: InlineInterceptorCallback) {
-        return new InlineInterceptor(callback);
+
+    export class Events {
+        public static Inline(callback: InlineEventInterceptorCallback) {
+            return new InlineEventInterceptor(callback);
+        }
     }
 }
 

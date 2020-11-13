@@ -1,7 +1,7 @@
-import { CommandFilter } from '../classes/commands/CommandFilter';
-import { CommandContext } from '../classes/commands/Command';
+import { CommandFilter } from '../../classes/commands/CommandFilter';
+import { CommandContext } from '../../classes/commands/Command';
 import { DMChannel } from 'discord.js';
-import { TextChannelsError } from '../errors';
+import { TextChannelsError } from '../../errors';
 
 export default class TextChannelsFilter implements CommandFilter {
     private readonly channels: string[]|string;

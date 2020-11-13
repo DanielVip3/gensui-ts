@@ -1,6 +1,6 @@
-import { CommandFilter } from '../classes/commands/CommandFilter';
-import { CommandContext } from '../classes/commands/Command';
-import { GuildsError } from '../errors';
+import { CommandFilter } from '../../classes/commands/CommandFilter';
+import { CommandContext } from '../../classes/commands/Command';
+import { GuildsError } from '../../errors';
 
 export default class GuildsFilter implements CommandFilter {
     private readonly guilds: string[]|string;

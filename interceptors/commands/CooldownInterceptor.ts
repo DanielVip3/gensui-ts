@@ -1,7 +1,7 @@
-import { CommandContext } from "../classes/commands/Command";
-import { CooldownStore, CooldownStoreObject } from "../classes/utils/CooldownStores";
-import { CommandInterceptor, CommandInterceptorResponse } from "../classes/commands/CommandInterceptor";
-import { CooldownError } from "../errors";
+import { CommandContext } from "../../classes/commands/Command";
+import { CooldownStore, CooldownStoreObject } from "../../classes/utils/CooldownStores";
+import { CommandInterceptor, CommandInterceptorResponse } from "../../classes/commands/CommandInterceptor";
+import { CooldownError } from "../../errors";
 
 export default class CooldownInterceptor implements CommandInterceptor {
     store: CooldownStore;

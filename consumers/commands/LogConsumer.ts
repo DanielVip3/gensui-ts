@@ -1,5 +1,5 @@
-import { CommandContext } from "../classes/commands/Command";
-import { CommandConsumer, CommandConsumerResponse } from "../classes/commands/CommandConsumer";
+import { CommandContext } from "../../classes/commands/Command";
+import { CommandConsumer, CommandConsumerResponse } from "../../classes/commands/CommandConsumer";
 
 export default class LogConsumer implements CommandConsumer {
     private readonly customText?: string;
