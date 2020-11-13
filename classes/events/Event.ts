@@ -1,18 +1,22 @@
+import { ClientEvents } from 'discord.js';
 import { EventNoIDError, EventNoTypeError } from '../../errors/events';
+import { EventContext } from './EventContext';
 
 export type EventIdentifier = string|number;
+export type EventTypes = keyof ClientEvents;
 
 export interface EventOptions {
     id?: EventIdentifier,
-    type: string|string[],
+    type: EventTypes|EventTypes[],
     handler: Function,
+
     /* Eventually, the method who instantiated the event (using the decorator) */
     methodName?: string,
 };
 
 export class Event {
     public readonly id: EventIdentifier;
-    private types: string|string[];
+    public readonly types: EventTypes[];
     private handler: Function;
 
     constructor(options: EventOptions) {
@@ -22,28 +26,26 @@ export class Event {
 
         if (!options.type || (typeof options.type !== "string" && !Array.isArray(options.type))) throw new EventNoTypeError(`An event (ID ${options.id}) has been created without at least a type.`);
         else {
-            if (typeof options.type === "string") this.types = [options.type];
-            else if (Array.isArray(options.type)) this.types = options.type;
+            if (!Array.isArray(options.type)) this.types = [options.type];
+            else this.types = options.type;
         }
 
         this.handler = options.handler;
     }
 
-    /*
-    async call(message: Message): Promise<boolean> {
-        const context: CommandContext = { command: this, message };
+    async call(...any: any[]): Promise<boolean> {
+        const context: EventContext = { event: this, ...any };
 
-        if (!await this.callFilters(context)) return false;
+        // if (!await this.callFilters(context)) return false;
 
-        const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
-        if (!interceptorsResponse || !interceptorsResponse.next) return false;
+        // const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
+        // if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
         const returned: any = await this.handler(context);
 
-        const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
-        if (!consumersResponse || !consumersResponse.next) return false;
+        // const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
+        // if (!consumersResponse || !consumersResponse.next) return false;
 
         return true;
     }
-    */
 }

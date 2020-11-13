@@ -1,6 +1,8 @@
+import { Client } from "discord.js";
 import { Event, EventIdentifier } from "../events/Event";
 
 export default class BotEvents {
+    protected client: Client;
     protected events: Event[] = [];
 
     constructor(startingEvents?: Event|Event[]) {
@@ -13,6 +15,10 @@ export default class BotEvents {
     addEvent(event: Event): Event {
         this.events.push(event);
 
+        if (this.client) for (let type of event.types) {
+            this.client.on(type, event.call);
+        }
+
         return event;
     }
 
@@ -21,6 +27,10 @@ export default class BotEvents {
         const event: Event = this.events[eventIndex];
 
         this.events.splice(eventIndex, 1);
+
+        if (this.client) for (let type of event.types) {
+            this.client.removeListener(type, event.call);
+        }
 
         return event;
     }
