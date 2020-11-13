@@ -9,6 +9,9 @@ import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
 import { CommandConsumer } from './commands/CommandConsumer';
 import { Event, EventDecoratorOptions, EventOptions, EventTypes } from './events/Event';
+import { EventFilter } from './events/EventFilter';
+import { EventInterceptor } from './events/EventInterceptor';
+import { EventConsumer } from './events/EventConsumer';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -138,7 +141,21 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Filter(...filters: CommandFilter[]) {
+    Apply(...hooks: (CommandFilter|EventFilter|CommandInterceptor|EventInterceptor|CommandConsumer|EventConsumer)[]) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            for (let hook of hooks) {
+                if (hook instanceof CommandFilter || hook instanceof EventFilter) this.Filter(...hook);
+                else if (hook instanceof CommandInterceptor || hook instanceof EventInterceptor) this.Interceptor(...hook);
+                else if (hook instanceof CommandConsumer || hook instanceof EventConsumer) this.Consumer(...hook);
+            }
+        };
+    }
+
+    Filter(...filters: CommandFilter[]|EventFilter[]) {
         return (
             target: any,
             propertyKey: string,
@@ -155,7 +172,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Interceptor(...interceptors: CommandInterceptor[]) {
+    Interceptor(...interceptors: CommandInterceptor[]|EventInterceptor[]) {
         return (
             target: any,
             propertyKey: string,
@@ -172,7 +189,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Consumer(...consumers: CommandConsumer[]) {
+    Consumer(...consumers: CommandConsumer[]|EventConsumer[]) {
         return (
             target: any,
             propertyKey: string,

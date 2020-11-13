@@ -50,9 +50,11 @@ const bot: Bot = new Bot({
 class Commands {
     @bot.Scope(1) id: CommandIdentifier;
 
-    @bot.Filter(Filters._NSFW)
-    @bot.Interceptor(Interceptors.Cooldown(new MemoryCooldownStore()))
-    @bot.Consumer(Consumers._Log)
+    @bot.Apply(
+        Filters._NSFW,
+        Interceptors.Cooldown(new MemoryCooldownStore()),
+        Consumers._Log
+    )
     @bot.Metadata({ showHelp: false })
     @bot.Command()
     testf({ command, message, data }: CommandContext): void {
