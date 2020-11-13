@@ -16,9 +16,9 @@ export interface EventDecoratorOptions {
     id?: EventIdentifier,
     type?: EventTypes|EventTypes[],
     once?: boolean,
-    filters?: EventFilter[]|EventFilter,
-    interceptors?: EventInterceptor[]|EventInterceptor,
-    consumers?: EventConsumer[]|EventConsumer,
+    filters?: EventFilter<any>[]|EventFilter<any>,
+    interceptors?: EventInterceptor<any>[]|EventInterceptor<any>,
+    consumers?: EventConsumer<any>[]|EventConsumer<any>,
 };
 
 export interface EventOptions {
@@ -26,9 +26,9 @@ export interface EventOptions {
     id?: EventIdentifier,
     type: EventTypes|EventTypes[],
     once?: boolean,
-    filters?: EventFilter[]|EventFilter,
-    interceptors?: EventInterceptor[]|EventInterceptor,
-    consumers?: EventConsumer[]|EventConsumer,
+    filters?: EventFilter<any>[]|EventFilter<any>,
+    interceptors?: EventInterceptor<any>[]|EventInterceptor<any>,
+    consumers?: EventConsumer<any>[]|EventConsumer<any>,
     exceptions?: EventExceptionHandler[],
     handler: Function,
 
@@ -41,9 +41,9 @@ export class Event {
     public readonly id: EventIdentifier;
     public readonly types: EventTypes[];
     public readonly once: boolean = false;
-    protected filters: EventFilter[] = [];
-    protected interceptors: EventInterceptor[] = [];
-    protected consumers: EventConsumer[] = [];
+    protected filters: EventFilter<any>[] = [];
+    protected interceptors: EventInterceptor<any>[] = [];
+    protected consumers: EventConsumer<any>[] = [];
     protected exceptions: EventExceptionHandler[] = [];
     private handler: Function;
 
