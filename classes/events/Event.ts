@@ -3,6 +3,8 @@ import { EventAlreadyExistingIDError, EventNoIDError, EventNoTypeError } from '.
 import BotEvents from '../bot/BotEvents';
 import { EventContext } from './EventContext';
 
+export { EventContext, EventContextData } from './EventContext';
+
 export type EventIdentifier = string|number;
 export type EventTypes = keyof ClientEvents;
 
@@ -28,6 +30,9 @@ export class Event {
     public readonly id: EventIdentifier;
     public readonly types: EventTypes[];
     public readonly once: boolean = false;
+    protected filters: EventFilter[] = [];
+    protected interceptors: EventInterceptor[] = [];
+    protected consumers: EventConsumer[] = [];
     private handler: Function;
 
     constructor(options: EventOptions) {
@@ -50,10 +55,101 @@ export class Event {
         this.handler = options.handler;
     }
 
+    async callExceptionHandlers(ctx: EventContext, err: Error) {
+
+    }
+
+    async callFilters(ctx: EventContext): Promise<boolean> {
+        let valid: boolean = true;
+
+        if (this.filters) {
+            for (let filter of this.filters) {
+                try {
+                    await filter.handleError(await filter.filter(ctx), ctx);
+                } catch(err) {
+                    await this.callExceptionHandlers(ctx, err);
+                    valid = false;
+                }
+            }
+        }
+
+        return valid;
+    }
+
+    async callInterceptors(ctx: EventContext): Promise<EventInterceptorResponse> {
+        let continueFlow: boolean = true;
+        let mergedData: object = {};
+
+        if (this.interceptors) {
+            for (let interceptor of this.interceptors) {
+                try {
+                    const response: EventInterceptorResponse = await interceptor.intercept(ctx);
+
+                    if (!!response.next || response.next === undefined) continueFlow = true;
+                    else if (!response.next) continueFlow = false;
+                    else continueFlow = true;
+
+                    if (!response.data || typeof response.data !== "object") continue;
+                    mergedData = {
+                        ...mergedData,
+                        ...response.data,
+                    };
+
+                    ctx.data = mergedData;
+                } catch(err) {
+                    await this.callExceptionHandlers(ctx, err);
+                    continueFlow = false;
+
+                    break;
+                }
+            }
+        }
+        
+        return {
+            next: continueFlow,
+            data: mergedData
+        } as EventInterceptorResponse;
+    }
+
+    async callConsumers(ctx: EventContext, returnData: any): Promise<EventConsumerResponse> {
+        let continueFlow: boolean = true;
+        let mergedData: object = {};
+
+        if (this.consumers) {
+            for (let consumer of this.consumers) {
+                try {
+                    const response: EventConsumerResponse = await consumer.consume(ctx, returnData);
+
+                    if (!!response.next || response.next === undefined) continueFlow = true;
+                    else if (!response.next) continueFlow = false;
+                    else continueFlow = true;
+
+                    if (!response.data || typeof response.data !== "object") continue;
+                    mergedData = {
+                        ...mergedData,
+                        ...response.data,
+                    };
+
+                    ctx.data = mergedData;
+                } catch(err) {
+                    await this.callExceptionHandlers(ctx, err);
+                    continueFlow = false;
+
+                    break;
+                }
+            }
+        }
+        
+        return {
+            next: continueFlow,
+            data: mergedData
+        } as EventConsumerResponse;
+    }
+
     async call(...any: any[]): Promise<boolean> {
         const context: EventContext = { event: this, ...any };
 
-        // if (!await this.callFilters(context)) return false;
+        if (!await this.callFilters(context)) return false;
 
         // const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
         // if (!interceptorsResponse || !interceptorsResponse.next) return false;
