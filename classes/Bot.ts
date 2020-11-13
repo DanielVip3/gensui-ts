@@ -2,7 +2,7 @@ import Discord from 'discord.js';
 import * as yup from 'yup';
 
 import BotCommands from './bot/BotCommands';
-import { Command, CommandDecoratorOptions, CommandIdentifier, CommandOptions } from './commands/Command';
+import { Command, CommandDecoratorOptions, CommandIdentifier, CommandMetadata, CommandOptions } from './commands/Command';
 import { ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler } from './exception-handler/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
@@ -105,6 +105,74 @@ export default class Bot extends BotCommands {
         };
     }
 
+    Metadata(metadata: CommandMetadata) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            if (!target["decoratedMetadata"]) target["decoratedMetadata"] = metadata;
+            else target["decoratedMetadata"] = { ...target["decoratedMetadata"], ...metadata } as CommandMetadata;
+
+            Object.defineProperty(target, "decoratedMetadata", {
+                configurable: false,
+                get: () => target["decoratedMetadata"],
+                set: (val) => {},
+            });
+        };
+    }
+
+    Filter(...filters: CommandFilter[]) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            if (!target["decoratedFilters"]) target["decoratedFilters"] = filters;
+            else target["decoratedFilters"] = target["decoratedFilters"].concat(filters);
+
+            Object.defineProperty(target, "decoratedFilters", {
+                configurable: false,
+                get: () => target["decoratedFilters"],
+                set: (val) => {},
+            });
+        };
+    }
+
+    Interceptor(...interceptors: CommandInterceptor[]) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            if (!target["decoratedInterceptors"]) target["decoratedInterceptors"] = interceptors;
+            else target["decoratedInterceptors"] = target["decoratedInterceptors"].concat(interceptors);
+
+            Object.defineProperty(target, "decoratedInterceptors", {
+                configurable: false,
+                get: () => target["decoratedInterceptors"],
+                set: (val) => {},
+            });
+        };
+    }
+
+    Consumer(...consumers: CommandConsumer[]) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            if (!target["decoratedConsumers"]) target["decoratedConsumers"] = consumers;
+            else target["decoratedConsumers"] = target["decoratedConsumers"].concat(consumers);
+
+            Object.defineProperty(target, "decoratedConsumers", {
+                configurable: false,
+                get: () => target["decoratedConsumers"],
+                set: (val) => {},
+            });
+        };
+    }
+
     /* Fancy decorator to declare a bot command (basically syntactical sugar to Bot.addCommand) */
     Command(options?: CommandDecoratorOptions, useFunctionNameAsCommandName: boolean = true) {
         return (
@@ -140,6 +208,23 @@ export default class Bot extends BotCommands {
                     if (Array.isArray(options.consumers)) consumers = options.consumers;
                     else if (!Array.isArray(options.consumers)) consumers = [options.consumers];
                 }
+
+                if (target) {
+                    if (target["decoratedFilters"] && Array.isArray(target["decoratedFilters"])) {
+                        if (filters.length <= 0) filters = target["decoratedFilters"];
+                        else filters = filters.concat(target["decoratedFilters"]);
+                    }
+
+                    if (target["decoratedInterceptors"] && Array.isArray(target["decoratedInterceptors"])) {
+                        if (interceptors.length <= 0) interceptors = target["decoratedInterceptors"];
+                        else interceptors = interceptors.concat(target["decoratedInterceptors"]);
+                    }
+
+                    if (target["decoratedConsumers"] && Array.isArray(target["decoratedConsumers"])) {
+                        if (consumers.length <= 0) consumers = target["decoratedConsumers"];
+                        else consumers = consumers.concat(target["decoratedConsumers"]);
+                    }
+                }
             }
 
             this.addCommand(new Command({
@@ -149,6 +234,7 @@ export default class Bot extends BotCommands {
                 filters: filters,
                 interceptors: interceptors,
                 consumers: consumers,
+                metadata: !!options && !!options.metadata ? options.metadata : (target["decoratedMetadata"] || undefined),
                 handler: descriptor.value,
             } as CommandOptions));
         };

@@ -3,10 +3,10 @@ import Bot from './classes/Bot';
 
 import { Filters } from './filters/Filters';
 import { Interceptors } from './interceptors/Interceptors';
+import { Consumers } from './consumers/Consumers';
 import { CooldownError } from './errors';
 import { CommandContext, CommandIdentifier } from './classes/commands/Command';
 import { MemoryCooldownStore } from './classes/utils/CooldownStores';
-import { Consumers } from './consumers/Consumers';
 import { EventContext } from './classes/events/EventContext';
 
 const bot: Bot = new Bot({
@@ -50,12 +50,11 @@ const bot: Bot = new Bot({
 class Commands {
     @bot.Scope(1) id: CommandIdentifier;
 
-    @bot.Command({
-        filters: [Filters._NSFW],
-        interceptors: [Interceptors.Cooldown(new MemoryCooldownStore())],
-        consumers: [Consumers._Log],
-        metadata: { showHelp: false, },
-    })
+    @bot.Filter(Filters._NSFW)
+    @bot.Interceptor(Interceptors.Cooldown(new MemoryCooldownStore()))
+    @bot.Consumer(Consumers._Log)
+    @bot.Metadata({ showHelp: false })
+    @bot.Command()
     testf({ command, message, data }: CommandContext): void {
     }
 
