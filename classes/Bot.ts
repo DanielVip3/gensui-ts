@@ -122,6 +122,22 @@ export default class Bot extends BotCommands {
         };
     }
 
+    Description(description: string) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            target["decoratedDescription"] = description;
+
+            Object.defineProperty(target, "decoratedDescription", {
+                configurable: false,
+                get: () => target["decoratedDescription"],
+                set: (val) => {},
+            });
+        };
+    }
+
     Filter(...filters: CommandFilter[]) {
         return (
             target: any,
@@ -230,23 +246,45 @@ export default class Bot extends BotCommands {
             this.addCommand(new Command({
                 id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
                 names: commandNames,
-                methodName: propertyKey,
+                description: !!options && !!options.description ? options.description : (target["decoratedDescription"] || undefined),
                 filters: filters,
                 interceptors: interceptors,
                 consumers: consumers,
                 metadata: !!options && !!options.metadata ? options.metadata : (target["decoratedMetadata"] || undefined),
+                methodName: propertyKey,
                 handler: descriptor.value,
             } as CommandOptions));
         };
     }
 
+    /* Translates to Event decorator */
+    On(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean) {
+        if (!options) options = { once: true };
+        else Object.defineProperty(options, "once", {
+            configurable: false,
+            get: () => true,
+            set: (val) => val,
+        });
+
+        return this.Event(options, useFunctionNameAsEventType);
+    }
+
+    /* Translates to Event decorator with { "once": true } */
+    Once(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean) {
+        return this.Event(options, useFunctionNameAsEventType);
+    }
+
     /* Fancy decorator to declare a bot event (basically syntactical sugar to Bot.addEvent) */
-    Event(options?: EventDecoratorOptions, useFunctionNameAsEventType: boolean = false) {
+    Event(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean) {
         return (
             target: any,
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
+            if (!options && useFunctionNameAsEventType === undefined) useFunctionNameAsEventType = true;
+            else if (options && useFunctionNameAsEventType === undefined) useFunctionNameAsEventType = false;
+            else useFunctionNameAsEventType = !!useFunctionNameAsEventType;
+
             let eventTypes: EventTypes[] = [];
             if (!!useFunctionNameAsEventType) eventTypes.push(propertyKey as EventTypes);
             else if (useFunctionNameAsEventType === undefined && !propertyKey.startsWith("_")) eventTypes.push(propertyKey as EventTypes);

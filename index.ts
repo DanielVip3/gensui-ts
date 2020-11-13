@@ -58,7 +58,7 @@ class Commands {
     testf({ command, message, data }: CommandContext): void {
     }
 
-    @bot.Event({}, true)
+    @bot.Event()
     guildMemberUpdate(update: EventContext): void {
         console.log(update);
     }

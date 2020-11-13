@@ -9,12 +9,14 @@ export type EventTypes = keyof ClientEvents;
 export interface EventDecoratorOptions {
     id?: EventIdentifier,
     type?: EventTypes|EventTypes[],
+    once?: boolean,
 };
 
 export interface EventOptions {
     bot?: BotEvents,
     id?: EventIdentifier,
     type: EventTypes|EventTypes[],
+    once?: boolean,
     handler: Function,
 
     /* Eventually, the method who instantiated the event (using the decorator) */
@@ -25,6 +27,7 @@ export class Event {
     public bot: BotEvents;
     public readonly id: EventIdentifier;
     public readonly types: EventTypes[];
+    public readonly once: boolean = false;
     private handler: Function;
 
     constructor(options: EventOptions) {
@@ -42,13 +45,9 @@ export class Event {
             else this.types = options.type;
         }
 
+        if (!!options.once) this.once = true;
+
         this.handler = options.handler;
-
-        console.log(this.handler);
-    }
-
-    async callFilters() {
-
     }
 
     async call(...any: any[]): Promise<boolean> {

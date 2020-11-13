@@ -16,7 +16,7 @@ export default class BotEvents {
         this.events.push(event);
 
         if (this.client) for (let type of event.types) {
-            this.client.on(type, event.call.bind(event));
+            this.client[event.once ? "once" : "on"](type, event.call.bind(event));
         }
 
         return event;
