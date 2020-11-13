@@ -1,15 +1,58 @@
 import { Client } from "discord.js";
+import { EventGlobalHookError } from "../../errors/bot";
+import ExceptionNoReferenceError from "../../errors/exception-handler/ExceptionNoReferenceError";
 import { Event, EventIdentifier } from "../events/Event";
+import { EventConsumer } from "../events/EventConsumer";
+import { EventFilter } from "../events/EventFilter";
+import { EventInterceptor } from "../events/EventInterceptor";
+import { EventExceptionHandler } from "../exception-handler/EventExceptionHandler";
 
 export default class BotEvents {
     protected client: Client;
     protected events: Event[] = [];
+    public readonly globalEventFilters: EventFilter[] = [];
+    public readonly globalEventInterceptors: EventInterceptor[] = [];
+    public readonly globalEventConsumers: EventConsumer[] = [];
 
     constructor(startingEvents?: Event|Event[]) {
         if (startingEvents) {
             if (Array.isArray(startingEvents)) this.events = this.events.concat(startingEvents);
             else this.events.push(startingEvents);
         }
+    }
+
+    addGlobalEventFilter(filter: EventFilter): boolean {
+        if (this.events && Array.isArray(this.events) && this.events.length >= 1) throw new EventGlobalHookError("Global filter(s) must be added before creating any event.");
+
+        this.globalEventFilters.push(filter);
+
+        return true;
+    }
+
+    addGlobalEventInterceptor(interceptor: EventInterceptor): boolean {
+        if (this.events && Array.isArray(this.events) && this.events.length >= 1) throw new EventGlobalHookError("Global interceptor(s) must be added before creating any event.");
+
+        this.globalEventInterceptors.push(interceptor);
+
+        return true;
+    }
+
+    addGlobalEventConsumer(consumer: EventConsumer): boolean {
+        if (this.events && Array.isArray(this.events) && this.events.length >= 1) throw new EventGlobalHookError("Global consumer(s) must be added before creating any event.");
+
+        this.globalEventConsumers.push(consumer);
+
+        return true;
+    }
+
+    addEventExceptionHandler(exceptionHandler: EventExceptionHandler): boolean {
+        if (!exceptionHandler.id) return false;
+        const event: Event|undefined = this.getEvent(exceptionHandler.id);
+        if (!event) throw new ExceptionNoReferenceError(`Exception handler (event ID ${exceptionHandler.id}) does not refer to an existing event ID. Could it be you declared the exception handler BEFORE the event itself?`);
+        
+        event.addExceptionHandler(exceptionHandler);
+
+        return true;
     }
 
     addEvent(event: Event): Event {

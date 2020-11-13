@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import BotCommands from './bot/BotCommands';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandMetadata, CommandOptions } from './commands/Command';
 import { ExceptionNoIDError } from '../errors';
-import { ExceptionDecoratorOptions, ExceptionHandler } from './exception-handler/ExceptionHandler';
+import { ExceptionDecoratorOptions, ExceptionHandler, ExceptionInlineDecoratorOptions } from './exception-handler/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
 import { CommandConsumer } from './commands/CommandConsumer';
@@ -196,6 +196,12 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
+            Object.defineProperty(target, "functionHandleType", {
+                configurable: false,
+                get: () => "command",
+                set: (val) => {},
+            });
+
             let commandNames: string[] = [];
             if (!!useFunctionNameAsCommandName) commandNames.push(propertyKey);
             else if (useFunctionNameAsCommandName === undefined && !propertyKey.startsWith("_")) commandNames.push(propertyKey);
@@ -281,6 +287,12 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
+            Object.defineProperty(target, "functionHandleType", {
+                configurable: false,
+                get: () => "event",
+                set: (val) => {},
+            });
+
             if (!options && useFunctionNameAsEventType === undefined) useFunctionNameAsEventType = true;
             else if (options && useFunctionNameAsEventType === undefined) useFunctionNameAsEventType = false;
             else useFunctionNameAsEventType = !!useFunctionNameAsEventType;
@@ -305,7 +317,28 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Except(options: ExceptionDecoratorOptions) {
+    Except(options: ExceptionInlineDecoratorOptions) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            if (!target || !target["functionHandleType"]) return;
+            else {
+                switch(target["functionHandleType"]) {
+                    case "command":
+                        this.ExceptCommand(options);
+                        break;
+                    case "event":
+                        this.ExceptEvent(options);
+                        break;
+                    default: break;
+                }
+            }
+        };
+    }
+
+    ExceptCommand(options: ExceptionDecoratorOptions) {
         return (
             target: any,
             propertyKey: string,
@@ -316,16 +349,45 @@ export default class Bot extends BotCommands {
 
             if (Array.isArray(options.id)) {
                 for (let idV of options.id) {
-                    if (typeof idV !== "number" && typeof idV !== "string") throw new ExceptionNoIDError(`One of exception handler (${propertyKey})'s \`id\`s is not valid or resolvable to a command ID.`);
+                    if (typeof idV !== "number" && typeof idV !== "string") throw new ExceptionNoIDError(`One of exception handler (${propertyKey})'s \`id\`s is not valid or resolvable to a command id.`);
 
-                    this.addExceptionHandler({
+                    this.addCommandExceptionHandler({
                         id: idV,
                         exceptions: options.exceptions || undefined,
                         handler: descriptor.value,
                     } as ExceptionHandler);
                 }
             } else {
-                this.addExceptionHandler({
+                this.addCommandExceptionHandler({
+                    id: options.id,
+                    exceptions: options.exceptions || undefined,
+                    handler: descriptor.value,
+                } as ExceptionHandler);
+            }
+        };
+    }
+
+    ExceptEvent(options: ExceptionDecoratorOptions) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            if (!options.id && (!Array.isArray(options.id) || options.id.length <= 0) && (!target.IDAccessValueName || !target[target.IDAccessValueName])) throw new ExceptionNoIDError(`Exception handler (${propertyKey}) must have an \`id\` property which specifies the event to handle. You can also use @Scope decorator.`);
+            if (!options.id && target[target.IDAccessValueName]) options.id = target[target.IDAccessValueName];
+
+            if (Array.isArray(options.id)) {
+                for (let idV of options.id) {
+                    if (typeof idV !== "number" && typeof idV !== "string") throw new ExceptionNoIDError(`One of exception handler (${propertyKey})'s \`id\`s is not valid or resolvable to an event id.`);
+
+                    this.addEventExceptionHandler({
+                        id: idV,
+                        exceptions: options.exceptions || undefined,
+                        handler: descriptor.value,
+                    } as ExceptionHandler);
+                }
+            } else {
+                this.addEventExceptionHandler({
                     id: options.id,
                     exceptions: options.exceptions || undefined,
                     handler: descriptor.value,

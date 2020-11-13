@@ -5,6 +5,7 @@ import { EventContext } from './EventContext';
 import { EventFilter } from './EventFilter';
 import { EventInterceptor, EventInterceptorResponse } from './EventInterceptor';
 import { EventConsumer, EventConsumerResponse } from './EventConsumer';
+import { EventExceptionHandler } from '../exception-handler/EventExceptionHandler';
 
 export { EventContext, EventContextData } from './EventContext';
 
@@ -15,6 +16,9 @@ export interface EventDecoratorOptions {
     id?: EventIdentifier,
     type?: EventTypes|EventTypes[],
     once?: boolean,
+    filters?: EventFilter[]|EventFilter,
+    interceptors?: EventInterceptor[]|EventInterceptor,
+    consumers?: EventConsumer[]|EventConsumer,
 };
 
 export interface EventOptions {
@@ -22,6 +26,10 @@ export interface EventOptions {
     id?: EventIdentifier,
     type: EventTypes|EventTypes[],
     once?: boolean,
+    filters?: EventFilter[]|EventFilter,
+    interceptors?: EventInterceptor[]|EventInterceptor,
+    consumers?: EventConsumer[]|EventConsumer,
+    exceptions?: EventExceptionHandler[],
     handler: Function,
 
     /* Eventually, the method who instantiated the event (using the decorator) */
@@ -36,6 +44,7 @@ export class Event {
     protected filters: EventFilter[] = [];
     protected interceptors: EventInterceptor[] = [];
     protected consumers: EventConsumer[] = [];
+    protected exceptions: EventExceptionHandler[] = [];
     private handler: Function;
 
     constructor(options: EventOptions) {
@@ -55,11 +64,54 @@ export class Event {
 
         if (!!options.once) this.once = true;
 
+        if (options.filters) {
+            if (Array.isArray(options.filters)) this.filters = options.filters;
+            else if (!Array.isArray(options.filters)) this.filters = [options.filters];
+        }
+
+        if (options.interceptors) {
+            if (Array.isArray(options.interceptors)) this.interceptors = options.interceptors;
+            else if (!Array.isArray(options.interceptors)) this.interceptors = [options.interceptors];
+        }
+
+        if (options.consumers) {
+            if (Array.isArray(options.consumers)) this.consumers = options.consumers;
+            else if (!Array.isArray(options.consumers)) this.consumers = [options.consumers];
+        }
+
+        if (options.exceptions) {
+            if (Array.isArray(options.exceptions)) this.exceptions = options.exceptions;
+            else if (!Array.isArray(options.exceptions)) this.exceptions = [options.exceptions];
+        }
+        if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
+
+        if (this.bot) {
+            if (this.bot.globalEventFilters) this.filters.unshift(...this.bot.globalEventFilters);
+            if (this.bot.globalEventInterceptors) this.interceptors.unshift(...this.bot.globalEventInterceptors);
+            if (this.bot.globalEventConsumers) this.consumers.unshift(...this.bot.globalEventConsumers);
+        }
+
+
         this.handler = options.handler;
     }
 
-    async callExceptionHandlers(ctx: EventContext, err: Error) {
+    addExceptionHandler(exceptionHandler: EventExceptionHandler): boolean {
+        if (!exceptionHandler.id || !exceptionHandler.handler) return false;
 
+        this.exceptions.push(exceptionHandler);
+        
+        return true;
+    }
+
+    async callExceptionHandlers(ctx: EventContext, exception: any): Promise<boolean> {
+        if (this.exceptions && this.exceptions.length >= 1) {
+            const toCallHandlers: EventExceptionHandler[] = this.exceptions.filter(e => !e.exceptions || e.exceptions.length <= 0 || e.exceptions.some((e) => exception instanceof e));
+            if (toCallHandlers) {
+                for (const h of toCallHandlers) await h.handler(ctx, exception);
+
+                return true;
+            } else return false;
+        } else return false;
     }
 
     async callFilters(ctx: EventContext): Promise<boolean> {
@@ -154,13 +206,13 @@ export class Event {
 
         if (!await this.callFilters(context)) return false;
 
-        // const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
-        // if (!interceptorsResponse || !interceptorsResponse.next) return false;
+        const interceptorsResponse: EventInterceptorResponse = await this.callInterceptors(context);
+        if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
         const returned: any = await this.handler(context);
 
-        // const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
-        // if (!consumersResponse || !consumersResponse.next) return false;
+        const consumersResponse: EventConsumerResponse = await this.callConsumers(context, returned);
+        if (!consumersResponse || !consumersResponse.next) return false;
 
         return true;
     }

@@ -62,13 +62,6 @@ class Commands {
     guildMemberUpdate(update: EventContext): void {
         console.log(update);
     }
-
-    @bot.Except({
-        exceptions: [CooldownError]
-    })
-    testErrorHandler(): void {
-        console.log("test ERRORE");
-    }
 }
 
 bot.start();

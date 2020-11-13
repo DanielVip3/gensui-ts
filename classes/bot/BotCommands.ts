@@ -1,6 +1,6 @@
 import { Message, Client } from 'discord.js';
 import { ExceptionNoCommandError } from '../../errors';
-import { GlobalHookError } from '../../errors/bot';
+import { CommandGlobalHookError } from '../../errors/bot';
 import { Command, CommandIdentifier } from '../commands/Command';
 import { CommandConsumer } from '../commands/CommandConsumer';
 import { CommandFilter } from '../commands/CommandFilter';
@@ -13,9 +13,9 @@ export default class BotCommands extends BotEvents {
     protected prefixValue: string|string[] = "!";
     protected enableMentionHandling: boolean = false;
     protected commands: Command[] = [];
-    public readonly globalFilters: CommandFilter[] = [];
-    public readonly globalInterceptors: CommandInterceptor[] = [];
-    public readonly globalConsumers: CommandConsumer[] = [];
+    public readonly globalCommandFilters: CommandFilter[] = [];
+    public readonly globalCommandInterceptors: CommandInterceptor[] = [];
+    public readonly globalCommandConsumers: CommandConsumer[] = [];
 
     constructor(startingCommands?: Command|Command[]) {
         super();
@@ -42,31 +42,31 @@ export default class BotCommands extends BotEvents {
         this.enableMentionHandling = enabled;
     }
 
-    addGlobalFilter(filter: CommandFilter): boolean {
-        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new GlobalHookError("Global filter(s) must be added before creating any command.");
+    addGlobalCommandFilter(filter: CommandFilter): boolean {
+        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new CommandGlobalHookError("Global filter(s) must be added before creating any command.");
 
-        this.globalFilters.push(filter);
-
-        return true;
-    }
-
-    addGlobalInterceptor(interceptor: CommandInterceptor): boolean {
-        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new GlobalHookError("Global interceptor(s) must be added before creating any command.");
-
-        this.globalInterceptors.push(interceptor);
+        this.globalCommandFilters.push(filter);
 
         return true;
     }
 
-    addGlobalConsumer(consumer: CommandConsumer): boolean {
-        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new GlobalHookError("Global consumer(s) must be added before creating any command.");
+    addGlobalCommandInterceptor(interceptor: CommandInterceptor): boolean {
+        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new CommandGlobalHookError("Global interceptor(s) must be added before creating any command.");
 
-        this.globalConsumers.push(consumer);
+        this.globalCommandInterceptors.push(interceptor);
 
         return true;
     }
 
-    addExceptionHandler(exceptionHandler: ExceptionHandler): boolean {
+    addGlobalCommandConsumer(consumer: CommandConsumer): boolean {
+        if (this.commands && Array.isArray(this.commands) && this.commands.length >= 1) throw new CommandGlobalHookError("Global consumer(s) must be added before creating any command.");
+
+        this.globalCommandConsumers.push(consumer);
+
+        return true;
+    }
+
+    addCommandExceptionHandler(exceptionHandler: ExceptionHandler): boolean {
         if (!exceptionHandler.id) return false;
         const command: Command|undefined = this.getCommand(exceptionHandler.id);
         if (!command) throw new ExceptionNoCommandError(`Exception handler (command ID ${exceptionHandler.id}) does not refer to an existing command ID. Could it be you declared the exception handler BEFORE the command itself?`);

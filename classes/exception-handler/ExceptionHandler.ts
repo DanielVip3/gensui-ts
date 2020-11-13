@@ -1,12 +1,18 @@
 import { CommandIdentifier, CommandContext } from "../commands/Command";
+import { EventIdentifier, EventContext } from "../events/Event";
+
+export interface ExceptionInlineDecoratorOptions {
+    exceptions?: any[],
+    handler: Function,
+}
 
 export interface ExceptionDecoratorOptions {
-    id?: CommandIdentifier,
+    id?: CommandIdentifier|EventIdentifier,
     exceptions?: any[],
 }
 
 export interface ExceptionHandler {
-    id: CommandIdentifier,
+    id: CommandIdentifier|EventIdentifier,
     exceptions?: any[],
-    handler(ctx: CommandContext, exception: any): any
+    handler(ctx: CommandContext|EventContext, exception: any): any
 }

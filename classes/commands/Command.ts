@@ -4,7 +4,7 @@ import { CommandAlreadyExistingIDError, CommandNoIDError, CommandNoNameError } f
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterceptor';
 import { CommandConsumer, CommandConsumerResponse } from './CommandConsumer';
-import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
+import { CommandExceptionHandler } from '../exception-handler/ExceptionHandler';
 import { CommandContext } from './CommandContext';
 
 export { CommandContext, CommandContextData } from './CommandContext';
@@ -39,7 +39,7 @@ export interface CommandOptions {
     filters?: CommandFilter[]|CommandFilter,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
-    exceptions?: ExceptionHandler[],
+    exceptions?: CommandExceptionHandler[],
     handler: Function,
     /* Eventually, the method who instantiated the command (using the decorator) */
     methodName?: string,
@@ -55,7 +55,7 @@ export class Command {
     protected filters: CommandFilter[] = [];
     protected interceptors: CommandInterceptor[] = [];
     protected consumers: CommandConsumer[] = [];
-    protected exceptions: ExceptionHandler[] = [];
+    protected exceptions: CommandExceptionHandler[] = [];
     private handler: Function;
     public metadata: CommandMetadata = {};
 
@@ -105,9 +105,9 @@ export class Command {
         if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
 
         if (this.bot) {
-            if (this.bot.globalFilters) this.filters.unshift(...this.bot.globalFilters);
-            if (this.bot.globalInterceptors) this.interceptors.unshift(...this.bot.globalInterceptors);
-            if (this.bot.globalConsumers) this.consumers.unshift(...this.bot.globalConsumers);
+            if (this.bot.globalCommandFilters) this.filters.unshift(...this.bot.globalCommandFilters);
+            if (this.bot.globalCommandInterceptors) this.interceptors.unshift(...this.bot.globalCommandInterceptors);
+            if (this.bot.globalCommandConsumers) this.consumers.unshift(...this.bot.globalCommandConsumers);
         }
 
         if (options.metadata) this.metadata = options.metadata;
@@ -123,7 +123,7 @@ export class Command {
         return this._description;
     }
 
-    addExceptionHandler(exceptionHandler: ExceptionHandler): boolean {
+    addExceptionHandler(exceptionHandler: CommandExceptionHandler): boolean {
         if (!exceptionHandler.id || !exceptionHandler.handler) return false;
 
         this.exceptions.push(exceptionHandler);
@@ -133,7 +133,7 @@ export class Command {
 
     async callExceptionHandlers(ctx: CommandContext, exception: any): Promise<boolean> {
         if (this.exceptions && this.exceptions.length >= 1) {
-            const toCallHandlers: ExceptionHandler[] = this.exceptions.filter(e => !e.exceptions || e.exceptions.length <= 0 || e.exceptions.some((e) => exception instanceof e));
+            const toCallHandlers: CommandExceptionHandler[] = this.exceptions.filter(e => !e.exceptions || e.exceptions.length <= 0 || e.exceptions.some((e) => exception instanceof e));
             if (toCallHandlers) {
                 for (const h of toCallHandlers) await h.handler(ctx, exception);
 
