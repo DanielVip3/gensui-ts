@@ -1,7 +1,7 @@
 import { ClientEvents } from 'discord.js';
 import { EventAlreadyExistingIDError, EventNoIDError, EventNoTypeError } from '../../errors/events';
 import BotEvents from '../bot/BotEvents';
-import { EventContext } from './EventContext';
+import { EventContext, EventPayload } from './EventContext';
 import { EventFilter } from './EventFilter';
 import { EventInterceptor, EventInterceptorResponse } from './EventInterceptor';
 import { EventConsumer, EventConsumerResponse } from './EventConsumer';
@@ -30,7 +30,7 @@ export interface EventOptions {
     interceptors?: EventInterceptor<any>[]|EventInterceptor<any>,
     consumers?: EventConsumer<any>[]|EventConsumer<any>,
     exceptions?: EventExceptionHandler[],
-    handler: Function,
+    handler: (payload?: EventPayload<any>, context?: EventContext) => any|void,
 
     /* Eventually, the method who instantiated the event (using the decorator) */
     methodName?: string,

@@ -4,10 +4,9 @@ import Bot from './classes/Bot';
 import { Filters } from './filters/Filters';
 import { Interceptors } from './interceptors/Interceptors';
 import { Consumers } from './consumers/Consumers';
-import { CooldownError } from './errors';
 import { CommandContext, CommandIdentifier } from './classes/commands/Command';
 import { MemoryCooldownStore } from './classes/utils/CooldownStores';
-import { EventContext } from './classes/events/EventContext';
+import { EventContext, EventPayload } from './classes/events/EventContext';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
@@ -50,21 +49,20 @@ const bot: Bot = new Bot({
 class Commands {
     @bot.Scope(1) id: CommandIdentifier;
 
-    /*
     @bot.Apply(
         Filters._NSFW,
         Interceptors.Cooldown(new MemoryCooldownStore()),
         Consumers._Log
     )
     @bot.Metadata({ showHelp: false })
-    */
     @bot.Command()
     testf({ command, message, data }: CommandContext): void {
+        console.log(data);
     }
 
     @bot.Event()
-    guildMemberUpdate(update: EventContext): void {
-        console.log(update);
+    guildMemberUpdate([message]: EventPayload<"message">, update: EventContext): void {
+        console.log(message, update);
     }
 }
 

@@ -40,7 +40,7 @@ export interface CommandOptions {
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
     exceptions?: CommandExceptionHandler[],
-    handler: Function,
+    handler: (context: CommandContext) => any|void,
     /* Eventually, the method who instantiated the command (using the decorator) */
     methodName?: string,
     
@@ -230,7 +230,6 @@ export class Command {
     }
 
     async call(message: Message): Promise<boolean> {
-        console.log(message);
         const context: CommandContext = { command: this, message };
 
         if (!await this.callFilters(context)) return false;
