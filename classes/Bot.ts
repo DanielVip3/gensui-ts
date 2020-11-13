@@ -8,6 +8,7 @@ import { ExceptionDecoratorOptions, ExceptionHandler } from './exception-handler
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
 import { CommandConsumer } from './commands/CommandConsumer';
+import { Event, EventDecoratorOptions, EventOptions, EventTypes } from './events/Event';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -150,6 +151,33 @@ export default class Bot extends BotCommands {
                 consumers: consumers,
                 handler: descriptor.value,
             } as CommandOptions));
+        };
+    }
+
+    /* Fancy decorator to declare a bot event (basically syntactical sugar to Bot.addEvent) */
+    Event(options?: EventDecoratorOptions, useFunctionNameAsEventType: boolean = false) {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            let eventTypes: EventTypes[] = [];
+            if (!!useFunctionNameAsEventType) eventTypes.push(propertyKey as EventTypes);
+            else if (useFunctionNameAsEventType === undefined && !propertyKey.startsWith("_")) eventTypes.push(propertyKey as EventTypes);
+
+            if (options) {
+                if (options.type) {
+                    if (!Array.isArray(options.type)) eventTypes.push(options.type);
+                    else eventTypes = eventTypes.concat(options.type);
+                }
+            }
+
+            this.addEvent(new Event({
+                id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
+                type: eventTypes,
+                methodName: propertyKey,
+                handler: descriptor.value,
+            } as EventOptions));
         };
     }
 

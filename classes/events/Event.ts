@@ -5,6 +5,11 @@ import { EventContext } from './EventContext';
 export type EventIdentifier = string|number;
 export type EventTypes = keyof ClientEvents;
 
+export interface EventDecoratorOptions {
+    id?: EventIdentifier,
+    type: EventTypes|EventTypes[],
+};
+
 export interface EventOptions {
     id?: EventIdentifier,
     type: EventTypes|EventTypes[],
