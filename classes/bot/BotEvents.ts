@@ -1,3 +1,5 @@
+import { Event, EventIdentifier } from "../events/Event";
+
 export default class BotEvents {
     protected events: Event[] = [];
 

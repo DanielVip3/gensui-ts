@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { EventNoIDError, EventNoTypeError } from '../../errors/events';
 
 export type EventIdentifier = string|number;
 
@@ -13,13 +13,18 @@ export interface EventOptions {
 export class Event {
     public readonly id: EventIdentifier;
     private types: string|string[];
-    private _description?: string;
     private handler: Function;
 
     constructor(options: EventOptions) {
         if (!options.id) throw new EventNoIDError(`An event${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id.`);
 
-        if (!options.type) throw new EventNoTypeError(`An event (ID ${options.id}) has been created without at least a type.`);
+        this.id = options.id;
+
+        if (!options.type || (typeof options.type !== "string" && !Array.isArray(options.type))) throw new EventNoTypeError(`An event (ID ${options.id}) has been created without at least a type.`);
+        else {
+            if (typeof options.type === "string") this.types = [options.type];
+            else if (Array.isArray(options.type)) this.types = options.type;
+        }
 
         this.handler = options.handler;
     }
