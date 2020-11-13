@@ -5,9 +5,11 @@ import { Command, CommandIdentifier } from '../commands/Command';
 import { CommandConsumer } from '../commands/CommandConsumer';
 import { CommandFilter } from '../commands/CommandFilter';
 import { CommandInterceptor } from '../commands/CommandInterceptor';
+import { Event } from '../events/Event';
 import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
+import BotEvents from './BotEvents';
 
-export default class BotCommands {
+export default class BotCommands extends BotEvents {
     protected prefixValue: string|string[] = "!";
     protected enableMentionHandling: boolean = false;
     protected commands: Command[] = [];
@@ -16,6 +18,8 @@ export default class BotCommands {
     public readonly globalConsumers: CommandConsumer[] = [];
 
     constructor(startingCommands?: Command|Command[]) {
+        super();
+
         if (startingCommands) {
             if (Array.isArray(startingCommands)) this.commands = this.commands.concat(startingCommands);
             else this.commands.push(startingCommands);
@@ -142,12 +146,16 @@ export default class BotCommands {
                                 preHook?: Function,
                                 postHook?: (command: Command|undefined) => any)
     : void {
-        client.on("message", async(message: Message) => {
-            if (preHook) preHook();
-
-            const command: Command|undefined = await this.handleCommandMessage(client, message);
-
-            if (postHook) postHook(command);
-        });
+        this.addEvent(new Event({
+            id: "internal-commands-event",
+            type: "message",
+            handler: async(message: Message) => {
+                if (preHook) preHook();
+    
+                const command: Command|undefined = await this.handleCommandMessage(client, message);
+    
+                if (postHook) postHook(command);
+            },
+        }));
     }
 }

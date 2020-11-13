@@ -16,7 +16,7 @@ export default class BotEvents {
         return event;
     }
 
-    removeCommand(eventId: EventIdentifier): Event {
+    removeEvent(eventId: EventIdentifier): Event {
         const eventIndex: number = this.events.findIndex(e => e.id === eventId);
         const event: Event = this.events[eventIndex];
 
@@ -25,11 +25,11 @@ export default class BotEvents {
         return event;
     }
 
-    getCommand(eventId: EventIdentifier): Event|undefined {
+    getEvent(eventId: EventIdentifier): Event|undefined {
         return this.events.find(c => c.id === eventId);
     }
 
-    getAllCommands(): Event[] {
+    getAllEvents(): Event[] {
         return this.events;
     }
 };
