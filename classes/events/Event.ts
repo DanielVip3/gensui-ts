@@ -7,7 +7,7 @@ import { EventInterceptor, EventInterceptorResponse } from './EventInterceptor';
 import { EventConsumer, EventConsumerResponse } from './EventConsumer';
 import { EventExceptionHandler } from '../exception-handler/EventExceptionHandler';
 
-export { EventContext, EventContextData } from './EventContext';
+export { EventContext, EventContextData, EventPayload } from './EventContext';
 
 export type EventIdentifier = string|number;
 export type EventTypes = keyof ClientEvents;
@@ -209,7 +209,7 @@ export class Event {
         const interceptorsResponse: EventInterceptorResponse = await this.callInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
-        const returned: any = await this.handler(context);
+        const returned: any = await this.handler(any, context);
 
         const consumersResponse: EventConsumerResponse = await this.callConsumers(context, returned);
         if (!consumersResponse || !consumersResponse.next) return false;

@@ -230,6 +230,7 @@ export class Command {
     }
 
     async call(message: Message): Promise<boolean> {
+        console.log(message);
         const context: CommandContext = { command: this, message };
 
         if (!await this.callFilters(context)) return false;

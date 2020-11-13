@@ -1,4 +1,4 @@
-import Discord from 'discord.js';
+import Discord, { ClientEvents } from 'discord.js';
 import * as yup from 'yup';
 
 import BotCommands from './bot/BotCommands';
@@ -114,12 +114,12 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!target["decoratedMetadata"]) target["decoratedMetadata"] = metadata;
-            else target["decoratedMetadata"] = { ...target["decoratedMetadata"], ...metadata } as CommandMetadata;
+            if (!descriptor["decoratedMetadata"]) descriptor["decoratedMetadata"] = metadata;
+            else descriptor["decoratedMetadata"] = { ...descriptor["decoratedMetadata"], ...metadata } as CommandMetadata;
 
-            Object.defineProperty(target, "decoratedMetadata", {
+            Object.defineProperty(descriptor, "decoratedMetadata", {
                 configurable: false,
-                get: () => target["decoratedMetadata"],
+                get: () => descriptor["decoratedMetadata"],
                 set: (val) => {},
             });
         };
@@ -131,17 +131,17 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            target["decoratedDescription"] = description;
+            descriptor["decoratedDescription"] = description;
 
-            Object.defineProperty(target, "decoratedDescription", {
+            Object.defineProperty(descriptor, "decoratedDescription", {
                 configurable: false,
-                get: () => target["decoratedDescription"],
+                get: () => descriptor["decoratedDescription"],
                 set: (val) => {},
             });
         };
     }
 
-    Apply(...hooks: (CommandFilter|EventFilter|CommandInterceptor|EventInterceptor|CommandConsumer|EventConsumer)[]) {
+    Apply(...hooks: (CommandFilter|EventFilter<any>|CommandInterceptor|EventInterceptor<any>|CommandConsumer|EventConsumer<any>)[]) {
         return (
             target: any,
             propertyKey: string,
@@ -155,50 +155,50 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Filter(...filters: CommandFilter[]|EventFilter[]) {
+    Filter(...filters: CommandFilter[]|EventFilter<any>[]) {
         return (
             target: any,
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!target["decoratedFilters"]) target["decoratedFilters"] = filters;
-            else target["decoratedFilters"] = target["decoratedFilters"].concat(filters);
+            if (!descriptor["decoratedFilters"]) descriptor["decoratedFilters"] = filters;
+            else descriptor["decoratedFilters"] = descriptor["decoratedFilters"].concat(filters);
 
-            Object.defineProperty(target, "decoratedFilters", {
+            Object.defineProperty(descriptor, "decoratedFilters", {
                 configurable: false,
-                get: () => target["decoratedFilters"],
+                get: () => descriptor["decoratedFilters"],
                 set: (val) => {},
             });
         };
     }
 
-    Interceptor(...interceptors: CommandInterceptor[]|EventInterceptor[]) {
+    Interceptor(...interceptors: CommandInterceptor[]|EventInterceptor<any>[]) {
         return (
             target: any,
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!target["decoratedInterceptors"]) target["decoratedInterceptors"] = interceptors;
-            else target["decoratedInterceptors"] = target["decoratedInterceptors"].concat(interceptors);
+            if (!descriptor["decoratedInterceptors"]) descriptor["decoratedInterceptors"] = interceptors;
+            else descriptor["decoratedInterceptors"] = descriptor["decoratedInterceptors"].concat(interceptors);
 
-            Object.defineProperty(target, "decoratedInterceptors", {
+            Object.defineProperty(descriptor, "decoratedInterceptors", {
                 configurable: false,
-                get: () => target["decoratedInterceptors"],
+                get: () => descriptor["decoratedInterceptors"],
                 set: (val) => {},
             });
         };
     }
 
-    Consumer(...consumers: CommandConsumer[]|EventConsumer[]) {
+    Consumer(...consumers: CommandConsumer[]|EventConsumer<any>[]) {
         return (
             target: any,
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!target["decoratedConsumers"]) target["decoratedConsumers"] = consumers;
-            else target["decoratedConsumers"] = target["decoratedConsumers"].concat(consumers);
+            if (!descriptor["decoratedConsumers"]) descriptor["decoratedConsumers"] = consumers;
+            else descriptor["decoratedConsumers"] = descriptor["decoratedConsumers"].concat(consumers);
 
-            Object.defineProperty(target, "decoratedConsumers", {
+            Object.defineProperty(descriptor, "decoratedConsumers", {
                 configurable: false,
                 get: () => target["decoratedConsumers"],
                 set: (val) => {},
@@ -213,7 +213,7 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            Object.defineProperty(target, "functionHandleType", {
+            Object.defineProperty(descriptor, "functionHandleType", {
                 configurable: false,
                 get: () => "command",
                 set: (val) => {},
@@ -248,20 +248,20 @@ export default class Bot extends BotCommands {
                     else if (!Array.isArray(options.consumers)) consumers = [options.consumers];
                 }
 
-                if (target) {
-                    if (target["decoratedFilters"] && Array.isArray(target["decoratedFilters"])) {
-                        if (filters.length <= 0) filters = target["decoratedFilters"];
-                        else filters = filters.concat(target["decoratedFilters"]);
+                if (descriptor) {
+                    if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
+                        if (filters.length <= 0) filters = descriptor["decoratedFilters"];
+                        else filters = filters.concat(descriptor["decoratedFilters"]);
                     }
 
-                    if (target["decoratedInterceptors"] && Array.isArray(target["decoratedInterceptors"])) {
-                        if (interceptors.length <= 0) interceptors = target["decoratedInterceptors"];
-                        else interceptors = interceptors.concat(target["decoratedInterceptors"]);
+                    if (descriptor["decoratedInterceptors"] && Array.isArray(descriptor["decoratedInterceptors"])) {
+                        if (interceptors.length <= 0) interceptors = descriptor["decoratedInterceptors"];
+                        else interceptors = interceptors.concat(descriptor["decoratedInterceptors"]);
                     }
 
-                    if (target["decoratedConsumers"] && Array.isArray(target["decoratedConsumers"])) {
-                        if (consumers.length <= 0) consumers = target["decoratedConsumers"];
-                        else consumers = consumers.concat(target["decoratedConsumers"]);
+                    if (descriptor["decoratedConsumers"] && Array.isArray(descriptor["decoratedConsumers"])) {
+                        if (consumers.length <= 0) consumers = descriptor["decoratedConsumers"];
+                        else consumers = consumers.concat(descriptor["decoratedConsumers"]);
                     }
                 }
             }
@@ -269,11 +269,11 @@ export default class Bot extends BotCommands {
             this.addCommand(new Command({
                 id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
                 names: commandNames,
-                description: !!options && !!options.description ? options.description : (target["decoratedDescription"] || undefined),
+                description: !!options && !!options.description ? options.description : (descriptor["decoratedDescription"] || undefined),
                 filters: filters,
                 interceptors: interceptors,
                 consumers: consumers,
-                metadata: !!options && !!options.metadata ? options.metadata : (target["decoratedMetadata"] || undefined),
+                metadata: !!options && !!options.metadata ? options.metadata : (descriptor["decoratedMetadata"] || undefined),
                 methodName: propertyKey,
                 handler: descriptor.value,
             } as CommandOptions));
@@ -304,7 +304,7 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            Object.defineProperty(target, "functionHandleType", {
+            Object.defineProperty(descriptor, "functionHandleType", {
                 configurable: false,
                 get: () => "event",
                 set: (val) => {},

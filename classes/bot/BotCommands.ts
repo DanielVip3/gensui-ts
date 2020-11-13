@@ -5,7 +5,7 @@ import { Command, CommandIdentifier } from '../commands/Command';
 import { CommandConsumer } from '../commands/CommandConsumer';
 import { CommandFilter } from '../commands/CommandFilter';
 import { CommandInterceptor } from '../commands/CommandInterceptor';
-import { Event } from '../events/Event';
+import { Event, EventContext, EventPayload } from '../events/Event';
 import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 import BotEvents from './BotEvents';
 
@@ -149,7 +149,7 @@ export default class BotCommands extends BotEvents {
         this.addEvent(new Event({
             id: "internal-commands-event",
             type: "message",
-            handler: async(message: Message) => {
+            handler: async([message]: EventPayload<"message">, { event, data }: EventContext) => {
                 if (preHook) preHook();
     
                 const command: Command|undefined = await this.handleCommandMessage(client, message);

@@ -1,3 +1,5 @@
+import { ClientEvents } from 'discord.js';
+import { EventArgsOf } from '../utils/ArgsOf';
 import { EventContext, EventContextData } from "./Event";
 
 export interface EventInterceptorResponse {
@@ -5,18 +7,18 @@ export interface EventInterceptorResponse {
     data?: EventContextData,
 };
 
-export abstract class EventInterceptor {
-    public abstract intercept(context: EventContext, ...any: []): EventInterceptorResponse|Promise<EventInterceptorResponse>;
+export abstract class EventInterceptor<K extends keyof ClientEvents> {
+    public abstract intercept(payload?: EventArgsOf<K>, context?: EventContext): EventInterceptorResponse|Promise<EventInterceptorResponse>;
 };
 
-export abstract class EventTransformer implements EventInterceptor {
-    public async intercept(context: EventContext): Promise<EventInterceptorResponse> {
-        await this.transform(context);
+export abstract class EventTransformer<K extends keyof ClientEvents> implements EventInterceptor<K> {
+    public async intercept(payload?: EventArgsOf<K>, context?: EventContext): Promise<EventInterceptorResponse> {
+        await this.transform(payload, context);
 
         return {
             next: true,
         };
     }
 
-    public abstract transform(context: EventContext): EventContext|Promise<EventContext>|void;
+    public abstract transform(payload?: EventArgsOf<K>, context?: EventContext): EventContext|Promise<EventContext>|void;
 };

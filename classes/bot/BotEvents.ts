@@ -10,9 +10,9 @@ import { EventExceptionHandler } from "../exception-handler/EventExceptionHandle
 export default class BotEvents {
     protected client: Client;
     protected events: Event[] = [];
-    public readonly globalEventFilters: EventFilter[] = [];
-    public readonly globalEventInterceptors: EventInterceptor[] = [];
-    public readonly globalEventConsumers: EventConsumer[] = [];
+    public readonly globalEventFilters: EventFilter<any>[] = [];
+    public readonly globalEventInterceptors: EventInterceptor<any>[] = [];
+    public readonly globalEventConsumers: EventConsumer<any>[] = [];
 
     constructor(startingEvents?: Event|Event[]) {
         if (startingEvents) {
@@ -21,7 +21,7 @@ export default class BotEvents {
         }
     }
 
-    addGlobalEventFilter(filter: EventFilter): boolean {
+    addGlobalEventFilter(filter: EventFilter<any>): boolean {
         if (this.events && Array.isArray(this.events) && this.events.length >= 1) throw new EventGlobalHookError("Global filter(s) must be added before creating any event.");
 
         this.globalEventFilters.push(filter);
@@ -29,7 +29,7 @@ export default class BotEvents {
         return true;
     }
 
-    addGlobalEventInterceptor(interceptor: EventInterceptor): boolean {
+    addGlobalEventInterceptor(interceptor: EventInterceptor<any>): boolean {
         if (this.events && Array.isArray(this.events) && this.events.length >= 1) throw new EventGlobalHookError("Global interceptor(s) must be added before creating any event.");
 
         this.globalEventInterceptors.push(interceptor);
@@ -37,7 +37,7 @@ export default class BotEvents {
         return true;
     }
 
-    addGlobalEventConsumer(consumer: EventConsumer): boolean {
+    addGlobalEventConsumer(consumer: EventConsumer<any>): boolean {
         if (this.events && Array.isArray(this.events) && this.events.length >= 1) throw new EventGlobalHookError("Global consumer(s) must be added before creating any event.");
 
         this.globalEventConsumers.push(consumer);
