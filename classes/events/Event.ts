@@ -1,5 +1,6 @@
 import { ClientEvents } from 'discord.js';
-import { EventNoIDError, EventNoTypeError } from '../../errors/events';
+import { EventAlreadyExistingIDError, EventNoIDError, EventNoTypeError } from '../../errors/events';
+import BotEvents from '../bot/BotEvents';
 import { EventContext } from './EventContext';
 
 export type EventIdentifier = string|number;
@@ -7,10 +8,11 @@ export type EventTypes = keyof ClientEvents;
 
 export interface EventDecoratorOptions {
     id?: EventIdentifier,
-    type: EventTypes|EventTypes[],
+    type?: EventTypes|EventTypes[],
 };
 
 export interface EventOptions {
+    bot?: BotEvents,
     id?: EventIdentifier,
     type: EventTypes|EventTypes[],
     handler: Function,
@@ -20,12 +22,17 @@ export interface EventOptions {
 };
 
 export class Event {
+    public bot: BotEvents;
     public readonly id: EventIdentifier;
     public readonly types: EventTypes[];
     private handler: Function;
 
     constructor(options: EventOptions) {
+        if (options.bot) this.bot = options.bot;
+
         if (!options.id) throw new EventNoIDError(`An event${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id.`);
+
+        if (this.bot && this.bot.getAllEvents && this.bot.getAllEvents().some(e => e.id === options.id)) throw new EventAlreadyExistingIDError(`An event already exists with the same id: ${options.id}.`);
 
         this.id = options.id;
 
@@ -36,6 +43,12 @@ export class Event {
         }
 
         this.handler = options.handler;
+
+        console.log(this.handler);
+    }
+
+    async callFilters() {
+
     }
 
     async call(...any: any[]): Promise<boolean> {

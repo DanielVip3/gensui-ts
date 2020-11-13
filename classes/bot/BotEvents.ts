@@ -16,7 +16,7 @@ export default class BotEvents {
         this.events.push(event);
 
         if (this.client) for (let type of event.types) {
-            this.client.on(type, event.call);
+            this.client.on(type, event.call.bind(event));
         }
 
         return event;
@@ -29,7 +29,7 @@ export default class BotEvents {
         this.events.splice(eventIndex, 1);
 
         if (this.client) for (let type of event.types) {
-            this.client.removeListener(type, event.call);
+            this.client.removeListener(type, event.call.bind(event));
         }
 
         return event;

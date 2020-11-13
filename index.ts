@@ -7,6 +7,7 @@ import { CooldownError } from './errors';
 import { CommandContext, CommandIdentifier } from './classes/commands/Command';
 import { MemoryCooldownStore } from './classes/utils/CooldownStores';
 import { Consumers } from './consumers/Consumers';
+import { EventContext } from './classes/events/EventContext';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
@@ -21,9 +22,8 @@ const bot: Bot = new Bot({
 
     altri filters, interceptors e consumers
 
-    Eventi
-        Interceptors per eventi (solo custom, niente di pre-esistente)
-        Consumers per eventi (solo custom, niente di pre-esistente)
+    Interceptors per eventi (solo custom, niente di pre-esistente)
+    Consumers per eventi (solo custom, niente di pre-esistente)
 
     Injectables
         DB e DB injection nelle classi
@@ -57,6 +57,11 @@ class Commands {
         metadata: { showHelp: false, },
     })
     testf({ command, message, data }: CommandContext): void {
+    }
+
+    @bot.Event({}, true)
+    guildMemberUpdate(update: EventContext): void {
+        console.log(update);
     }
 
     @bot.Except({

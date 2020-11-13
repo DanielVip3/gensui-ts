@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import BotCommands from '../bot/BotCommands';
-import { CommandNoIDError, CommandNoNameError } from '../../errors';
+import { CommandAlreadyExistingIDError, CommandNoIDError, CommandNoNameError } from '../../errors';
 import { CommandFilter } from './CommandFilter';
 import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterceptor';
 import { CommandConsumer, CommandConsumerResponse } from './CommandConsumer';
@@ -78,6 +78,8 @@ export class Command {
             checkForNames();
             this.id = options.names[0];
         }
+
+        if (this.bot && this.bot.getAllCommands && this.bot.getAllCommands().some(e => e.id === options.id)) throw new CommandAlreadyExistingIDError(`A command already exists with the same id: ${options.id}.`);
 
         if (options.description) this._description = options.description;
 
