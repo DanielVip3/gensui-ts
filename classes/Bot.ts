@@ -126,17 +126,39 @@ export default class Bot extends BotCommands {
         return this.constants;
     }
 
-    get(...values: string[]): any {
+    get(...values: string[]|string[][]): any {
         if (!values || !Array.isArray(values) || values.length <= 0) return this.constants;
 
-        let returnValue = this.constants;
+        let returnValue: any[] = [];
+        let i = 0;
         for (let value of values) {
-            if (!returnValue || !returnValue.hasOwnProperty(value)) break;
+            if (Array.isArray(value)) {
+                for (let value2 of value) {
+                    if (!returnValue[i]) returnValue[i] = this.constants;
 
-            returnValue = returnValue[value];
+                    if (!returnValue[i].hasOwnProperty(value2)) {
+                        returnValue[i] = null;
+                        break;
+                    }
+
+                    returnValue[i] = returnValue[i][value2];
+                }
+            } else {
+                if (!returnValue[0]) returnValue[0] = this.constants;
+
+                if (!returnValue[0].hasOwnProperty(value)) {
+                    returnValue[0] = null;
+                    break;
+                }
+
+                returnValue[0] = returnValue[0][value];
+            }
+
+            i++;
         }
 
-        return returnValue;
+        if (returnValue.length <= 1) return returnValue[0];
+        else return returnValue;
     }
 
     /* Injects a constant to a property */
