@@ -13,7 +13,7 @@ import { Event, EventDecoratorOptions, EventOptions, EventTypes } from './events
 import { EventFilter } from './events/EventFilter';
 import { EventInterceptor } from './events/EventInterceptor';
 import { EventConsumer } from './events/EventConsumer';
-import { isArrayTypeNode } from 'typescript';
+import { Sandbox } from './sandboxes/Sandbox';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -49,6 +49,7 @@ export default class Bot extends BotCommands {
     public readonly options: BotOptions;
     public client: Discord.Client;
     public constants: BotConstants;
+    private sandboxes: Sandbox[];
 
     constructor(options: BotOptions, readyHandler?: Function) {
         super();
@@ -85,6 +86,7 @@ export default class Bot extends BotCommands {
         try {
             this.login(token || this.options.token);
             this.startFetchingCommands(this.client);
+            this.executeSandboxes();
 
             return true;
         } catch(err) {
@@ -92,6 +94,12 @@ export default class Bot extends BotCommands {
 
             return false;
         }
+    }
+
+    executeSandboxes(): void {
+        if (!this.sandboxes || !Array.isArray(this.sandboxes) || this.sandboxes.length <= 0) return;
+        
+        for (let sandbox of this.sandboxes) sandbox(this.client, this);
     }
 
     constant();
@@ -138,8 +146,6 @@ export default class Bot extends BotCommands {
             propertyKey: string,
         ) => {
             target[propertyKey] = value;
-
-            console.log(target, propertyKey);
 
             Object.defineProperty(target, propertyKey, {
                 configurable: false,
@@ -468,6 +474,16 @@ export default class Bot extends BotCommands {
                     handler: descriptor.value,
                 } as ExceptionHandler);
             }
+        };
+    }
+
+    Sandbox() {
+        return (
+            target: any,
+            propertyKey: string,
+            descriptor: PropertyDescriptor
+        ) => {
+            this.sandboxes.push(descriptor.value);
         };
     }
 };
