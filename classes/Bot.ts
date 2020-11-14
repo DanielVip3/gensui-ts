@@ -49,7 +49,7 @@ export default class Bot extends BotCommands {
     public readonly options: BotOptions;
     public client: Discord.Client;
     public constants: BotConstants;
-    private sandboxes: Sandbox[];
+    public sandboxes: Sandbox[] = [];
 
     constructor(options: BotOptions, readyHandler?: Function) {
         super();

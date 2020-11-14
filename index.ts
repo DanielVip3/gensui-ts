@@ -47,6 +47,11 @@ abstract class Commands {
     guildMemberUpdate([oldMember, newMember]: EventPayload<"guildMemberUpdate">, update: EventContext): void {
         // console.log(oldMember.displayName, newMember.displayName, update);
     }
+
+    @bot.Sandbox()
+    testSafe() {
+        console.log("test");
+    }
 }
 
 bot.start();
