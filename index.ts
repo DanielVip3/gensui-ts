@@ -16,38 +16,15 @@ const bot: Bot = new Bot({
     console.log("Bot startato!");
 });
 
-/* TODO:
-    Testing delle novità
+bot.constant({
+    roles: {
+        Espresso: "776798598402277397",
+    }
+});
 
-    altri filters, interceptors e consumers
-
-    Interceptors per eventi (solo custom, niente di pre-esistente)
-    Consumers per eventi (solo custom, niente di pre-esistente)
-
-    Injectables
-        DB e DB injection nelle classi
-        Cache e cache injection nelle classi
-
-    Sandbox
-
-    Safe runtime
-    ^ questo decoratore, se aggiunto ad un metodo, lo esegue ogni volta in un child_process.fork e gli rende impossibile accedere a qualunque cosa del programma se non esplicitamente importata nel metodo
-
-    Expectations
-    ^ sistema di testing dei comandi e delle loro funzioni integrato nel framework (?)
-
-    Custom events
-    ^ wrappers di eventi più complicati uniti assieme (es. guildMemberUpdate) per definire eventi unici più semplici (es. il cambio di canale vocale, proveniente da un guildMemberUpdate)
-
-    Sistema per conservare variabili critiche es. id dei ruoli, id dei canali, id dei servers etc.
-
-    Sistema di internazionalizzazione per-server o per-utente (I18N) per le descrizioni dei comandi e gli errori
-
-    Multiprefix
-*/
-
-class Commands {
+abstract class Commands {
     @bot.Scope(1) id: CommandIdentifier;
+    @bot.Inject(bot.get("roles", "Espresso")) static espresso: string;
 
     @bot.Apply(
         Filters.Commands._NSFW,
@@ -57,12 +34,15 @@ class Commands {
     @bot.Metadata({ showHelp: false })
     @bot.Command()
     testf({ command, message, data }: CommandContext): void {
+        console.log(data, Commands.espresso);
+    }
+
+    @bot.Command()
+    testf2({ command, message, data }: CommandContext): void {
         console.log(data);
     }
 
-    @bot.Apply(
-        Consumers.Commands._Log
-    )
+    @bot.Apply(Consumers.Commands._Log)
     @bot.Event()
     guildMemberUpdate([oldMember, newMember]: EventPayload<"guildMemberUpdate">, update: EventContext): void {
         // console.log(oldMember.displayName, newMember.displayName, update);

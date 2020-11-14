@@ -2,6 +2,7 @@ import Discord, { ClientEvents } from 'discord.js';
 import * as yup from 'yup';
 
 import BotCommands from './bot/BotCommands';
+import BotConstants from './bot/BotConstants';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandMetadata, CommandOptions } from './commands/Command';
 import { ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler, ExceptionInlineDecoratorOptions } from './exception-handler/ExceptionHandler';
@@ -12,6 +13,7 @@ import { Event, EventDecoratorOptions, EventOptions, EventTypes } from './events
 import { EventFilter } from './events/EventFilter';
 import { EventInterceptor } from './events/EventInterceptor';
 import { EventConsumer } from './events/EventConsumer';
+import { isArrayTypeNode } from 'typescript';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -46,6 +48,7 @@ export default class Bot extends BotCommands {
     protected errored: boolean = false;
     public readonly options: BotOptions;
     public client: Discord.Client;
+    public constants: BotConstants;
 
     constructor(options: BotOptions, readyHandler?: Function) {
         super();
@@ -89,6 +92,61 @@ export default class Bot extends BotCommands {
 
             return false;
         }
+    }
+
+    constant();
+    constant(objectv: BotConstants);
+    constant(objectsv: BotConstants);
+    constant(...values: BotConstants[]): BotConstants {
+        if (!values || !Array.isArray(values) || values.length <= 0) return this.constants;
+        else if (values) {
+            if (Array.isArray(values)) {
+                if (values.length === 1) {
+                    this.constants = { ...this.constants, ...values[0] as Object };
+                } else if (values.length > 1) {
+                    Object.assign(this.constants, this.constants, ...values);
+                }
+
+                return this.constants;
+            } else {
+                this.constants = { ...this.constants, ...values[0] as Object };
+
+                return this.constants;
+            }
+        }
+        
+        return this.constants;
+    }
+
+    get(...values: string[]): any {
+        if (!values || !Array.isArray(values) || values.length <= 0) return this.constants;
+
+        let returnValue = this.constants;
+        for (let value of values) {
+            if (!returnValue || !returnValue.hasOwnProperty(value)) break;
+
+            returnValue = returnValue[value];
+        }
+
+        return returnValue;
+    }
+
+    /* Injects a constant to a property */
+    Inject(value) {
+        return (
+            target: any,
+            propertyKey: string,
+        ) => {
+            target[propertyKey] = value;
+
+            console.log(target, propertyKey);
+
+            Object.defineProperty(target, propertyKey, {
+                configurable: false,
+                get: () => value,
+                set: (val) => {}
+            });
+        };
     }
     
     /* Declares a readonly ID which will be scoped and tied to the entire class */
