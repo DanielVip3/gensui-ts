@@ -5,6 +5,7 @@ import { Command, CommandIdentifier } from '../commands/Command';
 import { CommandConsumer } from '../commands/CommandConsumer';
 import { CommandFilter } from '../commands/CommandFilter';
 import { CommandInterceptor } from '../commands/CommandInterceptor';
+import { CommandCallOptions } from '../commands/CommandCallOptions';
 import { Event, EventContext, EventPayload } from '../events/Event';
 import { ExceptionHandler } from '../exception-handler/ExceptionHandler';
 import BotEvents from './BotEvents';
@@ -108,7 +109,8 @@ export default class BotCommands extends BotEvents {
     }
     
     async handleCommandMessage(client: Client, message: Message): Promise<Command|undefined> {
-        const firstWord: string = message.content.trim().split(" ")[0];
+        const args: string[] = message.content.trim().split(" ");
+        const firstWord: string = args[0];
 
         let startsWithPrefix: boolean = false;
         let actualCommandPrefix: string = "";
@@ -127,14 +129,29 @@ export default class BotCommands extends BotEvents {
         }
 
         let command: Command|undefined;
+        let callOptions: CommandCallOptions|undefined;
         if (startsWithPrefix) {
             command = await this.findCommand(firstWord.replace(actualCommandPrefix, ""));
+
+            if (command) callOptions = {
+                prefix: actualCommandPrefix,
+                name: firstWord.replace(actualCommandPrefix, ""),
+                mentionHandled: true,
+                rawArguments: args,
+            } as CommandCallOptions;
         } else if (this.enableMentionHandling && client && client.user && message.mentions && message.mentions.has(client.user.id) && message.content.startsWith(`<@${client.user.id}>`)) {
             command = await this.findCommand(firstWord.replace(`<@${client.user.id}> `, ""));
+
+            if (command) callOptions = {
+                prefix: null,
+                name: firstWord.replace(`<@${client.user.id}> `, ""),
+                mentionHandled: true,
+                rawArguments: args,
+            } as CommandCallOptions;
         }
 
         if (command && command.call) {
-            command.call(message);
+            command.call(message, callOptions);
 
             return command;
         }

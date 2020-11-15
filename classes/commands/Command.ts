@@ -6,6 +6,7 @@ import { CommandInterceptor, CommandInterceptorResponse } from './CommandInterce
 import { CommandConsumer, CommandConsumerResponse } from './CommandConsumer';
 import { CommandExceptionHandler } from '../exception-handler/ExceptionHandler';
 import { CommandContext } from './CommandContext';
+import { CommandCallOptions } from './CommandCallOptions';
 
 export { CommandContext, CommandContextData } from './CommandContext';
 
@@ -230,8 +231,8 @@ export class Command {
         } as CommandConsumerResponse;
     }
 
-    async call(message: Message): Promise<boolean> {
-        const context: CommandContext = { command: this, message };
+    async call(message: Message, callOptions?: CommandCallOptions): Promise<boolean> {
+        const context: CommandContext = { command: this, message, call: callOptions };
 
         if (!await this.callFilters(context)) return false;
 
