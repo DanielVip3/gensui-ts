@@ -109,7 +109,7 @@ export default class BotCommands extends BotEvents {
     }
     
     async handleCommandMessage(client: Client, message: Message): Promise<Command|undefined> {
-        const args: string[] = message.content.trim().split(" ");
+        let args: string[] = message.content.trim().split(" ");
         const firstWord: string = args[0];
 
         let startsWithPrefix: boolean = false;
@@ -128,23 +128,25 @@ export default class BotCommands extends BotEvents {
             }
         }
 
+        let calledName: string|undefined = undefined;
         let command: Command|undefined;
         let callOptions: CommandCallOptions|undefined;
         if (startsWithPrefix) {
             command = await this.findCommand(firstWord.replace(actualCommandPrefix, ""));
 
-            if (command) callOptions = {
-                prefix: actualCommandPrefix,
-                name: firstWord.replace(actualCommandPrefix, ""),
-                mentionHandled: true,
-                rawArguments: args,
-            } as CommandCallOptions;
+            calledName = firstWord.replace(actualCommandPrefix, "");
         } else if (this.enableMentionHandling && client && client.user && message.mentions && message.mentions.has(client.user.id) && message.content.startsWith(`<@${client.user.id}>`)) {
             command = await this.findCommand(firstWord.replace(`<@${client.user.id}> `, ""));
 
-            if (command) callOptions = {
-                prefix: null,
-                name: firstWord.replace(`<@${client.user.id}> `, ""),
+            calledName = firstWord.replace(`<@${client.user.id}> `, "");
+        }
+
+        if (command && calledName) {
+            if (command.argumentsDivider && command.argumentsDivider !== " ") args = message.content.trim().split(command.argumentsDivider);
+
+            callOptions = {
+                prefix: actualCommandPrefix,
+                name: calledName,
                 mentionHandled: true,
                 rawArguments: args,
             } as CommandCallOptions;

@@ -124,6 +124,8 @@ export class Command {
 
         if (options.metadata) this.metadata = options.metadata;
 
+        if (options.argumentsDivider) this.argumentsDivider = options.argumentsDivider;
+
         this.handler = options.handler;
     }
 
