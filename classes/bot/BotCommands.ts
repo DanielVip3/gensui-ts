@@ -143,6 +143,7 @@ export default class BotCommands extends BotEvents {
 
         if (command && calledName) {
             if (command.argumentsDivider && command.argumentsDivider !== " ") args = message.content.trim().split(command.argumentsDivider);
+            args.shift(); // removes the command name who called the command
 
             callOptions = {
                 prefix: actualCommandPrefix,
