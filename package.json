@@ -23,7 +23,6 @@
     "@types/randomstring": "^1.1.6",
     "@types/redis": "^2.8.28",
     "bufferutil": "^4.0.1",
-    "bycontract": "^2.0.10",
     "discord.js": "^12.3.1",
     "erlpack": "github:discord/erlpack",
     "ioredis": "^4.19.2",

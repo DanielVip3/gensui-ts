@@ -7,6 +7,7 @@ import { Consumers } from './consumers/Consumers';
 import { CommandContext, CommandIdentifier } from './classes/commands/Command';
 import { MemoryCooldownStore } from './classes/utils/CooldownStores';
 import { EventContext, EventPayload } from './classes/events/EventContext';
+import { CommandArgsParser } from './classes/commands/args/CommandArgsParser';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
@@ -32,7 +33,14 @@ abstract class Commands {
         Consumers.Commands._Log
     )
     @bot.Metadata({ showHelp: false })
-    @bot.Command()
+    @bot.Command({
+        parser: new CommandArgsParser([
+            {
+                id: "a",
+                type: "number",
+            }
+        ])
+    })
     testf({ command, message, data }: CommandContext): void {
         console.log(data, Commands.espresso);
     }

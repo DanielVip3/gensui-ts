@@ -7,8 +7,7 @@ import { CommandConsumer, CommandConsumerResponse } from './CommandConsumer';
 import { CommandExceptionHandler } from '../exception-handler/ExceptionHandler';
 import { CommandContext } from './CommandContext';
 import { CommandCallOptions } from './CommandCallOptions';
-import { CommandArgsValidator } from './args/CommandArgsValidator';
-import { convertCompilerOptionsFromJson } from 'typescript';
+import { CommandArgsParser } from './args/CommandArgsParser';
 
 export { CommandContext, CommandContextData } from './CommandContext';
 
@@ -29,7 +28,7 @@ export interface CommandDecoratorOptions {
     names?: string|string[],
     description?: string,
     filters?: CommandFilter[]|CommandFilter,
-    validators?: CommandArgsValidator[]|CommandArgsValidator,
+    parser?: CommandArgsParser,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
     metadata?: CommandMetadata,
@@ -41,7 +40,7 @@ export interface CommandOptions {
     names: string|string[],
     description?: string,
     filters?: CommandFilter[]|CommandFilter,
-    validators?: CommandArgsValidator[]|CommandArgsValidator,
+    parser?: CommandArgsParser,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
     exceptions?: CommandExceptionHandler[],
@@ -59,7 +58,7 @@ export class Command {
     private _names: string[];
     private _description?: string;
     protected filters: CommandFilter[] = [];
-    protected validators: CommandArgsValidator[] = [];
+    protected parser: CommandArgsParser;
     protected interceptors: CommandInterceptor[] = [];
     protected consumers: CommandConsumer[] = [];
     protected exceptions: CommandExceptionHandler[] = [];
@@ -95,10 +94,7 @@ export class Command {
             else if (!Array.isArray(options.filters)) this.filters = [options.filters];
         }
 
-        if (options.validators) {
-            if (Array.isArray(options.validators)) this.validators = options.validators;
-            else if (!Array.isArray(options.validators)) this.validators = [options.validators];
-        }
+        if (options.parser) this.parser = options.parser;
 
         if (options.interceptors) {
             if (Array.isArray(options.interceptors)) this.interceptors = options.interceptors;
@@ -171,24 +167,21 @@ export class Command {
         return valid;
     }
 
-    async callValidators(ctx: CommandContext): Promise<boolean> {
-        let valid: boolean = true;
+    async callParser(ctx: CommandContext): Promise<boolean> {
+        if (!this.parser) return true;
 
-        if (this.validators) {
-            for (let validator of this.validators) {
-                if (!ctx.call) return false;
+        if (!ctx.call) return false;
 
-                try {
-                    await validator.validate(ctx.message, ctx.call);
-                } catch(err) {
-                    console.error(err);
-                    await this.callExceptionHandlers(ctx, err);
-                    valid = false;
-                }
-            }
+        try {
+            await this.parser.parse(ctx.message, ctx.call);
+
+            return true;
+        } catch(err) {
+            console.error(err);
+            await this.callExceptionHandlers(ctx, err);
+            
+            return false;
         }
-
-        return valid;
     }
 
     async callInterceptors(ctx: CommandContext): Promise<CommandInterceptorResponse> {
@@ -265,7 +258,7 @@ export class Command {
         const context: CommandContext = { command: this, message, call: callOptions };
 
         if (!await this.callFilters(context)) return false;
-        if (!await this.callValidators(context)) return false;
+        if (!await this.callParser(context)) return false;
 
         const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
