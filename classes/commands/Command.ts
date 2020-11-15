@@ -8,6 +8,7 @@ import { CommandExceptionHandler } from '../exception-handler/ExceptionHandler';
 import { CommandContext } from './CommandContext';
 import { CommandCallOptions } from './CommandCallOptions';
 import { CommandArgsParser } from './args/CommandArgsParser';
+import { CommandArgs } from './args/CommandArgs';
 
 export { CommandContext, CommandContextData } from './CommandContext';
 
@@ -32,6 +33,7 @@ export interface CommandDecoratorOptions {
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
     metadata?: CommandMetadata,
+    argumentsDivider?: string,
 };
 
 export interface CommandOptions {
@@ -50,6 +52,7 @@ export interface CommandOptions {
     methodName?: string,
     
     metadata?: CommandMetadata,
+    argumentsDivider?: string,
 };
 
 export class Command {
@@ -64,6 +67,7 @@ export class Command {
     protected exceptions: CommandExceptionHandler[] = [];
     private handler: Function;
     public metadata: CommandMetadata = {};
+    public argumentsDivider: string = " ";
 
     constructor(options: CommandOptions) {
         if (options.bot) this.bot = options.bot;
@@ -167,20 +171,18 @@ export class Command {
         return valid;
     }
 
-    async callParser(ctx: CommandContext): Promise<boolean> {
-        if (!this.parser) return true;
+    async callParser(ctx: CommandContext): Promise<CommandArgs|null> {
+        if (!this.parser) return null;
 
-        if (!ctx.call) return false;
+        if (!ctx.call) return null;
 
         try {
-            await this.parser.parse(ctx.message, ctx.call);
-
-            return true;
+            return await this.parser.parse(ctx.message, ctx.call);
         } catch(err) {
             console.error(err);
             await this.callExceptionHandlers(ctx, err);
             
-            return false;
+            return null;
         }
     }
 
@@ -258,7 +260,12 @@ export class Command {
         const context: CommandContext = { command: this, message, call: callOptions };
 
         if (!await this.callFilters(context)) return false;
-        if (!await this.callParser(context)) return false;
+
+        if (context.call) {
+            const args: CommandArgs|null = await this.callParser(context);
+
+            context.call.arguments = args;
+        }
 
         const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
