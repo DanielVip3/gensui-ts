@@ -41,8 +41,8 @@ abstract class Commands {
             }
         ])
     })
-    testf({ command, message, data }: CommandContext): void {
-        console.log(data, Commands.espresso);
+    testf({ command, message, data, call }: CommandContext): void {
+        console.log(data, call);
     }
 
     @bot.Command()
@@ -58,7 +58,7 @@ abstract class Commands {
 
     @bot.Sandbox()
     testSafe() {
-        console.log("test");
+        // console.log("test");
     }
 }
 

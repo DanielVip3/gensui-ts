@@ -14,6 +14,7 @@ import { EventFilter } from './events/EventFilter';
 import { EventInterceptor } from './events/EventInterceptor';
 import { EventConsumer } from './events/EventConsumer';
 import { Sandbox } from './sandboxes/Sandbox';
+import { CommandArgsParser } from './commands/args/CommandArgsParser';
 
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
@@ -310,6 +311,7 @@ export default class Bot extends BotCommands {
             else if (useFunctionNameAsCommandName === undefined && !propertyKey.startsWith("_")) commandNames.push(propertyKey);
 
             let filters: CommandFilter[] = [];
+            let parser: CommandArgsParser|undefined;
             let interceptors: CommandInterceptor[] = [];
             let consumers: CommandConsumer[] = [];
 
@@ -323,6 +325,8 @@ export default class Bot extends BotCommands {
                     if (Array.isArray(options.filters)) filters = options.filters;
                     else if (!Array.isArray(options.filters)) filters = [options.filters];
                 }
+
+                if (options.parser) parser = options.parser;
 
                 if (options.interceptors) {
                     if (Array.isArray(options.interceptors)) interceptors = options.interceptors;
@@ -357,6 +361,7 @@ export default class Bot extends BotCommands {
                 names: commandNames,
                 description: !!options && !!options.description ? options.description : (descriptor["decoratedDescription"] || undefined),
                 filters: filters,
+                parser: parser,
                 interceptors: interceptors,
                 consumers: consumers,
                 metadata: !!options && !!options.metadata ? options.metadata : (descriptor["decoratedMetadata"] || undefined),

@@ -174,9 +174,18 @@ export class Command {
     }
 
     async callParser(ctx: CommandContext): Promise<CommandArgs|null> {
-        if (!this.parser) return null;
-
         if (!ctx.call) return null;
+
+        function convertRawArgsArrayToArgsObject(rawArguments: string[]): CommandArgs {
+            let argsObj: CommandArgs = {};
+
+            let i: number = 0;
+            for (let argument of rawArguments) argsObj[i++] = argument;
+
+            return argsObj;
+        }
+
+        if (!this.parser) return await convertRawArgsArrayToArgsObject(ctx.call.rawArguments);
 
         try {
             return await this.parser.parse(ctx.message, ctx.call);

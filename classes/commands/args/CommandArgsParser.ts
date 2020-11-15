@@ -136,30 +136,31 @@ export class CommandArgsParser {
         }
     }
 
-    parse(message: Message, options: CommandCallOptions): CommandArgs {
+    async parse(message: Message, options: CommandCallOptions): Promise<CommandArgs> {
+        let calledFrom: string[] = options.rawArguments;
         let args: CommandArgs = {};
 
         let i = 0;
         for (let type of this.test) {
             if (!type || !type.id || !type.id.length || type.id.length <= 0) continue;
 
-            if (!options[i]) {
+            if (!calledFrom[i]) {
                 if (type.default) {
                     args[type.id] = type.default;
                     continue;
                 } else args[type.id] = null;
             }
 
-            let transformedValue: any = options[i];
+            let transformedValue: any = calledFrom[i];
             if (type.transformer) {
                 if (Array.isArray(type.transformer)) {
                     for (let transformer of type.transformer) {
-                        if (transformer) transformedValue = transformer(transformedValue);
+                        if (transformer) transformedValue = await transformer(transformedValue);
                     }
-                } else transformedValue = type.transformer(transformedValue);
+                } else transformedValue = await type.transformer(transformedValue);
             }
 
-            if (type.type) args[type.id] = this.castType(transformedValue, type.type, message) || type.default || null;
+            if (type.type) args[type.id] = await this.castType(transformedValue, type.type, message) || type.default || null;
             
             i++;
         }
