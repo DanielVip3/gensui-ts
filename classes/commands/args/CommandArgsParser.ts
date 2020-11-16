@@ -1,6 +1,7 @@
 import { Client, GuildChannel, Message, TextChannel } from "discord.js";
 import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
+import { getDefaultCompilerOptions } from "typescript";
 
 const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
 
@@ -111,6 +112,13 @@ export class CommandArgsParser {
     }
 
     async parse(message: Message, options: CommandCallOptions): Promise<CommandArgs> {
+        async function getDefaultValue(type: PrimitiveArg|DiscordArg): Promise<any> {
+            if (type.default) {
+                if (type.default instanceof Function) return await type.default(message, options) || null;
+                else return await type.type || null;
+            } else return null;
+        }
+
         let calledFrom: string[] = options.rawArguments;
         let args: CommandArgs = {};
 
@@ -119,30 +127,29 @@ export class CommandArgsParser {
             if (!type || !type.id || !type.id.length || type.id.length <= 0) continue;
 
             if (!calledFrom[i]) {
-                if (type.default) {
-                    if (type.default instanceof Function) args[type.id] = await type.default(message, options);
-                    else args[type.id] = await type.type;
-                    continue;
-                } else args[type.id] = null;
+                args[type.id] = await getDefaultValue(type);
+                continue;
             }
 
-            let transformedValue: any = calledFrom[i];
-            if (type.transformer) {
-                if (Array.isArray(type.transformer)) {
-                    for (let transformer of type.transformer) {
-                        if (transformer) transformedValue = await transformer(transformedValue);
-                    }
-                } else transformedValue = await type.transformer(transformedValue);
-            }
-
+            let value: any = calledFrom[i];
             if (type.type) {
                 if (Array.isArray(type.type)) {
                     for (let typeItem of type.type) {
-                        if (!args[type.id]) args[type.id] = await this.castType(transformedValue, typeItem, message) || type.default || null;
+                        if (!args[type.id]) args[type.id] = await this.castType(value, typeItem, message) || await getDefaultValue(type);
                     }
                 } else {
-                    args[type.id] = await this.castType(transformedValue, type.type, message) || type.default || null;
+                    args[type.id] = await this.castType(value, type.type, message) || await getDefaultValue(type);
                 }
+            } else args[type.id] = value || await getDefaultValue(type);
+
+            if (type.processor) {
+                if (Array.isArray(type.processor)) {
+                    for (let processor of type.processor) {
+                        if (processor) value = await processor(calledFrom[i], value, message, options);
+                    }
+                } else value = await type.processor(calledFrom[i], value, message, options);
+
+                args[type.id] = value || await getDefaultValue(type);
             }
             
             i++;
