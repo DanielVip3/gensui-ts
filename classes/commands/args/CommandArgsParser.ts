@@ -147,7 +147,7 @@ export class CommandArgsParser {
                     for (let processor of type.processor) {
                         if (processor) value = await processor({
                             originalValue: calledFrom[i],
-                            value,
+                            value: args[type.id],
                             message,
                             type: type.type,
                             callOptions: options
@@ -155,7 +155,7 @@ export class CommandArgsParser {
                     }
                 } else value = await type.processor({
                     originalValue: calledFrom[i],
-                    value,
+                    value: args[type.id],
                     message,
                     type: type.type,
                     callOptions: options
