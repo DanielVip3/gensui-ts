@@ -32,17 +32,18 @@ export const DiscordTypes = {
 } as const;
 
 export type ArgTypes = (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes]|string;
+export type Processor = (value: any, type: ArgTypes, message: Message, callOptions?: CommandCallOptions) => any;
 
 export interface PrimitiveArg {
     id: string,
     type?: (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof PrimitiveTypes)[keyof typeof PrimitiveTypes][]|string,
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
-    transformer?: Function[]|Function,
+    processor?: Processor[]|Processor,
 };
 
 export interface DiscordArg {
     id: string,
     type?: (typeof DiscordTypes)[keyof typeof DiscordTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes][]|string,
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
-    transformer?: Function[]|Function,
+    processor?: Processor[]|Processor,
 };
