@@ -1,5 +1,5 @@
 import { Client, GuildChannel, Message, TextChannel } from "discord.js";
-import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg } from "./CommandArgs";
+import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg, ProcessorPayload } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
 import { getDefaultCompilerOptions } from "typescript";
 
@@ -145,9 +145,21 @@ export class CommandArgsParser {
             if (type.processor) {
                 if (Array.isArray(type.processor)) {
                     for (let processor of type.processor) {
-                        if (processor) value = await processor(calledFrom[i], value, message, options);
+                        if (processor) value = await processor({
+                            originalValue: calledFrom[i],
+                            value,
+                            message,
+                            type: type.type,
+                            callOptions: options
+                        } as ProcessorPayload);
                     }
-                } else value = await type.processor(calledFrom[i], value, message, options);
+                } else value = await type.processor({
+                    originalValue: calledFrom[i],
+                    value,
+                    message,
+                    type: type.type,
+                    callOptions: options
+                } as ProcessorPayload);
 
                 args[type.id] = value || await getDefaultValue(type);
             }

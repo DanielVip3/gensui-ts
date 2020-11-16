@@ -32,7 +32,6 @@ export const DiscordTypes = {
 } as const;
 
 export type ArgTypes = (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes]|string;
-export type Processor = (originalValue: string, castedValue: any, message: Message, callOptions?: CommandCallOptions) => any;
 
 export interface PrimitiveArg {
     id: string,
@@ -47,3 +46,17 @@ export interface DiscordArg {
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
     processor?: Processor[]|Processor,
 };
+
+export interface ProcessorPayload {
+    originalValue: string,
+
+    value: any,
+
+    message: Message,
+
+    type: ArgTypes,
+
+    callOptions?: CommandCallOptions,
+};
+
+export type Processor = (payload: ProcessorPayload) => any;
