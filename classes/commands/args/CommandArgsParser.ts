@@ -1,7 +1,6 @@
 import { Client, GuildChannel, Message, TextChannel } from "discord.js";
 import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg, ProcessorPayload } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
-import { getDefaultCompilerOptions } from "typescript";
 
 const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
 
@@ -112,10 +111,15 @@ export class CommandArgsParser {
     }
 
     async parse(message: Message, options: CommandCallOptions): Promise<CommandArgs> {
+        const isValueValid = (value: any): boolean => value !== null && value !== undefined;
+
         async function getDefaultValue(type: PrimitiveArg|DiscordArg): Promise<any> {
+            console.log(type.default);
             if (type.default) {
-                if (type.default instanceof Function) return await type.default(message, options) || null;
-                else return await type.type || null;
+                if (type.default instanceof Function) {
+                    const defaultR = await type.default(message, options);
+                    return isValueValid(defaultR) ? defaultR : null;
+                } else return isValueValid(type.default) ? type.default : null;
             } else return null;
         }
 
@@ -135,33 +139,43 @@ export class CommandArgsParser {
             if (type.type) {
                 if (Array.isArray(type.type)) {
                     for (let typeItem of type.type) {
-                        if (!args[type.id]) args[type.id] = await this.castType(value, typeItem, message) || await getDefaultValue(type);
+                        if (!args[type.id]) {
+                            const casted = await this.castType(value, typeItem, message);
+                            args[type.id] = isValueValid(casted) ? casted : await getDefaultValue(type);
+                        }
                     }
                 } else {
-                    args[type.id] = await this.castType(value, type.type, message) || await getDefaultValue(type);
+                    const casted = await this.castType(value, type.type, message);
+                    args[type.id] = isValueValid(casted) ? casted : await getDefaultValue(type);
                 }
-            } else args[type.id] = value || await getDefaultValue(type);
+            } else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
 
             if (type.processor) {
                 if (Array.isArray(type.processor)) {
                     for (let processor of type.processor) {
-                        if (processor) value = await processor({
-                            originalValue: calledFrom[i],
-                            value: args[type.id],
-                            message,
-                            type: type.type,
-                            callOptions: options
-                        } as ProcessorPayload);
+                        if (processor) {
+                            value = await processor({
+                                originalValue: calledFrom[i],
+                                value: args[type.id],
+                                message,
+                                type: type.type,
+                                callOptions: options
+                            } as ProcessorPayload);
+                            
+                            args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+                        }
                     }
-                } else value = await type.processor({
-                    originalValue: calledFrom[i],
-                    value: args[type.id],
-                    message,
-                    type: type.type,
-                    callOptions: options
-                } as ProcessorPayload);
+                } else {
+                    value = await type.processor({
+                        originalValue: calledFrom[i],
+                        value: args[type.id],
+                        message,
+                        type: type.type,
+                        callOptions: options
+                    } as ProcessorPayload);
 
-                args[type.id] = value || await getDefaultValue(type);
+                    args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+                }
             }
             
             i++;

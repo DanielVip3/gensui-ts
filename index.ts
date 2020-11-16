@@ -38,7 +38,8 @@ abstract class Commands {
             {
                 id: "a",
                 type: "number",
-                processor: ({ value }) => value + 1,
+                default: 1,
+                processor: ({ value }) => null,
             }
         ])
     })
