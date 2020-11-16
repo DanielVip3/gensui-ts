@@ -59,4 +59,5 @@ export interface ProcessorPayload {
     callOptions?: CommandCallOptions,
 };
 
-export type Processor = (payload: ProcessorPayload) => any;
+export type InlineProcessor = (value: any, message: Message) => boolean|Promise<boolean>;
+export type Processor = (payload: ProcessorPayload) => any|Promise<any>;
