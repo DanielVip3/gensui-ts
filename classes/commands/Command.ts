@@ -267,7 +267,7 @@ export class Command {
         } as CommandConsumerResponse;
     }
 
-    async call(message: Message, callOptions?: CommandCallOptions): Promise<boolean> {
+    async call(message: Message, callOptions: CommandCallOptions): Promise<boolean> {
         const context: CommandContext = { command: this, message, call: callOptions };
 
         if (!await this.callFilters(context)) return false;

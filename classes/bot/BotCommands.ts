@@ -153,7 +153,7 @@ export default class BotCommands extends BotEvents {
             } as CommandCallOptions;
         }
 
-        if (command && command.call) {
+        if (command && command.call && callOptions) {
             command.call(message, callOptions);
 
             return command;

@@ -10,5 +10,5 @@ export interface CommandContext {
     command: Command,
     message: Message,
     data?: CommandContextData,
-    call?: CommandCallOptions,
+    call: CommandCallOptions,
 };

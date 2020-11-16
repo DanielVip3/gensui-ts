@@ -38,11 +38,12 @@ abstract class Commands {
             {
                 id: "a",
                 type: "number",
+                processor: ({ value }) => value + 1,
             }
         ])
     })
     testf({ command, message, data, call }: CommandContext): void {
-        console.log(data, call);
+        console.log(call.arguments);
     }
 
     @bot.Command()
