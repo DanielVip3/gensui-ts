@@ -1,54 +1,26 @@
 import { Client, GuildChannel, Message, TextChannel } from "discord.js";
-import { CommandArgs } from "./CommandArgs";
+import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
 
-export const PrimitiveTypes = {
-    string: "string",
-    char: "char",
-    number: "number",
-    int: "int",
-    float: "float",
-    url: "url",
-    date: "date",
-    color: "color"
-} as const;
-
-export const DiscordTypes = {
-    user: "user",
-    member: "member",
-    channel: "channel",
-    textChannel: "textChannel",
-    voiceChannel: "voiceChannel",
-    role: "role",
-    emoji: "emoji",
-    guild: "guild",
-    message: "message",
-    channelMessage: "channelMessage",
-    guildMessage: "guildMessage",
-    invite: "invite"
-} as const;
-
-export type ArgTypes = (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes];
-
-export interface PrimitiveArg {
-    id: string,
-    type?: (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes],
-    default?: any,
-    transformer?: Function[]|Function,
-};
-
-export interface DiscordArg {
-    id: string,
-    type?: (typeof DiscordTypes)[keyof typeof DiscordTypes],
-    default?: any,
-    transformer?: Function[]|Function,
-};
+const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
 
 export class CommandArgsParser {
     private readonly test: PrimitiveArg[]|DiscordArg[];
 
     constructor(test: PrimitiveArg[]|DiscordArg[]) {
         this.test = test;
+    }
+
+    static addType(typeName: string, typeCaster: (value: string, message: Message) => any): boolean {
+        customTypes[typeName] = typeCaster;
+
+        return true;
+    }
+
+    static removeType(typeName: string): boolean {
+        delete customTypes[typeName];
+
+        return true;
     }
 
     async castType(value: string, type: ArgTypes, message: Message, client?: Client): Promise<any> {
@@ -132,6 +104,8 @@ export class CommandArgsParser {
 
                 return null;
             default:
+                if (type in customTypes) await customTypes[type](value, message);
+
                 return null;
         }
     }
@@ -146,7 +120,8 @@ export class CommandArgsParser {
 
             if (!calledFrom[i]) {
                 if (type.default) {
-                    args[type.id] = type.default;
+                    if (type.default instanceof Function) args[type.id] = await type.default(message, options);
+                    else args[type.id] = await type.type;
                     continue;
                 } else args[type.id] = null;
             }
@@ -160,7 +135,15 @@ export class CommandArgsParser {
                 } else transformedValue = await type.transformer(transformedValue);
             }
 
-            if (type.type) args[type.id] = await this.castType(transformedValue, type.type, message) || type.default || null;
+            if (type.type) {
+                if (Array.isArray(type.type)) {
+                    for (let typeItem of type.type) {
+                        if (!args[type.id]) args[type.id] = await this.castType(transformedValue, typeItem, message) || type.default || null;
+                    }
+                } else {
+                    args[type.id] = await this.castType(transformedValue, type.type, message) || type.default || null;
+                }
+            }
             
             i++;
         }
