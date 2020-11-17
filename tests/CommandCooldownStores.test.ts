@@ -5,13 +5,13 @@ import { expect } from 'chai';
 describe("Memory Cooldown Store (with max times = 1)", function() {
     it("has set class properties", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         //@ts-ignore
         expect(store.store).to.be.deep.equal({});
         //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(3 * 1000);
+        expect(store.cooldownTime).to.be.equal(1 * 1000);
         //@ts-ignore
         expect(store.maxTimes).to.be.equal(1);
 
@@ -20,7 +20,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
     it("adds user in cooldown correctly", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         store.increaseCooldown("testUserID");
@@ -32,7 +32,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
     it("has user in store", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         store.increaseCooldown("testUserID");
@@ -45,7 +45,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
     it("resets correctly if cooldown is increased but max limits is reached", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
         });
 
@@ -84,7 +84,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
     it("gets correct user data", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         store.increaseCooldown("testUserID");
@@ -100,7 +100,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
         this.timeout(5000);
 
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 seconds
         });
 
         store.increaseCooldown("testUserID");
@@ -109,12 +109,12 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
             expect(store.isInCooldown("testUserID")).to.be.false;
 
             done();
-        }, 3500);
+        }, 1500);
     });
 
     it("deletes user from cooldown correctly", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         store.increaseCooldown("testUserID");
@@ -129,7 +129,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
     it("false is returned when unexisting user's cooldown is tried to be deleted", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         expect(store.deleteCooldown("unexistingUserID")).to.be.false;
@@ -139,7 +139,7 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
     it("fully clears itself correctly", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
         });
 
         store.increaseCooldown("testUserID");
@@ -153,14 +153,14 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 describe("Memory Cooldown Store (with max times = 3)", function() {
     it("has set class properties", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
         });
 
         //@ts-ignore
         expect(store.store).to.be.deep.equal({});
         //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(3 * 1000);
+        expect(store.cooldownTime).to.be.equal(1 * 1000);
         //@ts-ignore
         expect(store.maxTimes).to.be.equal(3);
 
@@ -169,7 +169,7 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
 
     it("adds user in cooldown correctly", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
         });
 
@@ -181,7 +181,7 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
     
     it("has user in store", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
         });
 
@@ -195,7 +195,7 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
 
     it("gets correct user data", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3
         });
 
@@ -211,7 +211,7 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
 
     it("invalidates user in cooldown correctly due to max times reached", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
         });
 
@@ -231,7 +231,7 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
         this.timeout(5000);
 
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 seconds
             maxTimes: 3,
         });
 
@@ -245,12 +245,12 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
             expect(store.isInCooldown("testUserID")).to.be.false;
 
             done();
-        }, 3500);
+        }, 1500);
     });
 
     it("fully clears itself correctly", function(done) {
         const store = new MemoryCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
         });
 
@@ -269,7 +269,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         expect(function() {
             //@ts-ignore
             new RedisCooldownStore({
-                cooldownTime: 3 * 1000, // 3 seconds
+                cooldownTime: 1 * 1000, // 1 second
                 cooldownHashKey: "TEST.bot.commands.cooldown",
                 cooldownIdentifierKey: "test"
             });
@@ -279,7 +279,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
     it("works even if no cooldown hash key has been provided", function() {
         //@ts-ignore
         const store1 = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownIdentifierKey: "test"
         });
@@ -288,7 +288,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
         //@ts-ignore
         const store2 = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
         });
 
@@ -297,7 +297,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
     it("has set class properties", function(done) {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -306,7 +306,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         //@ts-ignore
         expect(store.store).to.be.instanceOf(IORedis);
         //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(3 * 1000);
+        expect(store.cooldownTime).to.be.equal(1 * 1000);
         //@ts-ignore
         expect(store.maxTimes).to.be.equal(1);
 
@@ -319,7 +319,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
     it("adds user in cooldown correctly", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -332,7 +332,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
     it("has user and correct data in store", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -350,7 +350,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
     it("resets correctly if cooldown is increased but max limits is reached", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             maxTimes: 3,
             cooldownIdentifierKey: "test"
@@ -389,7 +389,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
     it("gets correct user data", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -406,7 +406,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         this.timeout(10000);
 
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 seconds
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -417,12 +417,12 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         setTimeout(async() => {
             expect(await store.isInCooldown("testUserID")).to.be.false;
             done();
-        }, 5500);
+        }, 1500);
     });
 
     it("deletes user from cooldown correctly", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -436,7 +436,7 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
     it("fully clears itself correctly", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
             cooldownIdentifierKey: "test"
@@ -456,7 +456,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
         expect(function() {
             //@ts-ignore
             new RedisCooldownStore({
-                cooldownTime: 3 * 1000, // 3 seconds
+                cooldownTime: 1 * 1000, // 1 second
                 maxTimes: 3,
                 cooldownHashKey: "TEST.bot.commands.cooldown",
                 cooldownIdentifierKey: "test"
@@ -466,7 +466,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("has set class properties", function(done) {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -476,7 +476,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
         //@ts-ignore
         expect(store.store).to.be.instanceOf(IORedis);
         //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(3 * 1000);
+        expect(store.cooldownTime).to.be.equal(1 * 1000);
         //@ts-ignore
         expect(store.maxTimes).to.be.equal(3);
 
@@ -489,7 +489,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("adds user in cooldown correctly", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -504,7 +504,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("has user and correct data in store", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -523,7 +523,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("gets correct user data", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -540,7 +540,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("invalidates user in cooldown correctly due to max times reached", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -561,7 +561,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
         this.timeout(5000);
 
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 seconds
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -575,12 +575,12 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
         setTimeout(async() => {
             expect(await store.isInCooldown("testUserID")).to.be.false;
             done();
-        }, 3500);
+        }, 1500);
     });
 
     it("deletes user from cooldown correctly", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -597,7 +597,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("false is returned when unexisting user's cooldown is tried to be deleted", async function () {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
@@ -609,7 +609,7 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
     it("fully clears itself correctly", async function() {
         const store = new RedisCooldownStore({
-            cooldownTime: 3 * 1000, // 3 seconds
+            cooldownTime: 1 * 1000, // 1 second
             maxTimes: 3,
             store: new IORedis(),
             cooldownHashKey: "TEST.bot.commands.cooldown",
