@@ -2,7 +2,7 @@ import { EventPayload, EventContext } from '../../classes/events/Event';
 import { EventConsumer, EventConsumerResponse } from '../../classes/events/EventConsumer';
 import { ClientEvents } from 'discord.js';
 
-export interface InlineConsumerCallback {
+export interface InlineEventConsumerCallback {
     (payload?: EventPayload<any>, ctx?: EventContext, returnData?: any): EventConsumerResponse|Promise<EventConsumerResponse>,
 };
 
@@ -10,10 +10,10 @@ export interface InlineConsumerCallback {
 A simple consumer which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this consumer (for now).
 */
-export default class InlineConsumer<K extends keyof ClientEvents> implements EventConsumer<K> {
-    private readonly callback: InlineConsumerCallback;
+export default class InlineEventConsumer<K extends keyof ClientEvents> implements EventConsumer<K> {
+    private readonly callback: InlineEventConsumerCallback;
     
-    constructor(callback: InlineConsumerCallback) {
+    constructor(callback: InlineEventConsumerCallback) {
         this.callback = callback;
     }
 

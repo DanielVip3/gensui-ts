@@ -1,9 +1,10 @@
 import LogConsumer from './commands/LogConsumer';
-import { default as InlineCommandConsumer, InlineConsumerCallback as InlineCommandConsumerCallback } from './commands/InlineConsumer';
-import { default as InlineEventConsumer, InlineConsumerCallback as InlineEventConsumerCallback } from './events/InlineConsumer';
+import { default as InlineCommandConsumer, InlineCommandConsumerCallback } from './commands/InlineConsumer';
+import { default as InlineEventConsumer, InlineEventConsumerCallback } from './events/InlineConsumer';
 
 export * as LogConsumer from './commands/LogConsumer';
-export * as InlineConsumer from './commands/InlineConsumer';
+export { default as InlineCommandConsumer, InlineCommandConsumerCallback } from './commands/InlineConsumer';
+export { default as InlineEventConsumer, InlineEventConsumerCallback } from './events/InlineConsumer';
 
 export namespace Consumers {
     export class Commands {
