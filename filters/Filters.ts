@@ -9,8 +9,8 @@ import TextChannelsFilter from "./commands/TextChannelsFilter";
 
 export * as DMFilter from './commands/DMFilter';
 export * as GuildsFilter from './commands/GuildsFilter';
-export * as InlineCommandFilter from './commands/InlineFilter';
-export * as InlineEventFilter from './events/InlineFilter';
+export { default as InlineCommandFilter, InlineFilterCallback as InlineCommandFilterCallback } from './commands/InlineFilter';
+export { default as InlineEventFilter, InlineFilterCallback as InlineEventFilterCallback } from './events/InlineFilter';
 export * as NSFWFilter from "./commands/NSFWFilter";
 export * as TextChannelsFilter from './commands/TextChannelsFilter';
 
