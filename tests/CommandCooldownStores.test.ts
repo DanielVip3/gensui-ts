@@ -43,6 +43,45 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
         done();
     });
 
+    it("resets correctly if cooldown is increased but max limits is reached", function(done) {
+        const store = new MemoryCooldownStore({
+            cooldownTime: 3 * 1000, // 3 seconds
+            maxTimes: 3,
+        });
+
+        store.increaseCooldown("testUserID");
+        store.increaseCooldown("testUserID");
+
+        expect(store.getCooldown("testUserID")).to.have.property("times").which.equals(2);
+
+        store.increaseCooldown("testUserID"); // reaches 3
+        store.increaseCooldown("testUserID"); // goes back to 1
+
+        expect(store.getCooldown("testUserID")).to.have.property("times").which.equals(1);
+
+        done();
+    });
+
+    it("resets correctly if cooldown is increased but already expired", function(done) {
+        const store = new MemoryCooldownStore({
+            cooldownTime: 1 * 1000, // 1 second
+            maxTimes: 3,
+        });
+
+        store.increaseCooldown("testUserID");
+        store.increaseCooldown("testUserID");
+
+        expect(store.getCooldown("testUserID")).to.have.property("times").which.equals(2);
+
+        setTimeout(() => { // time expires
+            store.increaseCooldown("testUserID"); // goes back to 1
+
+            expect(store.getCooldown("testUserID")).to.have.property("times").which.equals(1);
+
+            done();
+        }, 1500);
+    });
+
     it("gets correct user data", function(done) {
         const store = new MemoryCooldownStore({
             cooldownTime: 3 * 1000, // 3 seconds
@@ -82,6 +121,18 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 
         expect(store.deleteCooldown("testUserID")).to.be.true;
         expect(store.isInCooldown("testUserID")).to.be.false;
+
+        expect(store.deleteCooldown("unexistingUserID")).to.be.false;
+
+        done();
+    });
+
+    it("false is returned when unexisting user's cooldown is tried to be deleted", function(done) {
+        const store = new MemoryCooldownStore({
+            cooldownTime: 3 * 1000, // 3 seconds
+        });
+
+        expect(store.deleteCooldown("unexistingUserID")).to.be.false;
 
         done();
     });
@@ -225,6 +276,25 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         }).to.throw("store");
     });
 
+    it("works even if no cooldown hash key has been provided", function() {
+        //@ts-ignore
+        const store1 = new RedisCooldownStore({
+            cooldownTime: 3 * 1000, // 3 seconds
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        expect(store1).to.have.property("cooldownHashKey").which.equals("bot.commands.cooldown.test");
+
+        //@ts-ignore
+        const store2 = new RedisCooldownStore({
+            cooldownTime: 3 * 1000, // 3 seconds
+            store: new IORedis(),
+        });
+
+        expect(store2).to.have.property("cooldownHashKey");
+    });
+
     it("has set class properties", function(done) {
         const store = new RedisCooldownStore({
             cooldownTime: 3 * 1000, // 3 seconds
@@ -276,6 +346,45 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         user = JSON.parse(user);
         expect(user).to.include({ times: 1 });
         expect(user).to.have.property('called');
+    });
+
+    it("resets correctly if cooldown is increased but max limits is reached", async function() {
+        const store = new RedisCooldownStore({
+            cooldownTime: 3 * 1000, // 3 seconds
+            store: new IORedis(),
+            maxTimes: 3,
+            cooldownIdentifierKey: "test"
+        });
+
+        await store.increaseCooldown("testUserID");
+        await store.increaseCooldown("testUserID");
+
+        expect(await store.getCooldown("testUserID")).to.have.property("times").which.equals(2);
+
+        await store.increaseCooldown("testUserID"); // reaches 3
+        await store.increaseCooldown("testUserID"); // goes back to 1
+
+        expect(await store.getCooldown("testUserID")).to.have.property("times").which.equals(1);
+    });
+
+    it("resets correctly if cooldown is increased but already expired", function(done) {
+        const store = new RedisCooldownStore({
+            cooldownTime: 1 * 1000, // 1 second
+            store: new IORedis(),
+            maxTimes: 3,
+            cooldownIdentifierKey: "test",
+        });
+
+        store.increaseCooldown("testUserID");
+        store.increaseCooldown("testUserID");
+
+        setTimeout(async() => { // time expires
+            await store.increaseCooldown("testUserID"); // goes back to 1
+
+            expect(await store.getCooldown("testUserID")).to.have.property("times").which.equals(1);
+
+            done();
+        }, 1500);
     });
 
     it("gets correct user data", async function() {
@@ -484,6 +593,18 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
 
         expect(await store.deleteCooldown("testUserID")).to.be.true;
         expect(await store.isInCooldown("testUserID")).to.be.false;
+    });
+
+    it("false is returned when unexisting user's cooldown is tried to be deleted", async function () {
+        const store = new RedisCooldownStore({
+            cooldownTime: 3 * 1000, // 3 seconds
+            maxTimes: 3,
+            store: new IORedis(),
+            cooldownHashKey: "TEST.bot.commands.cooldown",
+            cooldownIdentifierKey: "test"
+        });
+
+        expect(await store.deleteCooldown("unexistingUserID")).to.be.false;
     });
 
     it("fully clears itself correctly", async function() {
