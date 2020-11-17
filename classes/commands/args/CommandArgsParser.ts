@@ -1,6 +1,7 @@
 import { Client, GuildChannel, Message, TextChannel } from "discord.js";
 import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg, ProcessorPayload } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
+import { types } from "joi";
 
 const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
 
@@ -161,8 +162,18 @@ export class CommandArgsParser {
                                 type: type.type,
                                 callOptions: options
                             } as ProcessorPayload);
-                            
-                            args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+
+                            if (type.type !== "boolean") {
+                                if (value === false) args[type.id] = await getDefaultValue(type);
+                                else if (value === true) continue;
+                                else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+
+                                continue;
+                            } else {
+                                args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+
+                                continue;
+                            }
                         }
                     }
                 } else {
@@ -174,7 +185,17 @@ export class CommandArgsParser {
                         callOptions: options
                     } as ProcessorPayload);
 
-                    args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+                    if (type.type !== "boolean") {
+                        if (value === false) args[type.id] = await getDefaultValue(type);
+                        else if (value === true) continue;
+                        else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+
+                        continue;
+                    } else {
+                        args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+
+                        continue;
+                    }
                 }
             }
             

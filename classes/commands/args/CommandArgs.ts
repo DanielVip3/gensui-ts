@@ -37,14 +37,14 @@ export interface PrimitiveArg {
     id: string,
     type?: (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof PrimitiveTypes)[keyof typeof PrimitiveTypes][]|string,
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
-    processor?: Processor[]|Processor,
+    processor?: Processor[]|Processor|InlineProcessor[]|InlineProcessor,
 };
 
 export interface DiscordArg {
     id: string,
     type?: (typeof DiscordTypes)[keyof typeof DiscordTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes][]|string,
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
-    processor?: Processor[]|Processor,
+    processor?: Processor[]|Processor|InlineProcessor[]|InlineProcessor,
 };
 
 export interface ProcessorPayload {
@@ -59,5 +59,5 @@ export interface ProcessorPayload {
     callOptions?: CommandCallOptions,
 };
 
-export type InlineProcessor = (value: any, message: Message) => boolean|Promise<boolean>;
+export type InlineProcessor = (payload: ProcessorPayload) => boolean|Promise<boolean>;
 export type Processor = (payload: ProcessorPayload) => any|Promise<any>;
