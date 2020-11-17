@@ -1,5 +1,5 @@
 import { Message, Client } from 'discord.js';
-import { ExceptionNoCommandError } from '../../errors';
+import { ExceptionNoReferenceError } from '../../errors';
 import { CommandGlobalHookError } from '../../errors/bot';
 import { Command, CommandIdentifier } from '../commands/Command';
 import { CommandConsumer } from '../commands/CommandConsumer';
@@ -70,7 +70,7 @@ export default class BotCommands extends BotEvents {
     addCommandExceptionHandler(exceptionHandler: ExceptionHandler): boolean {
         if (!exceptionHandler.id) return false;
         const command: Command|undefined = this.getCommand(exceptionHandler.id);
-        if (!command) throw new ExceptionNoCommandError(`Exception handler (command ID ${exceptionHandler.id}) does not refer to an existing command ID. Could it be you declared the exception handler BEFORE the command itself?`);
+        if (!command) throw new ExceptionNoReferenceError(`Exception handler (command ID ${exceptionHandler.id}) does not refer to an existing command ID. Could it be you declared the exception handler BEFORE the command itself?`);
         
         command.addExceptionHandler(exceptionHandler);
 

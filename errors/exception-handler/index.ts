@@ -1,2 +1,2 @@
 export { default as ExceptionNoIDError } from './ExceptionNoIDError';
-export { default as ExceptionNoCommandError } from './ExceptionNoReferenceError';
+export { default as ExceptionNoReferenceError } from './ExceptionNoReferenceError';
