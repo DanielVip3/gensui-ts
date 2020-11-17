@@ -1,7 +1,7 @@
 import { CommandFilter } from '../../classes/commands/CommandFilter';
 import { CommandContext } from '../../classes/commands/Command';
 
-export interface InlineFilterCallback {
+export interface InlineCommandFilterCallback {
     (ctx: CommandContext): boolean|Promise<boolean>,
 };
 
@@ -9,11 +9,11 @@ export interface InlineFilterCallback {
 A simple filter which allows an inline callback function to determine if to execute the command handler.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this filter (for now).
 */
-export default class InlineFilter implements CommandFilter {
-    private readonly callback: InlineFilterCallback;
+export default class InlineCommandFilter implements CommandFilter {
+    private readonly callback: InlineCommandFilterCallback;
     public readonly whitelist: boolean;
     
-    constructor(callback: InlineFilterCallback, whitelist: boolean = true) {
+    constructor(callback: InlineCommandFilterCallback, whitelist: boolean = true) {
         this.callback = callback;
         this.whitelist = whitelist;
     }

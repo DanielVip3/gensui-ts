@@ -2,15 +2,15 @@ import { ClientEvents } from "discord.js";
 
 import DMFilter from "./commands/NSFWFilter";
 import GuildsFilter from './commands/GuildsFilter';
-import { default as InlineCommandFilter, InlineFilterCallback as InlineCommandFilterCallback } from './commands/InlineFilter';
-import { default as InlineEventFilter, InlineFilterCallback as InlineEventFilterCallback } from './events/InlineFilter';
+import { default as InlineCommandFilter, InlineCommandFilterCallback } from './commands/InlineFilter';
+import { default as InlineEventFilter, InlineEventFilterCallback } from './events/InlineFilter';
 import NSFWFilter from "./commands/NSFWFilter";
 import TextChannelsFilter from "./commands/TextChannelsFilter";
 
 export * as DMFilter from './commands/DMFilter';
 export * as GuildsFilter from './commands/GuildsFilter';
-export { default as InlineCommandFilter, InlineFilterCallback as InlineCommandFilterCallback } from './commands/InlineFilter';
-export { default as InlineEventFilter, InlineFilterCallback as InlineEventFilterCallback } from './events/InlineFilter';
+export { default as InlineCommandFilter, InlineCommandFilterCallback } from './commands/InlineFilter';
+export { default as InlineEventFilter, InlineEventFilterCallback } from './events/InlineFilter';
 export * as NSFWFilter from "./commands/NSFWFilter";
 export * as TextChannelsFilter from './commands/TextChannelsFilter';
 
