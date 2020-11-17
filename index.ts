@@ -34,6 +34,7 @@ abstract class Commands {
     )
     @bot.Metadata({ showHelp: false })
     @bot.Command({
+        id: "testf",
         parser: new CommandArgsParser([
             {
                 id: "a",
@@ -45,6 +46,8 @@ abstract class Commands {
     })
     testf({ command, message, data, call }: CommandContext): void {
         console.log(call.arguments);
+
+        throw new Error("Negro");
     }
 
     @bot.Command()
@@ -57,6 +60,15 @@ abstract class Commands {
     guildMemberUpdate([oldMember, newMember]: EventPayload<"guildMemberUpdate">, update: EventContext): void {
         // console.log(oldMember.displayName, newMember.displayName, update);
     }
+
+    @bot.ExceptCommand({
+        id: "testf",
+        exceptions: []
+    })
+    onException(ctx: CommandContext, exception: any) {
+        console.log(exception);
+    }
+    
 
     @bot.Sandbox()
     testSafe() {

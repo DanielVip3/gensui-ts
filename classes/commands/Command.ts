@@ -281,11 +281,17 @@ export class Command {
         const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
-        const returned: any = await this.handler(context);
+        try {
+            const returned: any = await this.handler(context);
 
-        const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
-        if (!consumersResponse || !consumersResponse.next) return false;
+            const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
+            if (!consumersResponse || !consumersResponse.next) return false;
 
-        return true;
+            return true;
+        } catch(err) {
+            this.callExceptionHandlers(context, err);
+
+            return false;
+        }
     }
 }
