@@ -1,3 +1,5 @@
+import { ClientEvents } from "discord.js";
+
 import DMFilter from "./commands/NSFWFilter";
 import GuildsFilter from './commands/GuildsFilter';
 import { default as InlineCommandFilter, InlineFilterCallback as InlineCommandFilterCallback } from './commands/InlineFilter';
@@ -7,7 +9,8 @@ import TextChannelsFilter from "./commands/TextChannelsFilter";
 
 export * as DMFilter from './commands/DMFilter';
 export * as GuildsFilter from './commands/GuildsFilter';
-export * as InlineFilter from './commands/InlineFilter';
+export * as InlineCommandFilter from './commands/InlineFilter';
+export * as InlineEventFilter from './events/InlineFilter';
 export * as NSFWFilter from "./commands/NSFWFilter";
 export * as TextChannelsFilter from './commands/TextChannelsFilter';
 
@@ -43,7 +46,7 @@ export namespace Filters {
     }
 
     export class Events {
-        public static Inline(callback: InlineEventFilterCallback, whitelist: boolean = true) {
+        public static Inline<K extends keyof ClientEvents>(callback: InlineEventFilterCallback<K>, whitelist: boolean = true) {
             return new InlineEventFilter(callback, whitelist);
         }
     }
