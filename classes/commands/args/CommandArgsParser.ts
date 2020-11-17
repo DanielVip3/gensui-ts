@@ -48,8 +48,13 @@ export class CommandArgsParser {
                 if (color < 0 || color > 0xFFFFFF || isNaN(color)) return null;
 
                 return color;
+            case "boolean":
+                value = value.toLowerCase();
+                if (value === "true" || value === "on" || value === "1" || value === "yes") return true;
+                else if (value === "false" || value === "off" || value === "0" || value === "no") return false;
+                else return null;
 
-
+                
             case "user":
                 if (!client) return null;
 
