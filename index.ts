@@ -46,8 +46,6 @@ abstract class Commands {
     })
     testf({ command, message, data, call }: CommandContext): void {
         console.log(call.arguments);
-
-        throw new Error("Negro");
     }
 
     @bot.Command()
@@ -68,7 +66,6 @@ abstract class Commands {
     onException(ctx: CommandContext, exception: any) {
         console.log(exception);
     }
-    
 
     @bot.Sandbox()
     testSafe() {
