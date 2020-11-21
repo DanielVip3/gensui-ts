@@ -114,7 +114,7 @@ export class Event {
         } else return false;
     }
 
-    async callFilters(ctx: EventContext): Promise<boolean> {
+    async callFilters<K extends keyof ClientEvents>(payload: EventPayload<K>, ctx: EventContext): Promise<boolean> {
         let valid: boolean = true;
 
         if (this.filters) {
@@ -133,7 +133,7 @@ export class Event {
         return valid;
     }
 
-    async callInterceptors(ctx: EventContext): Promise<EventInterceptorResponse> {
+    async callInterceptors<K extends keyof ClientEvents>(payload: EventPayload<K>, ctx: EventContext): Promise<EventInterceptorResponse> {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
@@ -168,7 +168,7 @@ export class Event {
         } as EventInterceptorResponse;
     }
 
-    async callConsumers(ctx: EventContext, returnData: any): Promise<EventConsumerResponse> {
+    async callConsumers<K extends keyof ClientEvents>(payload: EventPayload<K>, ctx: EventContext, returnData: any): Promise<EventConsumerResponse> {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
@@ -203,17 +203,17 @@ export class Event {
         } as EventConsumerResponse;
     }
 
-    async call(...any: any[]): Promise<boolean> {
-        const context: EventContext = { event: this, ...any };
+    async call<K extends keyof ClientEvents>(...payload: EventPayload<K>): Promise<boolean> {
+        const context: EventContext = { event: this };
 
-        if (!await this.callFilters(context)) return false;
+        if (!await this.callFilters<K>(payload, context)) return false;
 
-        const interceptorsResponse: EventInterceptorResponse = await this.callInterceptors(context);
+        const interceptorsResponse: EventInterceptorResponse = await this.callInterceptors<K>(payload, context);
         if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
-        const returned: any = await this.handler(any, context);
+        const returned: any = await this.handler(payload, context);
 
-        const consumersResponse: EventConsumerResponse = await this.callConsumers(context, returned);
+        const consumersResponse: EventConsumerResponse = await this.callConsumers<K>(payload, context, returned);
         if (!consumersResponse || !consumersResponse.next) return false;
 
         return true;
