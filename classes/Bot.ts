@@ -409,16 +409,55 @@ export default class Bot extends BotCommands {
             if (!!useFunctionNameAsEventType) eventTypes.push(propertyKey as EventTypes);
             else if (useFunctionNameAsEventType === undefined && !propertyKey.startsWith("_")) eventTypes.push(propertyKey as EventTypes);
 
+            let filters: CommandFilter[] = [];
+            let interceptors: CommandInterceptor[] = [];
+            let consumers: CommandConsumer[] = [];
+
             if (options) {
                 if (options.type) {
                     if (!Array.isArray(options.type)) eventTypes.push(options.type);
                     else eventTypes = eventTypes.concat(options.type);
+                }
+    
+                if (options.filters) {
+                    if (Array.isArray(options.filters)) filters = options.filters;
+                    else if (!Array.isArray(options.filters)) filters = [options.filters];
+                }
+
+                if (options.interceptors) {
+                    if (Array.isArray(options.interceptors)) interceptors = options.interceptors;
+                    else if (!Array.isArray(options.interceptors)) interceptors = [options.interceptors];
+                }
+
+                if (options.consumers) {
+                    if (Array.isArray(options.consumers)) consumers = options.consumers;
+                    else if (!Array.isArray(options.consumers)) consumers = [options.consumers];
+                }
+
+                if (descriptor) {
+                    if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
+                        if (filters.length <= 0) filters = descriptor["decoratedFilters"];
+                        else filters = filters.concat(descriptor["decoratedFilters"]);
+                    }
+
+                    if (descriptor["decoratedInterceptors"] && Array.isArray(descriptor["decoratedInterceptors"])) {
+                        if (interceptors.length <= 0) interceptors = descriptor["decoratedInterceptors"];
+                        else interceptors = interceptors.concat(descriptor["decoratedInterceptors"]);
+                    }
+
+                    if (descriptor["decoratedConsumers"] && Array.isArray(descriptor["decoratedConsumers"])) {
+                        if (consumers.length <= 0) consumers = descriptor["decoratedConsumers"];
+                        else consumers = consumers.concat(descriptor["decoratedConsumers"]);
+                    }
                 }
             }
 
             this.addEvent(new Event({
                 id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
                 type: eventTypes,
+                filters: filters,
+                interceptors: interceptors,
+                consumers: consumers,
                 methodName: propertyKey,
                 handler: descriptor.value,
             } as EventOptions));
