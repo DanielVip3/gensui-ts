@@ -124,6 +124,8 @@ export class Event {
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);
                     valid = false;
+                    
+                    break;
                 }
             }
         }

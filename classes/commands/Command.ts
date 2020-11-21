@@ -166,6 +166,8 @@ export class Command {
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);
                     valid = false;
+
+                    break;
                 }
             }
         }
