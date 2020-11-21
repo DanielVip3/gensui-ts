@@ -8,11 +8,11 @@ export interface EventConsumerResponse {
 };
 
 export abstract class EventConsumer<K extends keyof ClientEvents> {
-    public abstract consume(payload?: EventArgsOf<K>, context?: EventContext, ...any: []): EventConsumerResponse|Promise<EventConsumerResponse>;
+    public abstract consume(payload?: EventArgsOf<K>, context?: EventContext, returnData?: any, ...any: []): EventConsumerResponse|Promise<EventConsumerResponse>;
 };
 
 export abstract class EventSideEffect<K extends keyof ClientEvents> implements EventConsumer<K> {
-    public async consume(payload?: EventArgsOf<K>, context?: EventContext): Promise<EventConsumerResponse> {
+    public async consume(payload?: EventArgsOf<K>, context?: EventContext, returnData?: any): Promise<EventConsumerResponse> {
         await this.effect(payload, context);
 
         return {

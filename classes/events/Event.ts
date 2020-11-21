@@ -120,7 +120,8 @@ export class Event {
         if (this.filters) {
             for (let filter of this.filters) {
                 try {
-                    await filter.handleError(await filter.filter(ctx), ctx);
+                    valid = await filter.filter(payload, ctx) || true;
+                    await filter.handleError(valid, ctx);
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);
                     valid = false;
@@ -140,7 +141,7 @@ export class Event {
         if (this.interceptors) {
             for (let interceptor of this.interceptors) {
                 try {
-                    const response: EventInterceptorResponse = await interceptor.intercept(ctx);
+                    const response: EventInterceptorResponse = await interceptor.intercept(payload, ctx);
 
                     if (!!response.next || response.next === undefined) continueFlow = true;
                     else if (!response.next) continueFlow = false;
@@ -175,7 +176,7 @@ export class Event {
         if (this.consumers) {
             for (let consumer of this.consumers) {
                 try {
-                    const response: EventConsumerResponse = await consumer.consume(ctx, returnData);
+                    const response: EventConsumerResponse = await consumer.consume(payload, ctx, returnData);
 
                     if (!!response.next || response.next === undefined) continueFlow = true;
                     else if (!response.next) continueFlow = false;
