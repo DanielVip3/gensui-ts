@@ -142,6 +142,8 @@ export class Event {
 
         if (this.interceptors) {
             for (let interceptor of this.interceptors) {
+                if (!continueFlow) break;
+
                 try {
                     const response: EventInterceptorResponse = await interceptor.intercept(payload, ctx);
 
@@ -177,6 +179,8 @@ export class Event {
 
         if (this.consumers) {
             for (let consumer of this.consumers) {
+                if (!continueFlow) break;
+
                 try {
                     const response: EventConsumerResponse = await consumer.consume(payload, ctx, returnData);
 

@@ -206,6 +206,8 @@ export class Command {
 
         if (this.interceptors) {
             for (let interceptor of this.interceptors) {
+                if (!continueFlow) break;
+
                 try {
                     const response: CommandInterceptorResponse = await interceptor.intercept(ctx);
 
@@ -241,6 +243,8 @@ export class Command {
 
         if (this.consumers) {
             for (let consumer of this.consumers) {
+                if (!continueFlow) break;
+
                 try {
                     const response: CommandConsumerResponse = await consumer.consume(ctx, returnData);
 
