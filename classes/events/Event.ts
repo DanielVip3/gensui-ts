@@ -29,7 +29,7 @@ export interface EventOptions {
     filters?: EventFilter<any>[]|EventFilter<any>,
     interceptors?: EventInterceptor<any>[]|EventInterceptor<any>,
     consumers?: EventConsumer<any>[]|EventConsumer<any>,
-    exceptions?: EventExceptionHandler[],
+    exceptions?: EventExceptionHandler[]|EventExceptionHandler,
     handler: (payload?: EventPayload<any>, context?: EventContext) => any|void,
 
     /* Eventually, the method who instantiated the event (using the decorator) */
