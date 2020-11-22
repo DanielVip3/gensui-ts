@@ -120,7 +120,7 @@ export class Event {
         if (this.filters) {
             for (let filter of this.filters) {
                 try {
-                    valid = await filter.filter(payload, ctx) || true;
+                    valid = !!await filter.filter(payload, ctx) || false;
                     await filter.handleError(valid, ctx);
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);

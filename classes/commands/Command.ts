@@ -162,7 +162,8 @@ export class Command {
         if (this.filters) {
             for (let filter of this.filters) {
                 try {
-                    await filter.handleError(await filter.filter(ctx), ctx);
+                    valid = !!await filter.filter(ctx) || false;
+                    await filter.handleError(valid, ctx);
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);
                     valid = false;
