@@ -117,7 +117,6 @@ export class Event {
     async callFilters<K extends keyof ClientEvents>(payload: EventPayload<K>, ctx: EventContext): Promise<boolean> {
         let valid: boolean = true;
 
-        console.log(this.filters);
         if (this.filters) {
             for (let filter of this.filters) {
                 try {

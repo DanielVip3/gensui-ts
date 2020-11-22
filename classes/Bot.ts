@@ -435,6 +435,7 @@ export default class Bot extends BotCommands {
                 }
             }
 
+            console.log(descriptor);
             if (descriptor) {
                 if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
                     if (filters.length <= 0) filters = descriptor["decoratedFilters"];
