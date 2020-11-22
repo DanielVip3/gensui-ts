@@ -337,22 +337,22 @@ export default class Bot extends BotCommands {
                     if (Array.isArray(options.consumers)) consumers = options.consumers;
                     else if (!Array.isArray(options.consumers)) consumers = [options.consumers];
                 }
+            }
 
-                if (descriptor) {
-                    if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
-                        if (filters.length <= 0) filters = descriptor["decoratedFilters"];
-                        else filters = filters.concat(descriptor["decoratedFilters"]);
-                    }
+            if (descriptor) {
+                if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
+                    if (filters.length <= 0) filters = descriptor["decoratedFilters"];
+                    else filters = filters.concat(descriptor["decoratedFilters"]);
+                }
 
-                    if (descriptor["decoratedInterceptors"] && Array.isArray(descriptor["decoratedInterceptors"])) {
-                        if (interceptors.length <= 0) interceptors = descriptor["decoratedInterceptors"];
-                        else interceptors = interceptors.concat(descriptor["decoratedInterceptors"]);
-                    }
+                if (descriptor["decoratedInterceptors"] && Array.isArray(descriptor["decoratedInterceptors"])) {
+                    if (interceptors.length <= 0) interceptors = descriptor["decoratedInterceptors"];
+                    else interceptors = interceptors.concat(descriptor["decoratedInterceptors"]);
+                }
 
-                    if (descriptor["decoratedConsumers"] && Array.isArray(descriptor["decoratedConsumers"])) {
-                        if (consumers.length <= 0) consumers = descriptor["decoratedConsumers"];
-                        else consumers = consumers.concat(descriptor["decoratedConsumers"]);
-                    }
+                if (descriptor["decoratedConsumers"] && Array.isArray(descriptor["decoratedConsumers"])) {
+                    if (consumers.length <= 0) consumers = descriptor["decoratedConsumers"];
+                    else consumers = consumers.concat(descriptor["decoratedConsumers"]);
                 }
             }
 
@@ -433,22 +433,22 @@ export default class Bot extends BotCommands {
                     if (Array.isArray(options.consumers)) consumers = options.consumers;
                     else if (!Array.isArray(options.consumers)) consumers = [options.consumers];
                 }
+            }
 
-                if (descriptor) {
-                    if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
-                        if (filters.length <= 0) filters = descriptor["decoratedFilters"];
-                        else filters = filters.concat(descriptor["decoratedFilters"]);
-                    }
+            if (descriptor) {
+                if (descriptor["decoratedFilters"] && Array.isArray(descriptor["decoratedFilters"])) {
+                    if (filters.length <= 0) filters = descriptor["decoratedFilters"];
+                    else filters = filters.concat(descriptor["decoratedFilters"]);
+                }
 
-                    if (descriptor["decoratedInterceptors"] && Array.isArray(descriptor["decoratedInterceptors"])) {
-                        if (interceptors.length <= 0) interceptors = descriptor["decoratedInterceptors"];
-                        else interceptors = interceptors.concat(descriptor["decoratedInterceptors"]);
-                    }
+                if (descriptor["decoratedInterceptors"] && Array.isArray(descriptor["decoratedInterceptors"])) {
+                    if (interceptors.length <= 0) interceptors = descriptor["decoratedInterceptors"];
+                    else interceptors = interceptors.concat(descriptor["decoratedInterceptors"]);
+                }
 
-                    if (descriptor["decoratedConsumers"] && Array.isArray(descriptor["decoratedConsumers"])) {
-                        if (consumers.length <= 0) consumers = descriptor["decoratedConsumers"];
-                        else consumers = consumers.concat(descriptor["decoratedConsumers"]);
-                    }
+                if (descriptor["decoratedConsumers"] && Array.isArray(descriptor["decoratedConsumers"])) {
+                    if (consumers.length <= 0) consumers = descriptor["decoratedConsumers"];
+                    else consumers = consumers.concat(descriptor["decoratedConsumers"]);
                 }
             }
 
