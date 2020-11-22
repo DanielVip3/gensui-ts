@@ -104,8 +104,10 @@ export class Event {
     }
 
     async callExceptionHandlers(ctx: EventContext, exception: any): Promise<boolean> {
+        if (!exception.prototype) return false;
+
         if (this.exceptions && this.exceptions.length >= 1) {
-            const toCallHandlers: EventExceptionHandler[] = this.exceptions.filter(e => !e.exceptions || e.exceptions.length <= 0 || e.exceptions.some((e) => exception instanceof e));
+            const toCallHandlers: EventExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exception.prototype === e.prototype));
             if (toCallHandlers) {
                 for (const h of toCallHandlers) await h.handler(ctx, exception);
 
