@@ -40,9 +40,11 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
+    "@types/chai-as-promised": "^7.1.3",
     "@types/mocha": "^8.0.3",
     "@types/yup": "^0.29.9",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "mocha": "^8.2.0",
     "sinon": "^9.2.1"
   }
