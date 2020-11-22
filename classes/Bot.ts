@@ -201,12 +201,13 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!descriptor["decoratedMetadata"]) descriptor["decoratedMetadata"] = metadata;
-            else descriptor["decoratedMetadata"] = { ...descriptor["decoratedMetadata"], ...metadata } as CommandMetadata;
+            let value: any;
+            if (!descriptor["decoratedMetadata"]) descriptor["decoratedMetadata"] = value = metadata;
+            else descriptor["decoratedMetadata"] = value = { ...descriptor["decoratedMetadata"], ...metadata } as CommandMetadata;
 
             Object.defineProperty(descriptor, "decoratedMetadata", {
                 configurable: false,
-                get: () => descriptor["decoratedMetadata"],
+                get: () => value,
                 set: (val) => {},
             });
         };
@@ -222,7 +223,7 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(descriptor, "decoratedDescription", {
                 configurable: false,
-                get: () => descriptor["decoratedDescription"],
+                get: () => description,
                 set: (val) => {},
             });
         };
@@ -248,12 +249,13 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!descriptor["decoratedFilters"]) descriptor["decoratedFilters"] = filters;
-            else descriptor["decoratedFilters"] = descriptor["decoratedFilters"].concat(filters);
+            let value: any;
+            if (!descriptor["decoratedFilters"]) descriptor["decoratedFilters"] = value = filters;
+            else descriptor["decoratedFilters"] = value = descriptor["decoratedFilters"].concat(filters);
 
             Object.defineProperty(descriptor, "decoratedFilters", {
                 configurable: false,
-                get: () => descriptor["decoratedFilters"],
+                get: () => value,
                 set: (val) => {},
             });
         };
@@ -265,12 +267,13 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!descriptor["decoratedInterceptors"]) descriptor["decoratedInterceptors"] = interceptors;
-            else descriptor["decoratedInterceptors"] = descriptor["decoratedInterceptors"].concat(interceptors);
+            let value: any;
+            if (!descriptor["decoratedInterceptors"]) descriptor["decoratedInterceptors"] = value = interceptors;
+            else descriptor["decoratedInterceptors"] = value = descriptor["decoratedInterceptors"].concat(interceptors);
 
             Object.defineProperty(descriptor, "decoratedInterceptors", {
                 configurable: false,
-                get: () => descriptor["decoratedInterceptors"],
+                get: () => value,
                 set: (val) => {},
             });
         };
@@ -282,12 +285,13 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!descriptor["decoratedConsumers"]) descriptor["decoratedConsumers"] = consumers;
-            else descriptor["decoratedConsumers"] = descriptor["decoratedConsumers"].concat(consumers);
+            let value: any;
+            if (!descriptor["decoratedConsumers"]) descriptor["decoratedConsumers"] = value = consumers;
+            else descriptor["decoratedConsumers"] = value = descriptor["decoratedConsumers"].concat(consumers);
 
             Object.defineProperty(descriptor, "decoratedConsumers", {
                 configurable: false,
-                get: () => target["decoratedConsumers"],
+                get: () => value,
                 set: (val) => {},
             });
         };
