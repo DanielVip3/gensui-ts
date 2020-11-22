@@ -4,6 +4,8 @@ import { Interceptors, InlineEventInterceptor } from '../../interceptors/Interce
 import { Consumers, InlineEventConsumer } from '../../consumers/Consumers';
 import { EventExceptionHandler } from '../../classes/exception-handler/ExceptionHandler';
 
+import Bot from '../../classes/Bot';
+
 import * as chai from 'chai';
 import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -13,6 +15,12 @@ chai.use(chaiAsPromised);
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
+
+const botMock = new Bot({
+    name: "mock",
+    token: "test-token",
+    prefix: "!"
+});
 
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
@@ -77,6 +85,12 @@ describe("Event", function() {
                     filters: filter,
                     handler: function() { },
                 })).to.have.property("filters").and.to.have.members([filter]);
+            });
+
+            it("accepts global filters", function() {
+                const callback = sinon.spy();
+
+                botMock.addGlobalEventFilter(Filters.Events.Inline(callback));
             });
 
             it("calls filters, in order, with correct parameters", async function() {
@@ -145,6 +159,28 @@ describe("Event", function() {
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
+
+            it("stops interceptor flow if one returns next as false", async function() {
+                const callback1 = sinon.stub().returns({ next: false });
+                const callback2 = sinon.stub().returns({ next: true });
+
+                const interceptor1: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(callback1);
+                const interceptor2: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(callback2);
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    interceptors: [interceptor1, interceptor2],
+                    handler: function() { },
+                });
+
+                const payload = [messageMock] as EventPayload<"message">;
+                const context = { event, } as EventContext;
+                await event.callInterceptors(payload, context);
+
+                sinon.assert.calledWith(callback1, payload, context);
+                sinon.assert.notCalled(callback2);
+            });
         });
     
         describe("Consumers", function() {
@@ -189,6 +225,29 @@ describe("Event", function() {
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
+
+            it("stops consumers flow if one returns next as false", async function() {
+                const callback1 = sinon.stub().returns({ next: false });
+                const callback2 = sinon.stub().returns({ next: true });
+
+                const consumer1: InlineEventConsumer<"message"> = Consumers.Events.Inline(callback1);
+                const consumer2: InlineEventConsumer<"message"> = Consumers.Events.Inline(callback2);
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    consumers: [consumer1, consumer2],
+                    handler: function() { },
+                });
+
+                const payload = [messageMock] as EventPayload<"message">;
+                const context = { event, } as EventContext;
+                const returnData = "return data by command test";
+                await event.callConsumers(payload, context, returnData);
+
+                sinon.assert.calledWith(callback1, payload, context);
+                sinon.assert.notCalled(callback2);
+            });
         });
         
         describe("Exception Handlers", function() {
@@ -205,6 +264,13 @@ describe("Event", function() {
                     exceptions: [exceptionH, exceptionH],
                     handler: function() { },
                 })).to.have.property("exceptions").and.to.have.members([exceptionH, exceptionH]);
+
+                expect(new Event({
+                    id: "test",
+                    type: "message",
+                    exceptions: exceptionH,
+                    handler: function() { },
+                })).to.have.property("exceptions").and.to.have.members([exceptionH]);
             });
 
             it("accepts exception handlers post-declaration", function() {
@@ -248,29 +314,33 @@ describe("Event", function() {
                 sinon.assert.calledOnce(callback); // Once because we want the exception handler to be called only on the first SyntaxError, not on the TypeError
             });
 
-            /*
             it("calls multiple exception handlers in order", async function() {
-                const callback = sinon.spy();
+                const callback1 = sinon.spy();
+                const callback2 = sinon.spy();
 
-                const exceptionH: EventExceptionHandler = {
+                const exceptionH1: EventExceptionHandler = {
                     id: "test",
                     exceptions: [SyntaxError],
-                    handler: callback,
+                    handler: callback1,
+                };
+
+                const exceptionH2: EventExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callback2,
                 };
 
                 const event: Event = new Event({
                     id: "test",
                     type: "message",
-                    exceptions: [exceptionH],
+                    exceptions: [exceptionH1, exceptionH2],
                     handler: function() { },
                 });
 
                 await event.callExceptionHandlers({ event, } as EventContext, SyntaxError);
-                await event.callExceptionHandlers({ event, } as EventContext, TypeError);
 
-                sinon.assert.calledOnce(callback); // Once because we want the exception handler to be called only on the first SyntaxError, not on the TypeError
+                expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
-            */
         });
     });
 });
