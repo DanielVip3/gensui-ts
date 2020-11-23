@@ -1,5 +1,8 @@
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
+import { Filters, InlineCommandFilter } from '../../filters/Filters';
+import { Interceptors, InlineCommandInterceptor } from '../../interceptors/Interceptors';
+import { Consumers, InlineCommandConsumer } from '../../consumers/Consumers';
 
 import Bot from '../../classes/Bot';
 
@@ -14,6 +17,12 @@ import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 import * as sinon from 'sinon';
 
 const botMockID = new Bot({ // a bot mock to test repeating ids error
+    name: "mock",
+    token: "test-token",
+    prefix: "!"
+});
+
+const botMockGlobals = new Bot({ // a bot mock to test global hooks
     name: "mock",
     token: "test-token",
     prefix: "!"
@@ -108,5 +117,40 @@ describe("Command", function() {
         await command.call(messageMock, commandCallOptionsMock);
 
         sinon.assert.calledWith(callback, sinon.match((value) => value["data"] === undefined)); // data was not set because it's not setted if no hook edits it
+    });
+
+    describe("Hooks", function() {
+        describe("Filters", function() {
+            it("accepts filters", function() {
+                const filter: InlineCommandFilter = Filters.Commands.Inline(sinon.spy());
+
+                expect(new Command({
+                    id: "test",
+                    names: "test",
+                    filters: [filter, filter],
+                    handler: sinon.fake(),
+                })).to.have.property("filters").and.to.have.members([filter, filter]);
+        
+                expect(new Command({
+                    id: "test",
+                    names: "test",
+                    filters: filter,
+                    handler: sinon.fake(),
+                })).to.have.property("filters").and.to.have.members([filter]);
+            });
+
+            it("accepts global filters", function() {
+                const filter: InlineCommandFilter = Filters.Commands.Inline(sinon.spy());
+
+                botMockGlobals.addGlobalEventFilter(filter);
+
+                expect(new Command({
+                    bot: botMockGlobals,
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                })).to.have.property("filters").and.to.have.members([filter]);
+            });
+        });
     });
 });
