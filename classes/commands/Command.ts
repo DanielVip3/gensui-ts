@@ -45,7 +45,7 @@ export interface CommandOptions {
     parser?: CommandArgsParser,
     interceptors?: CommandInterceptor[]|CommandInterceptor,
     consumers?: CommandConsumer[]|CommandConsumer,
-    exceptions?: CommandExceptionHandler[],
+    exceptions?: CommandExceptionHandler[]|CommandExceptionHandler,
     handler: (context: CommandContext) => any|void,
     
     /* Eventually, the method who instantiated the command (using the decorator) */
