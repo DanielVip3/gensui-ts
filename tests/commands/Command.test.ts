@@ -250,16 +250,60 @@ describe("Command", function() {
                     handler: sinon.spy()
                 };
 
-                const event: Command = new Command({
+                const command: Command = new Command({
                     id: "test",
                     names: "test",
                     handler: sinon.fake(),
                 });
 
-                event.addExceptionHandler(exceptionH);
-                event.addExceptionHandler(exceptionH);
+                command.addExceptionHandler(exceptionH);
+                command.addExceptionHandler(exceptionH);
                 
-                expect(event).to.have.property("exceptions").and.to.have.members([exceptionH, exceptionH]);
+                expect(command).to.have.property("exceptions").and.to.have.members([exceptionH, exceptionH]);
+            });
+
+            it("exception handlers function in post-declaration returns false if no exception handler is passed", async function() {
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                });
+
+                //@ts-ignore
+                const response = command.addExceptionHandler();
+                
+                expect(response).to.be.false;
+            });
+
+            it("calls exception handlers and returns false if no exception handler was passed", async function() {
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                });
+
+                const response = await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+
+                expect(response).to.be.false;
+            });
+
+            it("calls exception handlers and returns false if no valid exception handler for the error was passed", async function() {
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [TypeError],
+                    handler: sinon.spy(),
+                };
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH],
+                    handler: sinon.fake(),
+                });
+
+                const response = await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+
+                expect(response).to.be.false;
             });
         });
     });
