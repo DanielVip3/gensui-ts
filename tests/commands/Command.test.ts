@@ -81,4 +81,32 @@ describe("Command", function() {
             handler: sinon.fake(),
         })).to.have.property("names").and.to.be.an('array').and.to.have.lengthOf(2);
     });
+
+    it("handler gets called correctly", async function() {
+        const callback = sinon.spy();
+
+        const command: Command = new Command({
+            id: "test",
+            names: ["test"],
+            handler: callback,
+        });
+
+        await command.call(messageMock, commandCallOptionsMock);
+
+        sinon.assert.calledWith(callback, { command: command, message: messageMock, call: commandCallOptionsMock } as CommandContext); // data was not set because like next test, data is not setted if no hook edits it
+    });
+
+    it("context data does not exist if no hooks do set it", async function() {
+        const callback = sinon.spy();
+
+        const command: Command = new Command({
+            id: "test",
+            names: ["test"],
+            handler: callback,
+        });
+
+        await command.call(messageMock, commandCallOptionsMock);
+
+        sinon.assert.calledWith(callback, sinon.match((value) => value["data"] === undefined)); // data was not set because it's not setted if no hook edits it
+    });
 });
