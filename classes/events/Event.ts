@@ -147,9 +147,8 @@ export class Event {
                 try {
                     const response: EventInterceptorResponse = await interceptor.intercept(payload, ctx);
 
-                    if (!!response.next || response.next === undefined) continueFlow = true;
-                    else if (!response.next) continueFlow = false;
-                    else continueFlow = true;
+                    if (!response || !!response.next || response.next === undefined) continueFlow = true;
+                    else continueFlow = false;
 
                     if (!response.data || typeof response.data !== "object") continue;
                     mergedData = {
@@ -184,9 +183,8 @@ export class Event {
                 try {
                     const response: EventConsumerResponse = await consumer.consume(payload, ctx, returnData);
 
-                    if (!!response.next || response.next === undefined) continueFlow = true;
-                    else if (!response.next) continueFlow = false;
-                    else continueFlow = true;
+                    if (!response || !!response.next || response.next === undefined) continueFlow = true;
+                    else continueFlow = false;
 
                     if (!response.data || typeof response.data !== "object") continue;
                     mergedData = {
