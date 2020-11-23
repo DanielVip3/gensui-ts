@@ -76,6 +76,14 @@ describe("Event", function() {
         })).to.be.instanceOf(Event);
     });
 
+    it("accepts single types", function() {
+        expect(new Event({
+            id: "test",
+            type: "message",
+            handler: sinon.fake(),
+        })).to.have.property("types").and.to.be.an('array').and.to.have.lengthOf(1);
+    });
+
     it("accepts multiple types", function() {
         expect(new Event({
             id: "test",
