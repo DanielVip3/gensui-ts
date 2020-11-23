@@ -3,6 +3,8 @@ import { Filters, InlineEventFilter } from '../../filters/Filters';
 import { Interceptors, InlineEventInterceptor } from '../../interceptors/Interceptors';
 import { Consumers, InlineEventConsumer } from '../../consumers/Consumers';
 import { EventExceptionHandler } from '../../classes/exception-handler/ExceptionHandler';
+import { EventConsumerResponse } from '../../classes/events/EventConsumer';
+import { EventInterceptorResponse } from '../../classes/events/EventInterceptor';
 
 import Bot from '../../classes/Bot';
 
@@ -15,10 +17,14 @@ chai.use(chaiAsPromised);
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
-import { EventConsumerResponse } from '../../classes/events/EventConsumer';
-import { EventInterceptorResponse } from '../../classes/events/EventInterceptor';
 
-const botMock = new Bot({
+const botMockID = new Bot({ // a bot mock to test repeating ids error
+    name: "mock",
+    token: "test-token",
+    prefix: "!"
+});
+
+const botMockGlobals = new Bot({ // a bot mock to test global hooks
     name: "mock",
     token: "test-token",
     prefix: "!"
@@ -27,10 +33,7 @@ const botMock = new Bot({
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
 
-const EventPayloadMock = sinon.match.array;
 const EventContextMock = (event) => sinon.match.has("event", event);
-
-const EventMessagePayloadMock = EventPayloadMock.and(sinon.match(a => a.length === 1));
 
 describe("Event", function() {
     it("throws error if no id was specified", function() {
@@ -38,6 +41,31 @@ describe("Event", function() {
             type: "message",
             handler: sinon.fake(),
         })).to.throw("id");
+    });
+
+    it("throws error if an event with the same id already exists", function() {
+        const event = new Event({
+            bot: botMockID,
+            id: "test-sameid",
+            type: "message",
+            handler: sinon.fake(),
+        });
+        botMockID.addEvent(event);
+
+        expect(() => new Event({
+            bot: botMockID,
+            id: "test-sameid",
+            type: "message",
+            handler: sinon.fake(),
+        })).to.throw("id");
+    });
+
+    it("throws error if no type was specified", function() {
+        //@ts-ignore
+        expect(() => new Event({
+            id: "test",
+            handler: sinon.fake(),
+        })).to.throw("type");
     });
 
     it("instantiates", function() {
@@ -54,6 +82,15 @@ describe("Event", function() {
             type: ["message", "guildMemberAdd"],
             handler: sinon.fake(),
         })).to.have.property("types").and.to.be.an('array').and.to.have.lengthOf(2);
+    });
+
+    it("accepts once property", function() {
+        expect(new Event({
+            id: "test",
+            type: "message",
+            once: true,
+            handler: sinon.fake(),
+        })).to.have.property("once").and.to.be.true;
     });
 
     it("handler gets called correctly", async function() {
@@ -93,10 +130,10 @@ describe("Event", function() {
             it("accepts global filters", function() {
                 const filter: InlineEventFilter<"message"> = Filters.Events.Inline(sinon.spy());
 
-                botMock.addGlobalEventFilter(filter);
+                botMockGlobals.addGlobalEventFilter(filter);
 
                 expect(new Event({
-                    bot: botMock,
+                    bot: botMockGlobals,
                     id: "test",
                     type: "message",
                     handler: sinon.fake(),
@@ -164,10 +201,10 @@ describe("Event", function() {
             it("accepts global interceptors", function() {
                 const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(sinon.spy());
 
-                botMock.addGlobalEventInterceptor(interceptor);
+                botMockGlobals.addGlobalEventInterceptor(interceptor);
 
                 expect(new Event({
-                    bot: botMock,
+                    bot: botMockGlobals,
                     id: "test",
                     type: "message",
                     handler: sinon.fake(),
@@ -280,10 +317,10 @@ describe("Event", function() {
             it("accepts global consumers", function() {
                 const consumer: InlineEventConsumer<"message"> = Consumers.Events.Inline(sinon.spy());
 
-                botMock.addGlobalEventConsumer(consumer);
+                botMockGlobals.addGlobalEventConsumer(consumer);
 
                 expect(new Event({
-                    bot: botMock,
+                    bot: botMockGlobals,
                     id: "test",
                     type: "message",
                     handler: sinon.fake(),
@@ -418,6 +455,19 @@ describe("Event", function() {
                 event.addExceptionHandler(exceptionH);
                 
                 expect(event).to.have.property("exceptions").and.to.have.members([exceptionH, exceptionH]);
+            });
+
+            it("exception handlers function in post-declaration returns false if no exception handler is passed", async function() {
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    handler: sinon.fake(),
+                });
+
+                //@ts-ignore
+                const response = event.addExceptionHandler();
+                
+                expect(response).to.be.false;
             });
 
             it("calls exception handlers and returns false if no exception handler was passed", async function() {
