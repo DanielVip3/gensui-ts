@@ -15,6 +15,7 @@ chai.use(chaiAsPromised);
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
+import { CommandExceptionHandler } from '../../classes/exception-handler/CommandExceptionHandler';
 
 const botMockID = new Bot({ // a bot mock to test repeating ids error
     name: "mock",
@@ -142,7 +143,7 @@ describe("Command", function() {
             it("accepts global filters", function() {
                 const filter: InlineCommandFilter = Filters.Commands.Inline(sinon.spy());
 
-                botMockGlobals.addGlobalEventFilter(filter);
+                botMockGlobals.addGlobalCommandFilter(filter);
 
                 expect(new Command({
                     bot: botMockGlobals,
@@ -175,7 +176,7 @@ describe("Command", function() {
             it("accepts global filters", function() {
                 const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(sinon.spy());
 
-                botMockGlobals.addGlobalEventInterceptor(interceptor);
+                botMockGlobals.addGlobalCommandInterceptor(interceptor);
 
                 expect(new Command({
                     bot: botMockGlobals,
@@ -208,7 +209,7 @@ describe("Command", function() {
             it("accepts global consumers", function() {
                 const consumer: InlineCommandConsumer = Consumers.Commands.Inline(sinon.spy());
 
-                botMockGlobals.addGlobalEventConsumer(consumer);
+                botMockGlobals.addGlobalCommandConsumer(consumer);
 
                 expect(new Command({
                     bot: botMockGlobals,
@@ -216,6 +217,49 @@ describe("Command", function() {
                     names: "test",
                     handler: sinon.fake(),
                 })).to.have.property("consumers").and.to.have.members([consumer]);
+            });
+        });
+
+        describe("Exception Handlers", function() {
+            it("accepts exception handlers in constructor", function() {
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [],
+                    handler: sinon.spy()
+                };
+                
+                expect(new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH, exceptionH],
+                    handler: sinon.fake(),
+                })).to.have.property("exceptions").and.to.have.members([exceptionH, exceptionH]);
+
+                expect(new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: exceptionH,
+                    handler: sinon.fake(),
+                })).to.have.property("exceptions").and.to.have.members([exceptionH]);
+            });
+            
+            it("accepts exception handlers post-declaration", function() {
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [],
+                    handler: sinon.spy()
+                };
+
+                const event: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                });
+
+                event.addExceptionHandler(exceptionH);
+                event.addExceptionHandler(exceptionH);
+                
+                expect(event).to.have.property("exceptions").and.to.have.members([exceptionH, exceptionH]);
             });
         });
     });
