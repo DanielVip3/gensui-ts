@@ -17,7 +17,7 @@ describe("Interceptors' errors", function() {
 
         it("correctly counts remaining cooldown time", function() {
             const now: Date = new Date();
-            expect(new Errors.CooldownError("Test error", now, 60 * 60 * 1000)).to.have.property("remaining").which.is.equal((new Date().getTime() - new Date(now.getTime() + (60 * 60 * 1000)).getTime()));
+            expect(new Errors.CooldownError("Test error", now, 60 * 60 * 1000)).to.have.property("remaining").which.is.closeTo((new Date().getTime() - new Date(now.getTime() + (60 * 60 * 1000)).getTime()), 1);
         });
     });
 
