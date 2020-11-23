@@ -148,7 +148,7 @@ export class Command {
     async callExceptionHandlers(ctx: CommandContext, exception: any): Promise<boolean> {
         if (this.exceptions && this.exceptions.length >= 1) {
             const toCallHandlers: CommandExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exception.prototype === e.prototype));
-            if (toCallHandlers) {
+            if (toCallHandlers && toCallHandlers.length >= 1) {
                 for (const h of toCallHandlers) await h.handler(ctx, exception);
 
                 return true;
