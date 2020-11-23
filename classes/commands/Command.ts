@@ -138,7 +138,7 @@ export class Command {
     }
 
     addExceptionHandler(exceptionHandler: CommandExceptionHandler): boolean {
-        if (!exceptionHandler.id || !exceptionHandler.handler) return false;
+        if (!exceptionHandler || !exceptionHandler.id || !exceptionHandler.handler) return false;
 
         this.exceptions.push(exceptionHandler);
         

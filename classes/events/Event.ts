@@ -96,7 +96,7 @@ export class Event {
     }
 
     addExceptionHandler(exceptionHandler: EventExceptionHandler): boolean {
-        if (!exceptionHandler.id || !exceptionHandler.handler) return false;
+        if (!exceptionHandler || !exceptionHandler.id || !exceptionHandler.handler) return false;
 
         this.exceptions.push(exceptionHandler);
         
