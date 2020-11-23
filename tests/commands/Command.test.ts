@@ -152,5 +152,38 @@ describe("Command", function() {
                 })).to.have.property("filters").and.to.have.members([filter]);
             });
         });
+
+        describe("Interceptors", function() {
+            it("accepts interceptors", function() {
+                const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(sinon.spy());
+
+                expect(new Command({
+                    id: "test",
+                    names: "test",
+                    interceptors: [interceptor, interceptor],
+                    handler: sinon.fake(),
+                })).to.have.property("interceptors").and.to.have.members([interceptor, interceptor]);
+        
+                expect(new Command({
+                    id: "test",
+                    names: "test",
+                    interceptors: interceptor,
+                    handler: sinon.fake(),
+                })).to.have.property("interceptors").and.to.have.members([interceptor]);
+            });
+
+            it("accepts global filters", function() {
+                const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(sinon.spy());
+
+                botMockGlobals.addGlobalEventInterceptor(interceptor);
+
+                expect(new Command({
+                    bot: botMockGlobals,
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                })).to.have.property("interceptors").and.to.have.members([interceptor]);
+            });
+        });
     });
 });
