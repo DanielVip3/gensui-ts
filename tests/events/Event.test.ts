@@ -685,5 +685,40 @@ describe("Event", function() {
                 sinon.assert.calledOnce(callbackExceptionHandler);
             });
         });
+
+        it("calls all hooks in order", async function() {
+            const callbackFilter = sinon.stub().returns(true);
+            const callbackInterceptor = sinon.stub().returns({ next: true });
+            const callbackEvent = sinon.stub();
+            const callbackConsumer = sinon.stub().throws(new SyntaxError("test"));
+            const callbackExceptionHandler = sinon.stub();
+
+            const filter: InlineEventFilter<"message"> = Filters.Events.Inline(callbackFilter);
+            const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(callbackInterceptor);
+            const consumer: InlineEventConsumer<"message"> = Consumers.Events.Inline(callbackConsumer);
+            const exceptionH: EventExceptionHandler = {
+                id: "test",
+                exceptions: [SyntaxError],
+                handler: callbackExceptionHandler,
+            };
+
+            const event: Event = new Event({
+                id: "test",
+                type: "message",
+                filters: [filter],
+                interceptors: [interceptor],
+                consumers: [consumer],
+                exceptions: [exceptionH],
+                handler: callbackEvent,
+            });
+
+            await event.call(messageMock);
+
+            expect(callbackFilter.calledImmediatelyBefore(callbackInterceptor)).to.be.true;
+            expect(callbackInterceptor.calledImmediatelyBefore(callbackEvent)).to.be.true;
+            expect(callbackEvent.calledImmediatelyBefore(callbackConsumer)).to.be.true;
+            expect(callbackConsumer.calledImmediatelyBefore(callbackExceptionHandler)).to.be.true;
+            sinon.assert.calledOnce(callbackExceptionHandler);
+        });
     });
 });

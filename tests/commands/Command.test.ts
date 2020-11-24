@@ -637,5 +637,40 @@ describe("Command", function() {
                 sinon.assert.calledOnce(callbackExceptionHandler);
             });
         });
+
+        it("calls all hooks in order", async function() {
+            const callbackFilter = sinon.stub().returns(true);
+            const callbackInterceptor = sinon.stub().returns({ next: true });
+            const callbackCommand = sinon.stub();
+            const callbackConsumer = sinon.stub().throws(new SyntaxError("test"));
+            const callbackExceptionHandler = sinon.stub();
+
+            const filter: InlineCommandFilter = Filters.Commands.Inline(callbackFilter);
+            const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(callbackInterceptor);
+            const consumer: InlineCommandConsumer = Consumers.Commands.Inline(callbackConsumer);
+            const exceptionH: CommandExceptionHandler = {
+                id: "test",
+                exceptions: [SyntaxError],
+                handler: callbackExceptionHandler,
+            };
+
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                filters: [filter],
+                interceptors: [interceptor],
+                consumers: [consumer],
+                exceptions: [exceptionH],
+                handler: callbackCommand,
+            });
+
+            await command.call(messageMock, commandCallOptionsMock);
+
+            expect(callbackFilter.calledImmediatelyBefore(callbackInterceptor)).to.be.true;
+            expect(callbackInterceptor.calledImmediatelyBefore(callbackCommand)).to.be.true;
+            expect(callbackCommand.calledImmediatelyBefore(callbackConsumer)).to.be.true;
+            expect(callbackConsumer.calledImmediatelyBefore(callbackExceptionHandler)).to.be.true;
+            sinon.assert.calledOnce(callbackExceptionHandler);
+        });
     });
 });
