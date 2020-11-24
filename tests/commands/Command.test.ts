@@ -305,6 +305,56 @@ describe("Command", function() {
 
                 expect(response).to.be.false;
             });
+
+            it("calls correct exception handlers for specified errors", async function() {
+                const callback = sinon.spy();
+
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callback,
+                };
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH],
+                    handler: sinon.fake(),
+                });
+
+                await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+                await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, TypeError);
+
+                sinon.assert.calledOnce(callback); // Once because we want the exception handler to be called only on the first SyntaxError, not on the TypeError
+            });
+
+            it("calls multiple exception handlers in order", async function() {
+                const callback1 = sinon.spy();
+                const callback2 = sinon.spy();
+
+                const exceptionH1: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callback1,
+                };
+
+                const exceptionH2: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callback2,
+                };
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH1, exceptionH2],
+                    handler: sinon.fake(),
+                });
+
+                await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+
+                expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
+            });
         });
     });
 });
