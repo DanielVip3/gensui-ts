@@ -29,10 +29,11 @@ const botMockGlobals = new Bot({ // a bot mock to test global hooks
     prefix: "!"
 });
 
-const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: false, rawArguments: [], arguments: [] } as CommandCallOptions;
-
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
+
+const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: false, rawArguments: [], arguments: [] } as CommandCallOptions;
+const commandContextMock = (command) => { return { command, message: messageMock, call: commandCallOptionsMock } as CommandContext };
 
 describe("Command", function() {
     it("throws error if neither id and name were specified", function() {
@@ -103,7 +104,7 @@ describe("Command", function() {
 
         await command.call(messageMock, commandCallOptionsMock);
 
-        sinon.assert.calledWith(callback, { command: command, message: messageMock, call: commandCallOptionsMock } as CommandContext); // data was not set because like next test, data is not setted if no hook edits it
+        sinon.assert.calledWith(callback, commandContextMock(command)); // data was not set because like next test, data is not setted if no hook edits it
     });
 
     it("context data does not exist if no hooks do set it", async function() {
@@ -151,6 +152,40 @@ describe("Command", function() {
                     names: "test",
                     handler: sinon.fake(),
                 })).to.have.property("filters").and.to.have.members([filter]);
+            });
+
+            it("calls filters and returns true if no filter was passed", async function() {
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                });
+
+                const response = await command.callFilters(commandContextMock(command));
+
+                expect(response).to.be.true;
+            });
+
+            it("calls filters, in order, with correct parameters", async function() {
+                const callback1 = sinon.spy();
+                const callback2 = sinon.spy();
+
+                const filter1: InlineCommandFilter = Filters.Commands.Inline(callback1);
+                const filter2: InlineCommandFilter = Filters.Commands.Inline(callback2);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    filters: [filter1, filter2],
+                    handler: sinon.fake(),
+                });
+
+                await command.callFilters(commandContextMock(command));
+
+                sinon.assert.calledWith(callback1, context);
+                sinon.assert.calledWith(callback2, context);
+
+                expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
         });
 
@@ -282,7 +317,7 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                const response = await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+                const response = await command.callExceptionHandlers(commandContextMock(command), SyntaxError);
 
                 expect(response).to.be.false;
             });
@@ -301,7 +336,7 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                const response = await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+                const response = await command.callExceptionHandlers(commandContextMock(command), SyntaxError);
 
                 expect(response).to.be.false;
             });
@@ -322,8 +357,8 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
-                await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, TypeError);
+                await command.callExceptionHandlers(commandContextMock(command), SyntaxError);
+                await command.callExceptionHandlers(commandContextMock(command), TypeError);
 
                 sinon.assert.calledOnce(callback); // Once because we want the exception handler to be called only on the first SyntaxError, not on the TypeError
             });
@@ -351,7 +386,7 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                await command.callExceptionHandlers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, SyntaxError);
+                await command.callExceptionHandlers(commandContextMock(command), SyntaxError);
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
@@ -376,7 +411,7 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                await command.callFilters({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext);
+                await command.callFilters(commandContextMock(command));
 
                 sinon.assert.calledOnce(callbackExceptionHandler);
             });
@@ -401,7 +436,7 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                await command.callInterceptors({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext);
+                await command.callInterceptors(commandContextMock(command));
 
                 sinon.assert.calledOnce(callbackExceptionHandler);
             });
@@ -426,7 +461,7 @@ describe("Command", function() {
                     handler: sinon.fake(),
                 });
 
-                await command.callConsumers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, "return data by command test");
+                await command.callConsumers(commandContextMock(command), "return data by command test");
 
                 sinon.assert.calledOnce(callbackExceptionHandler);
             });
