@@ -259,6 +259,25 @@ describe("Command", function() {
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
 
+            it("stops flow to command handler if one returns next as false", async function() {
+                const interceptorH = sinon.stub().returns({ next: false });
+                const commandH = sinon.spy();
+
+                const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(interceptorH);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    interceptors: [interceptor],
+                    handler: commandH,
+                });
+
+                await command.callInterceptors(commandContextMock(command));
+
+                sinon.assert.calledWith(interceptorH, commandContextMock(command));
+                sinon.assert.notCalled(commandH);
+            });
+
             it("stops interceptors' flow if one returns next as false", async function() {
                 const callback1 = sinon.stub().returns({ next: false });
                 const callback2 = sinon.stub().returns({ next: true });

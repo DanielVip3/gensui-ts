@@ -259,6 +259,27 @@ describe("Event", function() {
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
 
+            it("stops flow to event handler if one returns next as false", async function() {
+                const interceptorH = sinon.stub().returns({ next: false });
+                const eventH = sinon.spy();
+
+                const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(interceptorH);
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    interceptors: [interceptor],
+                    handler: eventH,
+                });
+
+                const payload = [messageMock] as EventPayload<"message">;
+                const context = { event, } as EventContext;
+                await event.callInterceptors(payload, context);
+
+                sinon.assert.calledWith(interceptorH, payload, context);
+                sinon.assert.notCalled(eventH);
+            });
+
             it("stops interceptors' flow if one returns next as false", async function() {
                 const callback1 = sinon.stub().returns({ next: false });
                 const callback2 = sinon.stub().returns({ next: true });
