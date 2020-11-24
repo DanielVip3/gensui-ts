@@ -509,6 +509,29 @@ describe("Event", function() {
                 expect(response).to.be.false;
             });
 
+            it("calls exception handlers with correct parameters", async function() {
+                const callback = sinon.spy();
+
+                const exceptionH: EventExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callback,
+                };
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    exceptions: [exceptionH],
+                    handler: sinon.fake(),
+                });
+
+                const context = { event, } as EventContext;
+                const error = new SyntaxError("test");
+                await event.callExceptionHandlers(context, error);
+
+                sinon.assert.calledWith(callback, context, error);
+            });
+
             it("calls correct exception handlers for specified errors", async function() {
                 const callback = sinon.spy();
 
@@ -558,17 +581,18 @@ describe("Event", function() {
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
-
+            
             it("calls exception handlers when filters do have an error", async function() {
-                const callback = sinon.stub().throws(new SyntaxError("test"));
+                const callbackExceptionHandler = sinon.spy();
+                const callbackFilter = sinon.stub().throws(new SyntaxError("test"));
 
                 const exceptionH: EventExceptionHandler = {
                     id: "test",
                     exceptions: [SyntaxError],
-                    handler: callback,
+                    handler: callbackExceptionHandler,
                 };
 
-                const filter: InlineEventFilter<"message"> = Filters.Events.Inline(callback);
+                const filter: InlineEventFilter<"message"> = Filters.Events.Inline(callbackFilter);
 
                 const event: Event = new Event({
                     id: "test",
@@ -582,19 +606,20 @@ describe("Event", function() {
                 const context = { event, } as EventContext;
                 await event.callFilters(payload, context);
 
-                sinon.assert.calledOnce(callback);
+                sinon.assert.calledOnce(callbackExceptionHandler);
             });
 
             it("calls exception handlers when interceptors do have an error", async function() {
-                const callback = sinon.stub().throws(new SyntaxError("test"));
+                const callbackExceptionHandler = sinon.spy();
+                const callbackInterceptor = sinon.stub().throws(new SyntaxError("test"));
 
                 const exceptionH: EventExceptionHandler = {
                     id: "test",
                     exceptions: [SyntaxError],
-                    handler: callback,
+                    handler: callbackExceptionHandler,
                 };
 
-                const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(callback);
+                const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(callbackInterceptor);
 
                 const event: Event = new Event({
                     id: "test",
@@ -608,19 +633,20 @@ describe("Event", function() {
                 const context = { event, } as EventContext;
                 await event.callInterceptors(payload, context);
 
-                sinon.assert.calledOnce(callback);
+                sinon.assert.calledOnce(callbackExceptionHandler);
             });
 
             it("calls exception handlers when consumers do have an error", async function() {
-                const callback = sinon.stub().throws(new SyntaxError("test"));
+                const callbackExceptionHandler = sinon.spy();
+                const callbackConsumer = sinon.stub().throws(new SyntaxError("test"));
 
                 const exceptionH: EventExceptionHandler = {
                     id: "test",
                     exceptions: [SyntaxError],
-                    handler: callback,
+                    handler: callbackExceptionHandler,
                 };
 
-                const consumer: InlineEventConsumer<"message"> = Consumers.Events.Inline(callback);
+                const consumer: InlineEventConsumer<"message"> = Consumers.Events.Inline(callbackConsumer);
 
                 const event: Event = new Event({
                     id: "test",
@@ -635,7 +661,7 @@ describe("Event", function() {
                 const returnData = "return data by command test";
                 await event.callConsumers(payload, context, returnData);
 
-                sinon.assert.calledOnce(callback);
+                sinon.assert.calledOnce(callbackExceptionHandler);
             });
         });
     });
