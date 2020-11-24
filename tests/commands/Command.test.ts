@@ -355,6 +355,81 @@ describe("Command", function() {
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
+
+            it("calls exception handlers when filters do have an error", async function() {
+                const callbackExceptionHandler = sinon.spy();
+                const callbackFilter = sinon.stub().throws(new SyntaxError("test"));
+
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callbackExceptionHandler,
+                };
+
+                const filter: InlineCommandFilter = Filters.Commands.Inline(callbackFilter);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH],
+                    filters: [filter],
+                    handler: sinon.fake(),
+                });
+
+                await command.callFilters({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext);
+
+                sinon.assert.calledOnce(callbackExceptionHandler);
+            });
+
+            it("calls exception handlers when interceptors do have an error", async function() {
+                const callbackExceptionHandler = sinon.spy();
+                const callbackInterceptor = sinon.stub().throws(new SyntaxError("test"));
+
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callbackExceptionHandler,
+                };
+
+                const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(callbackInterceptor);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH],
+                    interceptors: [interceptor],
+                    handler: sinon.fake(),
+                });
+
+                await command.callInterceptors({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext);
+
+                sinon.assert.calledOnce(callbackExceptionHandler);
+            });
+
+            it("calls exception handlers when consumers do have an error", async function() {
+                const callbackExceptionHandler = sinon.spy();
+                const callbackConsumer = sinon.stub().throws(new SyntaxError("test"));
+
+                const exceptionH: CommandExceptionHandler = {
+                    id: "test",
+                    exceptions: [SyntaxError],
+                    handler: callbackExceptionHandler,
+                };
+
+                const consumer: InlineCommandConsumer = Consumers.Commands.Inline(callbackConsumer);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    exceptions: [exceptionH],
+                    consumers: [consumer],
+                    handler: sinon.fake(),
+                });
+
+                await command.callConsumers({ command, message: messageMock, call: commandCallOptionsMock } as CommandContext, "return data by command test");
+
+                sinon.assert.calledOnce(callbackExceptionHandler);
+            });
         });
     });
 });
