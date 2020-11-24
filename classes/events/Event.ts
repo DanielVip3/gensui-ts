@@ -6,6 +6,7 @@ import { EventFilter } from './EventFilter';
 import { EventInterceptor, EventInterceptorResponse } from './EventInterceptor';
 import { EventConsumer, EventConsumerResponse } from './EventConsumer';
 import { EventExceptionHandler } from '../exception-handler/EventExceptionHandler';
+import exceptionShouldBeHandled from '../utils/exceptionShouldBeHandled';
 
 export { EventContext, EventContextData, EventPayload } from './EventContext';
 
@@ -107,7 +108,7 @@ export class Event {
         if (!exception.prototype) return false;
 
         if (this.exceptions && this.exceptions.length >= 1) {
-            const toCallHandlers: EventExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exception.prototype === e.prototype));
+            const toCallHandlers: EventExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exceptionShouldBeHandled(exception, e)));
             if (toCallHandlers && toCallHandlers.length >= 1) {
                 for (const h of toCallHandlers) await h.handler(ctx, exception);
 

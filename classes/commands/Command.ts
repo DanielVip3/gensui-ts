@@ -9,6 +9,7 @@ import { CommandContext } from './CommandContext';
 import { CommandCallOptions } from './CommandCallOptions';
 import { CommandArgsParser } from './args/CommandArgsParser';
 import { CommandArgs } from './args/CommandArgs';
+import exceptionShouldBeHandled from '../utils/exceptionShouldBeHandled';
 
 export { CommandContext, CommandContextData } from './CommandContext';
 
@@ -147,7 +148,7 @@ export class Command {
 
     async callExceptionHandlers(ctx: CommandContext, exception: any): Promise<boolean> {
         if (this.exceptions && this.exceptions.length >= 1) {
-            const toCallHandlers: CommandExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exception.prototype === e.prototype));
+            const toCallHandlers: CommandExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exceptionShouldBeHandled(exception, e)));
             if (toCallHandlers && toCallHandlers.length >= 1) {
                 for (const h of toCallHandlers) await h.handler(ctx, exception);
 
