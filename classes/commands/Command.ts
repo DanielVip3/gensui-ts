@@ -147,6 +147,8 @@ export class Command {
     }
 
     async callExceptionHandlers(ctx: CommandContext, exception: any): Promise<boolean> {
+        if (typeof exception !== "object" && typeof exception !== "function") return false;
+
         if (this.exceptions && this.exceptions.length >= 1) {
             const toCallHandlers: CommandExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exceptionShouldBeHandled(exception, e)));
             if (toCallHandlers && toCallHandlers.length >= 1) {

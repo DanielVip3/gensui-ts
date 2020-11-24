@@ -105,7 +105,7 @@ export class Event {
     }
 
     async callExceptionHandlers(ctx: EventContext, exception: any): Promise<boolean> {
-        if (!exception.prototype) return false;
+        if (typeof exception !== "object" && typeof exception !== "function") return false;
 
         if (this.exceptions && this.exceptions.length >= 1) {
             const toCallHandlers: EventExceptionHandler[] = this.exceptions.filter(e => e.exceptions && e.exceptions.length >= 1 && e.exceptions.some((e) => exceptionShouldBeHandled(exception, e)));
