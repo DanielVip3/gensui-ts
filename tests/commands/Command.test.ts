@@ -16,6 +16,7 @@ import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
 import { CommandExceptionHandler } from '../../classes/exception-handler/CommandExceptionHandler';
+import { CommandInterceptorResponse } from '../../classes/commands/CommandInterceptor';
 
 const botMockID = new Bot({ // a bot mock to test repeating ids error
     name: "mock",
@@ -167,8 +168,8 @@ describe("Command", function() {
             });
 
             it("calls filters, in order, with correct parameters", async function() {
-                const callback1 = sinon.spy();
-                const callback2 = sinon.spy();
+                const callback1 = sinon.stub().returns(true);
+                const callback2 = sinon.stub().returns(true);
 
                 const filter1: InlineCommandFilter = Filters.Commands.Inline(callback1);
                 const filter2: InlineCommandFilter = Filters.Commands.Inline(callback2);
@@ -182,8 +183,8 @@ describe("Command", function() {
 
                 await command.callFilters(commandContextMock(command));
 
-                sinon.assert.calledWith(callback1, context);
-                sinon.assert.calledWith(callback2, context);
+                sinon.assert.calledWith(callback1, commandContextMock(command));
+                sinon.assert.calledWith(callback2, commandContextMock(command));
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
@@ -219,6 +220,81 @@ describe("Command", function() {
                     names: "test",
                     handler: sinon.fake(),
                 })).to.have.property("interceptors").and.to.have.members([interceptor]);
+            });
+
+            it("calls interceptors and flow goes forward if no interceptor was passed", async function() {
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    handler: sinon.fake(),
+                });
+
+                const response = await command.callInterceptors(commandContextMock(command));
+
+                expect(response).to.be.ok;
+                expect(response.next).to.be.true;
+                expect(response.data).to.be.empty;
+            });
+
+            it("calls interceptors, in order, with correct parameters", async function() {
+                const callback1 = sinon.stub().returns({ next: true });
+                const callback2 = sinon.stub().returns({ next: true });
+
+                const interceptor1: InlineCommandInterceptor = Interceptors.Commands.Inline(callback1);
+                const interceptor2: InlineCommandInterceptor = Interceptors.Commands.Inline(callback2);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    interceptors: [interceptor1, interceptor2],
+                    handler: sinon.fake(),
+                });
+
+                await command.callInterceptors(commandContextMock(command));
+
+                sinon.assert.calledWith(callback1, commandContextMock(command));
+                sinon.assert.calledWith(callback2, commandContextMock(command));
+
+                expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
+            });
+
+            it("stops interceptors' flow if one returns next as false", async function() {
+                const callback1 = sinon.stub().returns({ next: false });
+                const callback2 = sinon.stub().returns({ next: true });
+
+                const interceptor1: InlineCommandInterceptor = Interceptors.Commands.Inline(callback1);
+                const interceptor2: InlineCommandInterceptor = Interceptors.Commands.Inline(callback2);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    interceptors: [interceptor1, interceptor2],
+                    handler: sinon.fake(),
+                });
+
+                await command.callInterceptors(commandContextMock(command));
+
+                sinon.assert.calledWith(callback1, commandContextMock(command));
+                sinon.assert.notCalled(callback2);
+            });
+
+            it("merges interceptors' returned data", async function() {
+                const callback1 = sinon.stub().returns({ next: true, data: { foo: 1, bar: 1 } });
+                const callback2 = sinon.stub().returns({ next: true, data: { foo: 2 } });
+
+                const interceptor1: InlineCommandInterceptor = Interceptors.Commands.Inline(callback1);
+                const interceptor2: InlineCommandInterceptor = Interceptors.Commands.Inline(callback2);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    interceptors: [interceptor1, interceptor2],
+                    handler: sinon.fake(),
+                });
+
+                const response: CommandInterceptorResponse = await command.callInterceptors(commandContextMock(command));
+
+                expect(response.data).to.be.ok.and.to.include({ foo: 2, bar: 1 });
             });
         });
 
