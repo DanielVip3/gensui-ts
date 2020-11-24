@@ -189,6 +189,47 @@ describe("Command", function() {
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
+
+            it("stops flow to interceptors if one returns false", async function() {
+                const filterH = sinon.stub().returns(false);
+                const interceptorH = sinon.stub();
+                const commandH = sinon.spy();
+
+                const filter: InlineCommandFilter = Filters.Commands.Inline(filterH);
+                const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(interceptorH);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    filters: [filter],
+                    interceptors: [interceptor],
+                    handler: commandH,
+                });
+
+                await command.call(messageMock, commandCallOptionsMock);
+
+                sinon.assert.calledWith(filterH, commandContextMock(command));
+                sinon.assert.notCalled(interceptorH);
+            });
+
+            it("stops flow to command handler if one returns false", async function() {
+                const filterH = sinon.stub().returns(false);
+                const commandH = sinon.spy();
+
+                const filter: InlineCommandFilter = Filters.Commands.Inline(filterH);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    filters: [filter],
+                    handler: commandH,
+                });
+
+                await command.call(messageMock, commandCallOptionsMock);
+
+                sinon.assert.calledWith(filterH, commandContextMock(command));
+                sinon.assert.notCalled(commandH);
+            });
         });
 
         describe("Interceptors", function() {
