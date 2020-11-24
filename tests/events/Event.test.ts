@@ -344,7 +344,7 @@ describe("Event", function() {
 
                 const payload = [messageMock] as EventPayload<"message">;
                 const context = { event, } as EventContext;
-                const returnData = "return data by command test";
+                const returnData = "return data by event test";
                 const response = await event.callConsumers(payload, context, returnData);
 
                 expect(response).to.be.ok;
@@ -368,7 +368,7 @@ describe("Event", function() {
 
                 const payload = [messageMock] as EventPayload<"message">;
                 const context = { event, } as EventContext;
-                const returnData = "return data by command test";
+                const returnData = "return data by event test";
                 await event.callConsumers(payload, context, returnData);
 
                 sinon.assert.calledWith(callback1, payload, context, returnData);
@@ -393,7 +393,7 @@ describe("Event", function() {
 
                 const payload = [messageMock] as EventPayload<"message">;
                 const context = { event, } as EventContext;
-                const returnData = "return data by command test";
+                const returnData = "return data by event test";
                 await event.callConsumers(payload, context, returnData);
 
                 sinon.assert.calledWith(callback1, payload, context);
@@ -416,7 +416,7 @@ describe("Event", function() {
 
                 const payload = [messageMock] as EventPayload<"message">;
                 const context = { event, } as EventContext;
-                const returnData = "return data by command test";
+                const returnData = "return data by event test";
                 const response: EventConsumerResponse = await event.callConsumers(payload, context, returnData);
 
                 expect(response.data).to.be.ok.and.to.include({ foo: 2, bar: 1 });
@@ -658,7 +658,7 @@ describe("Event", function() {
 
                 const payload = [messageMock] as EventPayload<"message">;
                 const context = { event, } as EventContext;
-                const returnData = "return data by command test";
+                const returnData = "return data by event test";
                 await event.callConsumers(payload, context, returnData);
 
                 sinon.assert.calledOnce(callbackExceptionHandler);
