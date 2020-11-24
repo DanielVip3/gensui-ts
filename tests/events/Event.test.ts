@@ -185,6 +185,51 @@ describe("Event", function() {
 
                 expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
             });
+            
+            it("stops flow to interceptors if one returns false", async function() {
+                const filterH = sinon.stub().returns(false);
+                const interceptorH = sinon.stub();
+                const eventH = sinon.spy();
+
+                const filter: InlineEventFilter<"message"> = Filters.Events.Inline(filterH);
+                const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(interceptorH);
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    filters: [filter],
+                    interceptors: [interceptor],
+                    handler: eventH,
+                });
+
+                const payload = [messageMock] as EventPayload<"message">;
+                const context = { event, } as EventContext;
+                await event.call(messageMock);
+
+                sinon.assert.calledWith(filterH, payload, context);
+                sinon.assert.notCalled(interceptorH);
+            });
+
+            it("stops flow to command handler if one returns false", async function() {
+                const filterH = sinon.stub().returns(false);
+                const eventH = sinon.spy();
+
+                const filter: InlineEventFilter<"message"> = Filters.Events.Inline(filterH);
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    filters: [filter],
+                    handler: eventH,
+                });
+
+                const payload = [messageMock] as EventPayload<"message">;
+                const context = { event, } as EventContext;
+                await event.call(messageMock);
+
+                sinon.assert.calledWith(filterH, payload, context);
+                sinon.assert.notCalled(eventH);
+            });
         });
 
         describe("Interceptors", function() {
