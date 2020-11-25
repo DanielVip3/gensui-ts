@@ -487,6 +487,28 @@ describe("Event", function() {
 
                 expect(response.data).to.be.ok.and.to.include({ foo: 2, bar: 1 });
             });
+
+            it("receives event handler's return data", async function() {
+                const testReturnData = { test: "object" };
+
+                const consumerH = sinon.stub().returns({ next: true });
+                const eventH = sinon.stub().returns(testReturnData);
+
+                const consumer: InlineEventConsumer<"message"> = Consumers.Events.Inline(consumerH);
+
+                const event: Event = new Event({
+                    id: "test",
+                    type: "message",
+                    consumers: [consumer],
+                    handler: eventH,
+                });
+
+                const payload = [messageMock] as EventPayload<"message">;
+                const context = { event, } as EventContext;
+                await event.call(messageMock);
+
+                sinon.assert.calledWith(consumerH, payload, context, testReturnData);
+            });
         });
         
         describe("Exception Handlers", function() {
