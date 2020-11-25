@@ -24,4 +24,10 @@ export default function shouldBeAFilter(filter: any, parameters: any[], passedFi
     it("filter method returns boolean", async function() {
         expect(typeof await (new filter(...parameters, true)).filter(...passedFilterOptions) === "boolean").to.be.true;
     });
+
+    it("filter method reverses returned boolean if whitelist is true", async function() {
+        const falseWhitelistCall = await (new filter(...parameters, false)).filter(...passedFilterOptions);
+        const trueWhitelistCall = await (new filter(...parameters, true)).filter(...passedFilterOptions);
+        expect(falseWhitelistCall).to.be.equal(!trueWhitelistCall);
+    });
 };
