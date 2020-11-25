@@ -4,9 +4,9 @@ import { shouldBeAnError } from './ErrorTestGenerics';
 
 describe("Commands' errors", function() {
     it("exports all existing commands errors correctly", function() {
-        expect(Errors).to.have.property("CommandAlreadyExistingIDError");
-        expect(Errors).to.have.property("CommandNoIDError");
-        expect(Errors).to.have.property("CommandNoNameError");
+        expect(Errors).to.include.keys("CommandAlreadyExistingIDError",
+                                    "CommandNoIDError",
+                                    "CommandNoNameError");
     });
 
     describe("CommandAlreadyExistingIDError", function() {

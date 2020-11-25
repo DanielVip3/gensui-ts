@@ -4,9 +4,9 @@ import { shouldBeAnError } from './ErrorTestGenerics';
 
 describe("Events' errors", function() {
     it("exports all existing events errors correctly", function() {
-        expect(Errors).to.have.property("EventAlreadyExistingIDError");
-        expect(Errors).to.have.property("EventNoIDError");
-        expect(Errors).to.have.property("EventNoTypeError");
+        expect(Errors).to.include.keys("EventAlreadyExistingIDError",
+                                    "EventNoIDError",
+                                    "EventNoTypeError");
     });
 
     describe("EventAlreadyExistingIDError", function() {

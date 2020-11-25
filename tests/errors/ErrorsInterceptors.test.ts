@@ -4,8 +4,8 @@ import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics';
 
 describe("Interceptors' errors", function() {
     it("exports all existing interceptor errors correctly", function() {
-        expect(Errors).to.have.property("CooldownError");
-        expect(Errors).to.have.property("GenericInterceptorError");
+        expect(Errors).to.include.keys("CooldownError",
+                                    "GenericInterceptorError");
     });
 
     describe("CooldownError", function() {

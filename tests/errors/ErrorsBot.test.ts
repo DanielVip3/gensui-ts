@@ -4,10 +4,9 @@ import { shouldBeAnError } from './ErrorTestGenerics';
 
 describe("Bot's errors", function() {
     it("exports all existing bot errors correctly", function() {
-        expect(Errors).to.have.property("EventGlobalHookError");
-        expect(Errors).to.have.property("CommandGlobalHookError");
-
-        expect(Errors).to.have.property("GlobalHookError");
+        expect(Errors).to.include.keys("EventGlobalHookError",
+                                    "CommandGlobalHookError",
+                                    "GlobalHookError");
     });
 
     describe("CommandGlobalHookError", function() {

@@ -12,12 +12,12 @@ function shouldBeAFilterError(error) {
 
 describe("Filters' errors", function() {
     it("exports all existing filters errors correctly", function() {
-        expect(Errors).to.have.property("DMError");
-        expect(Errors).to.have.property("GuildsError");
-        expect(Errors).to.have.property("NSFWError");
-        expect(Errors).to.have.property("TextChannelsError");
-
-        expect(Errors).to.have.property("GenericFilterError");
+        expect(Errors).to.include.keys("DMError",
+                                    "GuildsError",
+                                    "NSFWError",
+                                    "TextChannelsError",
+                                    
+                                    "GenericFilterError");
     });
 
     describe("DMError", function() {

@@ -4,8 +4,8 @@ import { shouldBeAnError } from './ErrorTestGenerics';
 
 describe("Exception Handler's errors", function() {
     it("exports all existing events errors correctly", function() {
-        expect(Errors).to.have.property("ExceptionNoIDError");
-        expect(Errors).to.have.property("ExceptionNoReferenceError");
+        expect(Errors).to.include.keys("ExceptionNoIDError",
+                                    "ExceptionNoReferenceError");
     });
 
     describe("ExceptionNoIDError", function() {

@@ -4,8 +4,8 @@ import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics';
 
 describe("Consumers' errors", function() {
     it("exports all existing consumer errors correctly", function() {
-        expect(Errors).to.have.property("LogError");
-        expect(Errors).to.have.property("GenericConsumerError");
+        expect(Errors).to.include.keys("LogError",
+                                    "GenericConsumerError");
     });
 
     describe("LogError", function() {
