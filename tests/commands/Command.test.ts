@@ -465,6 +465,26 @@ describe("Command", function() {
 
                 expect(response.data).to.be.ok.and.to.include({ foo: 2, bar: 1 });
             });
+
+            it("receives command handler's return data", async function() {
+                const testReturnData = { test: "object" };
+
+                const consumerH = sinon.stub().returns({ next: true });
+                const commandH = sinon.stub().returns(testReturnData);
+
+                const consumer: InlineCommandConsumer = Consumers.Commands.Inline(consumerH);
+
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    consumers: [consumer],
+                    handler: commandH,
+                });
+
+                await command.call(messageMock, commandCallOptionsMock);
+
+                sinon.assert.calledWith(consumerH, commandContextMock(command), testReturnData);
+            });
         });
 
         describe("Exception Handlers", function() {
