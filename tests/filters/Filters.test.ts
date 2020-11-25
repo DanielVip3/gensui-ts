@@ -20,6 +20,12 @@ describe("Built-in filters exports", function() {
             expect(Filters.Commands).to.have.property("NSFW");
             expect(Filters.Commands).to.have.property("TextChannels");
         });
+
+        it("exports all shorthand filters getters correctly", function() {
+            /* Here I can't use ".to.have.keys" because those exports are static methods so they aren't keys but properties of the class. */
+            expect(Filters.Commands).to.have.property("_DM");
+            expect(Filters.Commands).to.have.property("_NSFW");
+        });
     });
     
     describe("Events filters exports", function() {
