@@ -1,4 +1,4 @@
-import { InlineCommandFilter } from '../../filters/Filters';
+import { GuildsFilter, InlineCommandFilter } from '../../filters/Filters';
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
@@ -13,8 +13,11 @@ import * as sinon from 'sinon';
 
 import shouldBeAFilter from './FilterTestGenerics';
 
+const guildIdMock = SnowflakeUtil.generate();
+const textChanelIdMock = SnowflakeUtil.generate();
+
 const discordClientMock = new Client();
-const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
+const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: guildIdMock }), { id: textChanelIdMock, nsfw: true }));
 const commandMock: Command = new Command({
     id: "test",
     names: "test",
@@ -30,7 +33,7 @@ describe("Commands built-in filters", function() {
     });
 
     describe("GuildsFilter", function() {
-        
+        shouldBeAFilter(GuildsFilter, [[guildIdMock]], [commandContextMock]);
     });
 
     describe("InlineFilter", function() {
@@ -54,7 +57,6 @@ describe("Commands built-in filters", function() {
     });
 
     describe("NSFWFilter", function() {
-        
     });
 
     describe("TextChannelsFilter", function() {
