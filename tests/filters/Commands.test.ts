@@ -1,7 +1,7 @@
-import { GuildsFilter, InlineCommandFilter } from '../../filters/Filters';
+import { DMFilter, GuildsFilter, InlineCommandFilter, NSFWFilter, TextChannelsFilter } from '../../filters/Filters';
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
-import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
+import { Client, DMChannel, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -14,10 +14,10 @@ import * as sinon from 'sinon';
 import shouldBeAFilter from './FilterTestGenerics';
 
 const guildIdMock = SnowflakeUtil.generate();
-const textChanelIdMock = SnowflakeUtil.generate();
+const textChannelIdMock = SnowflakeUtil.generate();
 
 const discordClientMock = new Client();
-const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: guildIdMock }), { id: textChanelIdMock, nsfw: true }));
+const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: guildIdMock }), { id: textChannelIdMock, nsfw: true }));
 const commandMock: Command = new Command({
     id: "test",
     names: "test",
@@ -29,7 +29,10 @@ const commandContextMock = { command: commandMock, message: messageMock, call: c
 
 describe("Commands built-in filters", function() {
     describe("DMFilter", function() {
-        
+        const dmMessageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new DMChannel(discordClientMock, { id: SnowflakeUtil.generate() }));
+        const dmCommandContextMock =  { command: commandMock, message: dmMessageMock, call: commandCallOptionsMock } as CommandContext;
+
+        shouldBeAFilter(DMFilter, [], [dmCommandContextMock]);
     });
 
     describe("GuildsFilter", function() {
@@ -57,9 +60,10 @@ describe("Commands built-in filters", function() {
     });
 
     describe("NSFWFilter", function() {
+        shouldBeAFilter(NSFWFilter, [], [commandContextMock]);
     });
 
     describe("TextChannelsFilter", function() {
-        
+        shouldBeAFilter(TextChannelsFilter, [[textChannelIdMock]], [commandContextMock]);
     });
 });
