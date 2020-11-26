@@ -44,5 +44,11 @@ export default function shouldBeAFilter(filter: any, parameters: any[], passedFi
             const result = filterH.filter(...passedFilterOptions);
             expect(() => filterH.handleError(!result, ...parameters)).to.throw(thrownError);
         });
+
+        it("doesn't throw error from handleError when returned result is true", function() {
+            const filterH = new filter(...parameters, true);
+            const result = filterH.filter(...passedFilterOptions);
+            expect(() => filterH.handleError(result, ...parameters)).to.not.throw(thrownError);
+        });
     }
 };
