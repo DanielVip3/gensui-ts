@@ -1,5 +1,5 @@
 import { DMFilter, GuildsFilter, InlineCommandFilter, NSFWFilter, TextChannelsFilter } from '../../filters/Filters';
-import { DMError, GuildsError } from '../../errors';
+import { DMError, GuildsError, NSFWError, TextChannelsError } from '../../errors';
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
 import { Client, DMChannel, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
@@ -43,7 +43,7 @@ describe("Commands built-in filters", function() {
     });
 
     describe("GuildsFilter", function() {
-        shouldBeAFilter(GuildsFilter, [[guildIdMock]], [commandContextMock]);
+        shouldBeAFilter(GuildsFilter, [[guildIdMock]], [commandContextMock], true, GuildsError);
     });
 
     describe("InlineFilter", function() {
@@ -67,10 +67,10 @@ describe("Commands built-in filters", function() {
     });
 
     describe("NSFWFilter", function() {
-        shouldBeAFilter(NSFWFilter, [], [commandContextMock]);
+        shouldBeAFilter(NSFWFilter, [], [commandContextMock], true, NSFWError);
     });
 
     describe("TextChannelsFilter", function() {
-        shouldBeAFilter(TextChannelsFilter, [[textChannelIdMock]], [commandContextMock]);
+        shouldBeAFilter(TextChannelsFilter, [[textChannelIdMock]], [commandContextMock], true, TextChannelsError);
     });
 });
