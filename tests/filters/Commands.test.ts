@@ -1,4 +1,5 @@
 import { DMFilter, GuildsFilter, InlineCommandFilter, NSFWFilter, TextChannelsFilter } from '../../filters/Filters';
+import { DMError, GuildsError } from '../../errors';
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
 import { Client, DMChannel, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
@@ -32,7 +33,13 @@ describe("Commands built-in filters", function() {
         const dmMessageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new DMChannel(discordClientMock, { id: SnowflakeUtil.generate() }));
         const dmCommandContextMock =  { command: commandMock, message: dmMessageMock, call: commandCallOptionsMock } as CommandContext;
 
-        shouldBeAFilter(DMFilter, [], [dmCommandContextMock]);
+        shouldBeAFilter(DMFilter, [], [dmCommandContextMock], true, DMError);
+
+        it("returns false if channel is not a DMChannel", async function() {
+            const filter: DMFilter = new DMFilter();
+
+            expect(await filter.filter(commandContextMock)).to.be.false;
+        });
     });
 
     describe("GuildsFilter", function() {
