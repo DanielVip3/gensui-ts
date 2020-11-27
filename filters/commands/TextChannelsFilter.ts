@@ -24,10 +24,9 @@ export default class TextChannelsFilter implements CommandFilter {
             if (this.channels.includes(message.channel.recipient.id)
                 || this.channels.includes(message.channel.recipient.username)
                 || this.channels.includes(`${message.channel.recipient.username}#${message.channel.recipient.discriminator}`)) return !!this.whitelist;
+            else return !this.whitelist;
         } else if (this.channels.includes(message.channel.name)) return !!this.whitelist;
         else return !this.whitelist;
-
-        return false;
     }
 
     public handleError(filtered: boolean): void {
