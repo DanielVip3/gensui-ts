@@ -49,6 +49,12 @@ describe("Commands built-in filters", function() {
     describe("GuildsFilter", function() {
         shouldBeAFilter(GuildsFilter, [[guildIdMock]], [commandContextMock], true, GuildsError);
 
+        it("returns false if no guilds were passed", async function() {
+            const filter: GuildsFilter = new GuildsFilter([]);
+
+            expect(await filter.filter(commandContextMock)).to.be.false;
+        });
+
         it("returns false if the guild is not accepted", async function() {
             const filter: GuildsFilter = new GuildsFilter([SnowflakeUtil.generate()]);
 
@@ -90,6 +96,12 @@ describe("Commands built-in filters", function() {
 
     describe("TextChannelsFilter", function() {
         shouldBeAFilter(TextChannelsFilter, [[textChannelIdMock]], [commandContextMock], true, TextChannelsError);
+
+        it("returns false if no channels were passed", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter([]);
+
+            expect(await filter.filter(commandContextMock)).to.be.false;
+        });
 
         it("also works with the channel name itself", async function() {
             const filter: TextChannelsFilter = new TextChannelsFilter(['testchannelname']);
