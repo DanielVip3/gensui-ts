@@ -2,7 +2,7 @@ import { DMFilter, GuildsFilter, InlineCommandFilter, NSFWFilter, TextChannelsFi
 import { DMError, GuildsError, NSFWError, TextChannelsError } from '../../errors';
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
-import { Client, DMChannel, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
+import { Client, DMChannel, Guild, Message, SnowflakeUtil, TextChannel, User } from 'discord.js';
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -16,9 +16,13 @@ import shouldBeAFilter from './FilterTestGenerics';
 
 const guildIdMock = SnowflakeUtil.generate();
 const textChannelIdMock = SnowflakeUtil.generate();
+const userIdMock = SnowflakeUtil.generate();
+const usernameMock = "testname12";
+const discriminatorMock = "2020";
 
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: guildIdMock }), { id: textChannelIdMock, nsfw: true }));
+const userMock = new User(discordClientMock, { id: userIdMock, username: usernameMock, discriminator: discriminatorMock });
 const commandMock: Command = new Command({
     id: "test",
     names: "test",
@@ -44,6 +48,12 @@ describe("Commands built-in filters", function() {
 
     describe("GuildsFilter", function() {
         shouldBeAFilter(GuildsFilter, [[guildIdMock]], [commandContextMock], true, GuildsError);
+
+        it("returns false if the guild is not accepted", async function() {
+            const filter: GuildsFilter = new GuildsFilter([SnowflakeUtil.generate()]);
+
+            expect(await filter.filter(commandContextMock)).to.be.false;
+        });
     });
 
     describe("InlineFilter", function() {
@@ -68,9 +78,63 @@ describe("Commands built-in filters", function() {
 
     describe("NSFWFilter", function() {
         shouldBeAFilter(NSFWFilter, [], [commandContextMock], true, NSFWError);
+
+        it("returns false if channel is not nsfw", async function() {
+            const filter: NSFWFilter = new NSFWFilter();
+            const nonNSFWChannelMessage = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: guildIdMock }), { id: textChannelIdMock }));
+            const nonNSFWCommandContext = { command: commandMock, message: nonNSFWChannelMessage, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(nonNSFWCommandContext)).to.be.false;
+        });
     });
 
     describe("TextChannelsFilter", function() {
         shouldBeAFilter(TextChannelsFilter, [[textChannelIdMock]], [commandContextMock], true, TextChannelsError);
+
+        it("also works with the channel name itself", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(['testchannelname']);
+            const textChannelMessage = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: guildIdMock }), { id: textChannelIdMock, name: "testchannelname" }));
+            const textCommandContext = { command: commandMock, message: textChannelMessage, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(textCommandContext)).to.be.true;
+        });
+
+        it("also works with DMChannel, using recipient's id", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter([userIdMock]);
+            const dmChannelMessage = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new DMChannel(discordClientMock, { id: textChannelIdMock, recipients: [userMock] }));
+            const dmCommandContext = { command: commandMock, message: dmChannelMessage, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(dmCommandContext)).to.be.true;
+        });
+
+        it("also works with DMChannel, using recipient's username", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(['testname12']);
+            const dmChannelMessage = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new DMChannel(discordClientMock, { id: textChannelIdMock, recipients: [userMock] }));
+            const dmCommandContext = { command: commandMock, message: dmChannelMessage, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(dmCommandContext)).to.be.true;
+        });
+
+        it("also works with DMChannel, using recipient's username and discriminator", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(['testname12#2020']);
+            const dmChannelMessage = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new DMChannel(discordClientMock, { id: textChannelIdMock, recipients: [userMock] }));
+            const dmCommandContext = { command: commandMock, message: dmChannelMessage, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(dmCommandContext)).to.be.true;
+        });
+
+        it("returns false if the TextChannel is not accepted", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(['notacceptedtest']);
+
+            expect(await filter.filter(commandContextMock)).to.be.false;
+        });
+
+        it("returns false if the DMChannel is not accepted", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(['notacceptedtest']);
+            const dmChannelMessage = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new DMChannel(discordClientMock, { id: textChannelIdMock, recipients: [userMock] }));
+            const dmCommandContext = { command: commandMock, message: dmChannelMessage, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(dmCommandContext)).to.be.false;
+        });
     });
 });
