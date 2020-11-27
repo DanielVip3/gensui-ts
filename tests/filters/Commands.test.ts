@@ -55,6 +55,12 @@ describe("Commands built-in filters", function() {
             expect(await filter.filter(commandContextMock)).to.be.false;
         });
 
+        it("also accepts a single string instead of an array", async function() {
+            const filter: GuildsFilter = new GuildsFilter(guildIdMock);
+
+            expect(await filter.filter(commandContextMock)).to.be.true;
+        });
+
         it("returns false if the guild is not accepted", async function() {
             const filter: GuildsFilter = new GuildsFilter([SnowflakeUtil.generate()]);
 
@@ -101,6 +107,12 @@ describe("Commands built-in filters", function() {
             const filter: TextChannelsFilter = new TextChannelsFilter([]);
 
             expect(await filter.filter(commandContextMock)).to.be.false;
+        });
+
+        it("also accepts a single string instead of an array", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(textChannelIdMock);
+
+            expect(await filter.filter(commandContextMock)).to.be.true;
         });
 
         it("also works with the channel name itself", async function() {
