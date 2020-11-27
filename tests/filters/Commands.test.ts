@@ -49,6 +49,13 @@ describe("Commands built-in filters", function() {
     describe("GuildsFilter", function() {
         shouldBeAFilter(GuildsFilter, [[guildIdMock]], [commandContextMock], true, GuildsError);
 
+        it("returns false if no message was passed in CommandContext", async function() {
+            const filter: GuildsFilter = new GuildsFilter(guildIdMock);
+            const noMessageCommandContext = { command: commandMock, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(noMessageCommandContext)).to.be.false;
+        });
+
         it("returns false if no guilds were passed", async function() {
             const filter: GuildsFilter = new GuildsFilter([]);
 
@@ -102,6 +109,13 @@ describe("Commands built-in filters", function() {
 
     describe("TextChannelsFilter", function() {
         shouldBeAFilter(TextChannelsFilter, [[textChannelIdMock]], [commandContextMock], true, TextChannelsError);
+
+        it("returns false if no message was passed in CommandContext", async function() {
+            const filter: TextChannelsFilter = new TextChannelsFilter(textChannelIdMock);
+            const noMessageCommandContext = { command: commandMock, call: commandCallOptionsMock } as CommandContext;
+
+            expect(await filter.filter(noMessageCommandContext)).to.be.false;
+        });
 
         it("returns false if no channels were passed", async function() {
             const filter: TextChannelsFilter = new TextChannelsFilter([]);
