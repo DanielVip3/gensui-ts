@@ -4,7 +4,7 @@ import CooldownInterceptor from "./commands/CooldownInterceptor";
 import { default as InlineCommandInterceptor, InlineCommandInterceptorCallback } from './commands/InlineInterceptor';
 import { default as InlineEventInterceptor, InlineEventInterceptorCallback } from './events/InlineInterceptor';
 
-export * as CooldownInterceptor from './commands/CooldownInterceptor';
+export { default as CooldownInterceptor } from './commands/CooldownInterceptor';
 export { default as InlineCommandInterceptor, InlineCommandInterceptorCallback } from './commands/InlineInterceptor';
 export { default as InlineEventInterceptor, InlineEventInterceptorCallback } from './events/InlineInterceptor';
 
