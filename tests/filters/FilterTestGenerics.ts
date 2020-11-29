@@ -39,16 +39,16 @@ export default function shouldBeAFilter(filter: any, parameters: any[], passedFi
     });
 
     if (shouldThrowErrorIfFalse && thrownError) {
-        it("throws error from handleError when returned result is false", function() {
+        it("throws error from handleError when returned result is false", async function() {
             const filterH = new filter(...parameters, true);
-            const result = filterH.filter(...passedFilterOptions);
-            expect(() => filterH.handleError(!result, ...parameters)).to.throw(thrownError);
+            const result = await filterH.filter(...passedFilterOptions);
+            await expect(new Promise((resolve, reject) => reject(filterH.handleError(!result, ...parameters)))).to.eventually.be.rejectedWith(thrownError);
         });
 
-        it("doesn't throw error from handleError when returned result is true", function() {
+        it("doesn't throw error from handleError when returned result is true", async function() {
             const filterH = new filter(...parameters, true);
-            const result = filterH.filter(...passedFilterOptions);
-            expect(() => filterH.handleError(result, ...parameters)).to.not.throw(thrownError);
+            const result = await filterH.filter(...passedFilterOptions);
+            await expect(new Promise((resolve, reject) => reject(filterH.handleError(result, ...parameters)))).to.eventually.not.be.rejected;
         });
     }
 };
