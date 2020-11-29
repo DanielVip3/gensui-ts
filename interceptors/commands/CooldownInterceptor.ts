@@ -17,6 +17,7 @@ export default class CooldownInterceptor implements CommandInterceptor {
 
         if (await this.store.isInCooldown(message.author.id)) {
             const cooldown: CooldownStoreObject|null = await this.store.getCooldown(message.author.id);
+            /* istanbul ignore else */
             if (cooldown) throw new CooldownError("Command is in cooldown.", cooldown.called, this.store.cooldownTime);
             else throw new CooldownError("Command is in cooldown.");
         } else {
