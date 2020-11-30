@@ -43,6 +43,6 @@ describe("EventTransformer", function() {
         const transformer = new EventTransformerMock(spy, true);
         await transformer.intercept([messageMock], transformableEventContextMock);
 
-        expect(transformableEventContextMock).to.have.property("testDone", true);
+        expect(transformableEventContextMock).to.have.property("data").which.has.property("testDone", true);
     });
 });

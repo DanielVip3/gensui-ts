@@ -14,6 +14,8 @@ export default class EventSideEffectMock<K extends keyof ClientEvents> extends E
 
     public effect(payload, context) {
         if (this.stub) this.stub(payload, context);
-        context.testDone = true;
+
+        if (!context.data) context.data = {};
+        context.data.testDone = true;
     }
 };

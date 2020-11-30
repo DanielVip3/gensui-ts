@@ -14,6 +14,8 @@ export default class EventTransformerMock<K extends keyof ClientEvents> extends 
 
     public transform(payload, context) {
         if (this.stub) this.stub(payload, context);
-        context.testDone = true;
+
+        if (!context.data) context.data = {};
+        context.data.testDone = true;
     }
 };

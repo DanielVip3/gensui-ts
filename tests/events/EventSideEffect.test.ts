@@ -43,6 +43,6 @@ describe("EventSideEffect", function() {
         const sideEffect = new EventSideEffectMock(spy, true);
         await sideEffect.effect([messageMock], transformableEventContextMock);
 
-        expect(transformableEventContextMock).to.have.property("testDone", true);
+        expect(transformableEventContextMock).to.have.property("data").which.has.property("testDone", true);
     });
 });

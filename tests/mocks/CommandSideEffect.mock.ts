@@ -13,6 +13,8 @@ export default class CommandSideEffectMock extends CommandSideEffect {
 
     public effect(context) {
         if (this.stub) this.stub(context);
-        context.testDone = true;
+
+        if (!context.data) context.data = {};
+        context.data.testDone = true;
     }
 };

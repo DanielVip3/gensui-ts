@@ -13,6 +13,8 @@ export default class CommandTransformerMock extends CommandTransformer {
 
     public transform(context) {
         if (this.stub) this.stub(context);
-        context.testDone = true;
+
+        if (!context.data) context.data = {};
+        context.data.testDone = true;
     }
 };
