@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 *
 * This function expects "parameters" to be the actual parameters which would return next as true, when combined with "passedInterceptorOptions". If they're wrong and they don't return next as true, tests do fail.
 */
-export default function shouldBeAnInterceptor(interceptor: any, parameters: any[], passedInterceptorOptions: any[], shouldThrowErrorIfFalse: boolean = false, thrownError: any = null) {
+export default function shouldBeAnInterceptor(interceptor: any, parameters: any[], passedInterceptorOptions: any[]) {
     it("instantiates", function() {
         expect(new interceptor(...parameters)).to.be.instanceOf(interceptor);
     });
