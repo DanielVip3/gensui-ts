@@ -6,7 +6,7 @@ chai.use(chaiAsPromised);
 
 /*
 * Being an interceptor a class which implements a generic abstract class which exists only in TypeScript, we can't test at runtime that an interceptor class implements the abstract class.
-* So, we'll use a simple duck checking system: if it looks like an interceptor, has an intercept method like an interceptor, and has an handleError method like a filter, then probably is a filter.
+* So, we'll use a simple duck checking system: if it looks like an interceptor, has an intercept method like an interceptor, and has an handleError method like an interceptor, then probably is an interceptor.
 *
 * This function expects "parameters" to be the actual parameters which would return next as true, when combined with "passedInterceptorOptions". If they're wrong and they don't return next as true, tests do fail.
 */
