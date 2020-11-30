@@ -31,14 +31,14 @@ const commandContextMock = { command: commandMock, message: messageMock, call: c
 
 const memoryStoreMock = new MemoryCooldownStore({
     cooldownTime: 1 * 1000, // 1 second
-    maxTimes: 3,
+    maxTimes: 10,
 });
 
 const redisStoreMock = new RedisCooldownStore({
     store: new IORedis(),
     cooldownIdentifierKey: "test",
     cooldownTime: 1 * 1000, // 1 second
-    maxTimes: 3,
+    maxTimes: 10,
 });
 
 const interceptorResponseMock = { next: true } as CommandInterceptorResponse;
