@@ -24,7 +24,7 @@ const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
 
 describe("EventTransformer", function() {
-    /* Due to the fact that EventTransformer(s) basically are just interceptors with default return data, if they're reconducible as Interceptors they don't need to re-do interceptors tests */
+    /* Due to the fact that EventTransformer(s) basically are just interceptors with default return data, they can be traced back to Interceptors */
     it("can be traced back to an EventInterceptor", async function() {
         shouldBeAConsumer(EventTransformerMock, [sinon.spy(), false], [[messageMock], eventContextMock]);
     });

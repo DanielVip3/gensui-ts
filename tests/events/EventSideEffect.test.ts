@@ -24,7 +24,7 @@ const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
 
 describe("EventSideEffect", function() {
-    /* Due to the fact that EventSideEffect(s) basically are just consumers with default return data, if they're reconducible as Consumers they don't need to re-do consumers tests */
+    /* Due to the fact that EventSideEffect(s) basically are just consumers with default return data, they can be traced back to Consumers */
     it("can be traced back to an EventConsumer", async function() {
         shouldBeAConsumer(EventSideEffectMock, [sinon.spy(), false], [[messageMock], eventContextMock]);
     });
