@@ -41,7 +41,7 @@ describe("EventSideEffect", function() {
         const spy = sinon.spy();
         const transformableEventContextMock = { event: eventMock } as EventContext;
         const sideEffect = new EventSideEffectMock(spy, true);
-        await sideEffect.effect([messageMock], transformableEventContextMock);
+        await sideEffect.consume([messageMock], transformableEventContextMock);
 
         expect(transformableEventContextMock).to.have.property("data").which.has.property("testDone", true);
     });
