@@ -28,7 +28,7 @@ export default function shouldBeAnInterceptor(interceptor: any, parameters: any[
     });
 
     it("intercept method returns an interceptor response object with data parameter as undefined or object", async function() {
-        const response = await new interceptor(...parameters);
+        const response = await (new interceptor(...parameters)).intercept(...passedInterceptorOptions);
         expect(response['data']).to.satisfy(data => !!["object", "undefined"].includes(typeof data));
     });
 };
