@@ -2,7 +2,7 @@ import LogConsumer from './commands/LogConsumer';
 import { default as InlineCommandConsumer, InlineCommandConsumerCallback } from './commands/InlineConsumer';
 import { default as InlineEventConsumer, InlineEventConsumerCallback } from './events/InlineConsumer';
 
-export * as LogConsumer from './commands/LogConsumer';
+export { default as LogConsumer } from './commands/LogConsumer';
 export { default as InlineCommandConsumer, InlineCommandConsumerCallback } from './commands/InlineConsumer';
 export { default as InlineEventConsumer, InlineEventConsumerCallback } from './events/InlineConsumer';
 
