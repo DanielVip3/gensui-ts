@@ -81,7 +81,7 @@ export class Command {
             else this._names = options.names;
         };
 
-        if (!options.id && ((!options.names || options.names.length <= 0))) throw new CommandNoIDError(`A command${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id or at least a name.`);
+        if ((options.id === null || options.id === undefined) && ((!options.names || options.names.length <= 0))) throw new CommandNoIDError(`A command${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id or at least a name.`);
         else if (options.id) {
             this.id = options.id;
             checkForNames();

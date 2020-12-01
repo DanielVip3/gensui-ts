@@ -51,7 +51,7 @@ export class Event {
     constructor(options: EventOptions) {
         if (options.bot) this.bot = options.bot;
 
-        if (!options.id) throw new EventNoIDError(`An event${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id.`);
+        if (options.id === null || options.id === undefined) throw new EventNoIDError(`An event${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id.`);
 
         if (this.bot && this.bot.getAllEvents && this.bot.getAllEvents().some(e => e.id === options.id)) throw new EventAlreadyExistingIDError(`An event already exists with the same id: ${options.id}.`);
 
