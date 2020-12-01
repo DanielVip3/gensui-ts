@@ -88,6 +88,20 @@ describe("CommandExceptionHandler and Command's exception handlers usage", funct
         expect(response).to.be.false;
     });
 
+    it("calls exception handlers and returns false if no valid exception handler for the type was passed", async function() {
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            //@ts-ignore
+            exceptions: [1], // putting a number as an exception handler makes it invalid
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callExceptionHandlers(commandContextMock(command), SyntaxError);
+
+        expect(response).to.be.false;
+    });
+
     it("calls exception handlers and returns false if no valid exception handler for the error was passed", async function() {
         const exceptionH: CommandExceptionHandler = {
             id: "test",
@@ -105,6 +119,48 @@ describe("CommandExceptionHandler and Command's exception handlers usage", funct
         const response = await command.callExceptionHandlers(commandContextMock(command), SyntaxError);
 
         expect(response).to.be.false;
+    });
+
+    it("calls exception handlers and returns false if no valid exception was passed", async function() {
+        const exceptionH: CommandExceptionHandler = {
+            id: "test",
+            exceptions: [TypeError],
+            handler: sinon.spy(),
+        };
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            exceptions: [exceptionH],
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callExceptionHandlers(commandContextMock(command), 1);
+
+        expect(response).to.be.false;
+    });
+
+    it("calls exception handlers with correct parameters", async function() {
+        const callback = sinon.spy();
+
+        const exceptionH: CommandExceptionHandler = {
+            id: "test",
+            exceptions: [SyntaxError],
+            handler: callback,
+        };
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            exceptions: [exceptionH],
+            handler: sinon.fake(),
+        });
+
+        const context = commandContextMock(command);
+        const error = new SyntaxError("test");
+        await command.callExceptionHandlers(context, error);
+
+        sinon.assert.calledWith(callback, context, error);
     });
 
     it("calls correct exception handlers for specified errors", async function() {

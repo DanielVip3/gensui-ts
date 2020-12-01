@@ -84,6 +84,20 @@ describe("EventExceptionHandler and Event's ExceptionHandler usage", function() 
         expect(response).to.be.false;
     });
 
+    it("calls exception handlers and returns false if no valid exception handler for the type was passed", async function() {
+        const event: Event = new Event({
+            id: "test",
+            type: "message",
+            //@ts-ignore
+            exceptions: [1], // putting a number as an exception handler makes it invalid
+            handler: sinon.fake(),
+        });
+
+        const response = await event.callExceptionHandlers({ event, } as EventContext, SyntaxError);
+
+        expect(response).to.be.false;
+    });
+
     it("calls exception handlers and returns false if no valid exception handler for the error was passed", async function() {
         const exceptionH: EventExceptionHandler = {
             id: "test",
@@ -99,6 +113,25 @@ describe("EventExceptionHandler and Event's ExceptionHandler usage", function() 
         });
 
         const response = await event.callExceptionHandlers({ event, } as EventContext, SyntaxError);
+
+        expect(response).to.be.false;
+    });
+
+    it("calls exception handlers and returns false if no valid exception was passed", async function() {
+        const exceptionH: EventExceptionHandler = {
+            id: "test",
+            exceptions: [TypeError],
+            handler: sinon.spy(),
+        };
+
+        const event: Event = new Event({
+            id: "test",
+            type: "message",
+            exceptions: [exceptionH],
+            handler: sinon.fake(),
+        });
+
+        const response = await event.callExceptionHandlers({ event, } as EventContext, 1);
 
         expect(response).to.be.false;
     });
