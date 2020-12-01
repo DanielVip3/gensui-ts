@@ -158,4 +158,23 @@ describe("EventInterceptor and Event's interceptor usage", function() {
 
         expect(response.data).to.be.ok.and.to.include({ foo: 2, bar: 1 });
     });
+
+    it("stops event call's flow to command handler if interceptor returns next as false", async function() {
+        const callbackInterceptor = sinon.stub().returns({ next: false });
+        const callbackEvent = sinon.stub();
+
+        const interceptor: InlineEventInterceptor<"message"> = Interceptors.Events.Inline(callbackInterceptor);
+
+        const event: Event = new Event({
+            id: "test",
+            type: "message",
+            interceptors: [interceptor],
+            handler: callbackEvent,
+        });
+
+        await event.call(messageMock);
+
+        sinon.assert.called(callbackInterceptor);
+        sinon.assert.notCalled(callbackEvent);
+    });
 });

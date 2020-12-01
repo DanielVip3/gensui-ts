@@ -152,4 +152,23 @@ describe("CommandInterceptor and Command's interceptor usage", function() {
 
         expect(response.data).to.be.ok.and.to.include({ foo: 2, bar: 1 });
     });
+
+    it("stops event call's flow to command handler if interceptor returns next as false", async function() {
+        const callbackInterceptor = sinon.stub().returns({ next: false });
+        const callbackCommand = sinon.stub();
+
+        const interceptor: InlineCommandInterceptor = Interceptors.Commands.Inline(callbackInterceptor);
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            interceptors: [interceptor],
+            handler: callbackCommand,
+        });
+
+        await command.call(messageMock, commandCallOptionsMock);
+
+        sinon.assert.called(callbackInterceptor);
+        sinon.assert.notCalled(callbackCommand);
+    });
 });
