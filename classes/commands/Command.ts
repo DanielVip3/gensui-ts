@@ -96,24 +96,24 @@ export class Command {
 
         if (options.filters) {
             if (Array.isArray(options.filters)) this.filters = options.filters;
-            else if (!Array.isArray(options.filters)) this.filters = [options.filters];
+            else this.filters = [options.filters];
         }
 
         if (options.parser) this.parser = options.parser;
 
         if (options.interceptors) {
             if (Array.isArray(options.interceptors)) this.interceptors = options.interceptors;
-            else if (!Array.isArray(options.interceptors)) this.interceptors = [options.interceptors];
+            else this.interceptors = [options.interceptors];
         }
 
         if (options.consumers) {
             if (Array.isArray(options.consumers)) this.consumers = options.consumers;
-            else if (!Array.isArray(options.consumers)) this.consumers = [options.consumers];
+            else this.consumers = [options.consumers];
         }
 
         if (options.exceptions) {
             if (Array.isArray(options.exceptions)) this.exceptions = options.exceptions;
-            else if (!Array.isArray(options.exceptions)) this.exceptions = [options.exceptions];
+            else this.exceptions = [options.exceptions];
         }
         if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
 
