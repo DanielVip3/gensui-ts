@@ -84,12 +84,12 @@ export class Event {
             if (Array.isArray(options.exceptions)) this.exceptions = options.exceptions;
             else this.exceptions = [options.exceptions];
         }
-        if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
+        if (this.exceptions && this.exceptions.length >= 1) this.exceptions = this.exceptions.filter(e => !!e.id);
 
         if (this.bot) {
-            if (this.bot.globalEventFilters) this.filters.unshift(...this.bot.globalEventFilters);
-            if (this.bot.globalEventInterceptors) this.interceptors.unshift(...this.bot.globalEventInterceptors);
-            if (this.bot.globalEventConsumers) this.consumers.unshift(...this.bot.globalEventConsumers);
+            if (this.bot.globalEventFilters && this.bot.globalEventFilters.length >= 1) this.filters.unshift(...this.bot.globalEventFilters);
+            if (this.bot.globalEventInterceptors && this.bot.globalEventInterceptors.length >= 1) this.interceptors.unshift(...this.bot.globalEventInterceptors);
+            if (this.bot.globalEventConsumers && this.bot.globalEventConsumers.length >= 1) this.consumers.unshift(...this.bot.globalEventConsumers);
         }
 
 
@@ -120,7 +120,7 @@ export class Event {
     async callFilters<K extends keyof ClientEvents>(payload: EventPayload<K>, ctx: EventContext): Promise<boolean> {
         let valid: boolean = true;
 
-        if (this.filters) {
+        if (this.filters && this.filters.length >= 1) {
             for (let filter of this.filters) {
                 try {
                     valid = !!await filter.filter(payload, ctx) || false;
@@ -141,7 +141,7 @@ export class Event {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
-        if (this.interceptors) {
+        if (this.interceptors && this.interceptors.length >= 1) {
             for (let interceptor of this.interceptors) {
                 if (!continueFlow) break;
 
@@ -177,7 +177,7 @@ export class Event {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
-        if (this.consumers) {
+        if (this.consumers && this.consumers.length >= 1) {
             for (let consumer of this.consumers) {
                 if (!continueFlow) break;
 

@@ -115,12 +115,12 @@ export class Command {
             if (Array.isArray(options.exceptions)) this.exceptions = options.exceptions;
             else this.exceptions = [options.exceptions];
         }
-        if (this.exceptions) this.exceptions = this.exceptions.filter(e => !!e.id);
+        if (this.exceptions && this.exceptions.length >= 1) this.exceptions = this.exceptions.filter(e => !!e.id);
 
         if (this.bot) {
-            if (this.bot.globalCommandFilters) this.filters.unshift(...this.bot.globalCommandFilters);
-            if (this.bot.globalCommandInterceptors) this.interceptors.unshift(...this.bot.globalCommandInterceptors);
-            if (this.bot.globalCommandConsumers) this.consumers.unshift(...this.bot.globalCommandConsumers);
+            if (this.bot.globalCommandFilters && this.bot.globalCommandFilters.length >= 1) this.filters.unshift(...this.bot.globalCommandFilters);
+            if (this.bot.globalCommandInterceptors && this.bot.globalCommandInterceptors.length >= 1) this.interceptors.unshift(...this.bot.globalCommandInterceptors);
+            if (this.bot.globalCommandConsumers && this.bot.globalCommandConsumers.length >= 1) this.consumers.unshift(...this.bot.globalCommandConsumers);
         }
 
         if (options.metadata) this.metadata = options.metadata;
@@ -162,7 +162,7 @@ export class Command {
     async callFilters(ctx: CommandContext): Promise<boolean> {
         let valid: boolean = true;
 
-        if (this.filters) {
+        if (this.filters && this.filters.length >= 1) {
             for (let filter of this.filters) {
                 try {
                     valid = !!await filter.filter(ctx) || false;
@@ -207,7 +207,7 @@ export class Command {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
-        if (this.interceptors) {
+        if (this.interceptors && this.interceptors.length >= 1) {
             for (let interceptor of this.interceptors) {
                 if (!continueFlow) break;
 
@@ -243,7 +243,7 @@ export class Command {
         let continueFlow: boolean = true;
         let mergedData: object = {};
 
-        if (this.consumers) {
+        if (this.consumers && this.consumers.length >= 1) {
             for (let consumer of this.consumers) {
                 if (!continueFlow) break;
 
