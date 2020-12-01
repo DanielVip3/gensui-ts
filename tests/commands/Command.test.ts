@@ -43,6 +43,14 @@ describe("Command", function() {
         })).to.throw("id");
     });
 
+    it("throws error with method name inside if neither id and name were specified and a methodName is specified", function() {
+        //@ts-ignore
+        expect(() => new Command({
+            handler: sinon.fake(),
+            methodName: "testName"
+        })).to.throw("testName");
+    });
+
     it("throws error if no name was specified", function() {
         //@ts-ignore
         expect(() => new Command({

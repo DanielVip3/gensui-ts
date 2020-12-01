@@ -35,6 +35,14 @@ describe("Event", function() {
         })).to.throw("id");
     });
 
+    it("throws error with method name inside if no id was specified and a methodName is specified", function() {
+        expect(() => new Event({
+            type: "message",
+            handler: sinon.fake(),
+            methodName: "testName"
+        })).to.throw("testName");
+    });
+
     it("throws error if an event with the same id already exists", function() {
         const event = new Event({
             bot: botMockID,
