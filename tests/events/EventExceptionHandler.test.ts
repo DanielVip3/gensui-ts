@@ -208,6 +208,28 @@ describe("EventExceptionHandler and Event's ExceptionHandler usage", function() 
 
         expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
     });
+
+    it("calls exception handlers when event handlers do have an error", async function() {
+        const callbackExceptionHandler = sinon.spy();
+        const callbackEvent = sinon.stub().throws(new SyntaxError("test"));
+
+        const exceptionH: EventExceptionHandler = {
+            id: "test",
+            exceptions: [SyntaxError],
+            handler: callbackExceptionHandler,
+        };
+
+        const event: Event = new Event({
+            id: "test",
+            type: "message",
+            exceptions: [exceptionH],
+            handler: callbackEvent,
+        });
+
+        await event.call(messageMock);
+
+        sinon.assert.calledOnce(callbackExceptionHandler);
+    });
     
     it("calls exception handlers when filters do have an error", async function() {
         const callbackExceptionHandler = sinon.spy();

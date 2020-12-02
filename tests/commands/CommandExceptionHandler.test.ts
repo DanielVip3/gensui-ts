@@ -213,6 +213,28 @@ describe("CommandExceptionHandler and Command's exception handlers usage", funct
         expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
     });
 
+    it("calls exception handlers when command handlers do have an error", async function() {
+        const callbackExceptionHandler = sinon.spy();
+        const callbackCommand = sinon.stub().throws(new SyntaxError("test"));
+
+        const exceptionH: CommandExceptionHandler = {
+            id: "test",
+            exceptions: [SyntaxError],
+            handler: callbackExceptionHandler,
+        };
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            exceptions: [exceptionH],
+            handler: callbackCommand,
+        });
+
+        await command.call(messageMock, commandCallOptionsMock);
+
+        sinon.assert.calledOnce(callbackExceptionHandler);
+    });
+
     it("calls exception handlers when filters do have an error", async function() {
         const callbackExceptionHandler = sinon.spy();
         const callbackFilter = sinon.stub().throws(new SyntaxError("test"));
