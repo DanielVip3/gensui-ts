@@ -101,6 +101,13 @@ describe("Command", function() {
         })).to.have.property("names").and.to.be.an('array').and.to.have.lengthOf(2);
     });
 
+    it("sets default id as the first name if no id was passed but names were", function() {
+        expect(new Command({
+            names: ["test"],
+            handler: sinon.fake(),
+        })).to.have.property("id").and.to.be.equal("test");
+    });
+
     it("handler gets called correctly", async function() {
         const callback = sinon.spy();
 
