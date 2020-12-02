@@ -212,16 +212,22 @@ export class Event {
     async call<K extends keyof ClientEvents>(...payload: EventPayload<K>): Promise<boolean> {
         const context: EventContext = { event: this };
 
-        if (!await this.callFilters<K>(payload, context)) return false;
+        try {
+            if (!await this.callFilters<K>(payload, context)) return false;
+    
+            const interceptorsResponse: EventInterceptorResponse = await this.callInterceptors<K>(payload, context);
+            if (!interceptorsResponse || !interceptorsResponse.next) return false;
 
-        const interceptorsResponse: EventInterceptorResponse = await this.callInterceptors<K>(payload, context);
-        if (!interceptorsResponse || !interceptorsResponse.next) return false;
+            const returned: any = await this.handler(payload, context);
 
-        const returned: any = await this.handler(payload, context);
+            const consumersResponse: EventConsumerResponse = await this.callConsumers<K>(payload, context, returned);
+            if (!consumersResponse || !consumersResponse.next) return false;
 
-        const consumersResponse: EventConsumerResponse = await this.callConsumers<K>(payload, context, returned);
-        if (!consumersResponse || !consumersResponse.next) return false;
+            return true;
+        } catch(err) {
+            this.callExceptionHandlers(context, err);
 
-        return true;
+            return false;
+        }
     }
 }

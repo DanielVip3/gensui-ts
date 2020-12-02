@@ -278,18 +278,18 @@ export class Command {
     async call(message: Message, callOptions: CommandCallOptions): Promise<boolean> {
         const context: CommandContext = { command: this, message, call: callOptions };
 
-        if (!await this.callFilters(context)) return false;
-
-        if (context.call) {
-            const args: CommandArgs|null = await this.callParser(context);
-
-            context.call.arguments = args;
-        }
-
-        const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
-        if (!interceptorsResponse || !interceptorsResponse.next) return false;
-
         try {
+            if (!await this.callFilters(context)) return false;
+
+            if (context.call) {
+                const args: CommandArgs|null = await this.callParser(context);
+
+                context.call.arguments = args;
+            }
+
+            const interceptorsResponse: CommandInterceptorResponse = await this.callInterceptors(context);
+            if (!interceptorsResponse || !interceptorsResponse.next) return false;
+
             const returned: any = await this.handler(context);
 
             const consumersResponse: CommandConsumerResponse = await this.callConsumers(context, returned);
