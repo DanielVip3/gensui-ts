@@ -105,7 +105,23 @@ describe("Command", function() {
         expect(new Command({
             names: ["test"],
             handler: sinon.fake(),
-        })).to.have.property("id").and.to.be.equal("test");
+        })).to.have.property("id", "test");
+    });
+
+    it("accepts description", function() {
+        expect(new Command({
+            names: ["test"],
+            description: "testDescription",
+            handler: sinon.fake(),
+        })).to.have.property("description", "testDescription");
+    });
+
+    it("accepts metadata", function() {
+        expect(new Command({
+            names: ["test"],
+            handler: sinon.fake(),
+            metadata: { test: true },
+        })).to.have.property("metadata").which.has.property("test", true);
     });
 
     it("handler gets called correctly", async function() {
