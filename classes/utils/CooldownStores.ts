@@ -59,12 +59,10 @@ export class MemoryCooldownStore extends CooldownStore {
         if (this.store[userId]) {
             if (this.store[userId].times >= this.maxTimes) {
                 if ((new Date(this.store[userId].called.getTime() + this.cooldownTime)) <= new Date()) {
-                    /* istanbul-ignore-else impossible to reach except in cases where the cooldown delete fails (and it can't happen except if you volountarily edit the store property, which shouldn't be done) */
+                    /* istanbul ignore else impossible to reach except in cases where the cooldown delete fails (and it can't happen except if you volountarily edit the store property, which shouldn't be done) */
                     if (this.deleteCooldown(userId)) return false;
                     else return true;
-                }
-
-                return true;
+                } else return true;
             } else return false;
         } else return false;
     }
@@ -146,12 +144,10 @@ export class RedisCooldownStore extends CooldownStore {
         if (cooldownUserObject) {
             if (cooldownUserObject.times >= this.maxTimes) {
                 if (new Date(new Date(cooldownUserObject.called).getTime() + this.cooldownTime) <= new Date()) {
+                    /* istanbul ignore else impossible to reach except in cases where the cooldown delete fails (and it can't happen except if you volountarily edit the store property, which shouldn't be done) */
                     if (this.deleteCooldown(userId)) return false;
-                    /* istanbul-ignore-else impossible to reach except in cases where the cooldown delete fails (and it can't happen except if you volountarily edit the store property, which shouldn't be done) */
                     else return true;
-                }
-
-                return true;
+                } else return true;
             } else return false;
         } else return false;
     }
