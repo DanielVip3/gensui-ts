@@ -82,6 +82,23 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
         }, 1500);
     });
 
+    it("resets correctly the cooldown when fetching if the user is in cooldown and cooldown is expired", function(done) {
+        const store = new MemoryCooldownStore({
+            cooldownTime: 1 * 1000, // 1 second
+            maxTimes: 3,
+        });
+
+        store.increaseCooldown("testUserID");
+        store.increaseCooldown("testUserID");
+        store.increaseCooldown("testUserID");
+
+        setTimeout(() => {
+            expect(store.isInCooldown("testUserID")).to.be.false;
+
+            done();
+        }, 1500);
+    });
+
     it("gets correct user data", function(done) {
         const store = new MemoryCooldownStore({
             cooldownTime: 1 * 1000, // 1 second
@@ -385,6 +402,24 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
             done();
         }, 1500);
+    });
+
+    it("resets correctly the cooldown when fetching if the user is in cooldown and cooldown is expired", async function() {
+        const store = new RedisCooldownStore({
+            cooldownTime: 1 * 1000, // 1 second
+            store: new IORedis(),
+            maxTimes: 3,
+            cooldownIdentifierKey: "test",
+        });
+
+        await store.increaseCooldown("testUserID2");
+        await store.increaseCooldown("testUserID2");
+        await store.increaseCooldown("testUserID2");
+
+        new Promise((resolve) => setTimeout(async() => {
+            expect(await store.isInCooldown("testUserID2")).to.be.false;
+            resolve(true);
+        }, 1500));
     });
 
     it("gets correct user data", async function() {
