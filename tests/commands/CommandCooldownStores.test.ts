@@ -1,5 +1,5 @@
 import IORedis from 'ioredis-mock';
-import { MemoryCooldownStore, RedisCooldownStore, CooldownStoreObject } from '../classes/utils/CooldownStores';
+import { MemoryCooldownStore, RedisCooldownStore, CooldownStoreObject } from '../../classes/utils/CooldownStores';
 import { expect } from 'chai';
 
 describe("Memory Cooldown Store (with max times = 1)", function() {
