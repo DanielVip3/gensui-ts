@@ -1,7 +1,6 @@
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
-import { Filters, InlineCommandFilter } from '../../filters/Filters';
-import { Interceptors, InlineCommandInterceptor } from '../../interceptors/Interceptors';
+import { CommandArgsParser, customTypes } from '../../classes/commands/args/CommandArgsParser';
 
 import Bot from '../../classes/Bot';
 
@@ -14,7 +13,6 @@ chai.use(chaiAsPromised);
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
-import { CommandArgsParser } from '../../classes/commands/args/CommandArgsParser';
 
 const testRawArguments = ["test", "test1"];
 
@@ -24,16 +22,51 @@ const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate(
 const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: false, rawArguments: testRawArguments } as CommandCallOptions;
 const commandContextMock = (command) => { return { command, message: messageMock, call: commandCallOptionsMock } as CommandContext };
 
-describe("CommandParser and Command's parser usage", function() {
-    it("CommandParser instantiates", function() {
+describe("CommandArgsParser", function() {
+    it("instantiates", function() {
         expect(new CommandArgsParser({id: "test"})).to.be.an.instanceof(CommandArgsParser);
     });
 
-    it("CommandParser also accepts multiple arguments", function() {
+    it("also accepts multiple arguments", function() {
         expect(new CommandArgsParser({id: "test"}, {id: "test1"})).to.have.property("test").which.is.an("array").which.has.lengthOf(2);
     });
+    
+    it("adds custom type correctly", function() {
+        const cast = function(value) {
+            return value + value;
+        };
+        CommandArgsParser.addType("test", cast);
+        
+        expect(customTypes).to.have.property("test", cast);
+        delete customTypes['test'];
+    });
 
-    it("command accepts a parser", function() {
+    it("removes custom type correctly", function() {
+        const cast = function(value) {
+            return value + value;
+        };
+        CommandArgsParser.addType("test", cast);
+        CommandArgsParser.removeType("test");
+        
+        expect(customTypes).to.not.have.property("test");
+    });
+
+    it("casts custom type correctly", async function() {
+        const cast = function(value) {
+            return value + value;
+        };
+        CommandArgsParser.addType("test", cast);
+
+        const parser = new CommandArgsParser();
+        
+        expect(await parser.castType("value", "test", messageMock)).to.be.equal("valuevalue");
+
+        CommandArgsParser.removeType("test");
+    });
+});
+
+describe("Command's parser usage", function() {
+    it("accepts a parser", function() {
         const parser: CommandArgsParser = new CommandArgsParser({
             id: "test",
         });
@@ -46,7 +79,7 @@ describe("CommandParser and Command's parser usage", function() {
         })).to.have.property("parser").and.to.be.equal(parser);
     });
 
-    it("command calls parser and returns raw arguments if no parser was passed", async function() {
+    it("calls parser and returns raw arguments if no parser was passed", async function() {
         const command: Command = new Command({
             id: "test",
             names: "test",
