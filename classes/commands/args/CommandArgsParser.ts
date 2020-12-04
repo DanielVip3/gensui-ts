@@ -1,9 +1,8 @@
 import { Client, GuildChannel, Message, TextChannel } from "discord.js";
 import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg, ProcessorPayload } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
-import { types } from "joi";
 
-const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
+export const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
 
 export class CommandArgsParser {
     private readonly test: PrimitiveArg[]|DiscordArg[];
