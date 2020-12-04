@@ -109,7 +109,7 @@ export class CommandArgsParser {
 
                 return null;
             default:
-                if (type in customTypes) await customTypes[type](value, message);
+                if (type in customTypes) return await customTypes[type](value, message);
 
                 return null;
         }
