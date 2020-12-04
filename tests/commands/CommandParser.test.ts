@@ -63,6 +63,33 @@ describe("CommandArgsParser", function() {
 
         CommandArgsParser.removeType("test");
     });
+
+    it("casts to null if no value is specified", async function() {
+        const parser = new CommandArgsParser();
+        
+        //@ts-ignore
+        expect(await parser.castType(undefined, "test", messageMock)).to.be.null;
+    });
+
+    it("casts to null if no type is specified", async function() {
+        const parser = new CommandArgsParser();
+        
+        //@ts-ignore
+        expect(await parser.castType("value", undefined, messageMock)).to.be.null;
+    });
+
+    it("casts to null if both value and type are specified", async function() {
+        const parser = new CommandArgsParser();
+        
+        //@ts-ignore
+        expect(await parser.castType(undefined, undefined, messageMock)).to.be.null;
+    });
+
+    it("casts to null if the specified type is not found", async function() {
+        const parser = new CommandArgsParser();
+        
+        expect(await parser.castType("value", "unexistingtype", messageMock)).to.be.null;
+    });
 });
 
 describe("Command's parser usage", function() {
