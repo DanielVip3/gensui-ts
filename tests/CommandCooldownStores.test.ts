@@ -3,19 +3,55 @@ import { MemoryCooldownStore, RedisCooldownStore, CooldownStoreObject } from '..
 import { expect } from 'chai';
 
 describe("Memory Cooldown Store (with max times = 1)", function() {
-    it("has set class properties", function(done) {
-        const store = new MemoryCooldownStore({
-            cooldownTime: 1 * 1000, // 1 second
-        });
+    it("instantiates", function() {
+        expect(new MemoryCooldownStore()).to.be.an.instanceof(MemoryCooldownStore);
+    });
+
+    it("has a default cooldownTime parameter which is 1 hour", function() {
+        expect(new MemoryCooldownStore()).to.have.property("cooldownTime", 60 * 60 * 1000);
+    });
+
+    it("has a default maxTimes parameter which is 1", function() {
+        expect(new MemoryCooldownStore()).to.have.property("maxTimes", 1);
+    });
+
+    it("getCooldown returns null if no userId is passed", function() {
+        const store = new MemoryCooldownStore();
 
         //@ts-ignore
-        expect(store.store).to.be.deep.equal({});
-        //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(1 * 1000);
-        //@ts-ignore
-        expect(store.maxTimes).to.be.equal(1);
+        expect(store.getCooldown()).to.be.null;
+    });
 
-        done();
+    it("getCooldown returns undefined if unexisting userId is passed", async function() {
+        const store = new MemoryCooldownStore();
+
+        expect(store.getCooldown("blahblah")).to.be.undefined;
+    });
+
+    it("isInCooldown returns false if no userId is passed", function() {
+        const store = new MemoryCooldownStore();
+
+        //@ts-ignore
+        expect(store.isInCooldown()).to.be.false;
+    });
+
+    it("isInCooldown returns false if unexisting userId is passed", async function() {
+        const store = new MemoryCooldownStore();
+
+        expect(store.isInCooldown("blahblah")).to.be.false;
+    });
+
+    it("deleteCooldown returns false if no userId is passed", function() {
+        const store = new MemoryCooldownStore();
+
+        //@ts-ignore
+        expect(store.deleteCooldown()).to.be.false;
+    });
+
+    it("deleteCooldown returns false if unexisting userId is passed", async function() {
+        const store = new MemoryCooldownStore();
+
+        expect(store.deleteCooldown("blahblah")).to.be.false;
     });
 
     it("adds user in cooldown correctly", function(done) {
@@ -43,9 +79,21 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
         done();
     });
 
-    it("resets correctly if cooldown is increased but max limits is reached", function(done) {
+    it("sets different called date correctly when increasing cooldown", function() {
         const store = new MemoryCooldownStore({
             cooldownTime: 1 * 1000, // 1 second
+        });
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        store.increaseCooldown("testUserID", tomorrow);
+
+        expect(store.getCooldown("testUserID")).to.have.property("called", tomorrow);
+    });
+
+    it("resets correctly if cooldown is increased but max limits is reached", function(done) {
+        const store = new MemoryCooldownStore({
             maxTimes: 3,
         });
 
@@ -168,22 +216,6 @@ describe("Memory Cooldown Store (with max times = 1)", function() {
 });
 
 describe("Memory Cooldown Store (with max times = 3)", function() {
-    it("has set class properties", function(done) {
-        const store = new MemoryCooldownStore({
-            cooldownTime: 1 * 1000, // 1 second
-            maxTimes: 3,
-        });
-
-        //@ts-ignore
-        expect(store.store).to.be.deep.equal({});
-        //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(1 * 1000);
-        //@ts-ignore
-        expect(store.maxTimes).to.be.equal(3);
-
-        done();
-    });
-
     it("adds user in cooldown correctly", function(done) {
         const store = new MemoryCooldownStore({
             cooldownTime: 1 * 1000, // 1 second
@@ -282,6 +314,51 @@ describe("Memory Cooldown Store (with max times = 3)", function() {
 });
 
 describe("Redis Cooldown Store (with max times = 1)", function() {
+    it("instantiates", function() {
+        expect(new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        })).to.be.an.instanceof(RedisCooldownStore);
+    });
+
+    it("throws error if no options are provided", function() {
+        expect(function() {
+            //@ts-ignore
+            new RedisCooldownStore();
+        }).to.throw("options");
+    });
+
+    it("has a default cooldownTime parameter which is 1 hour", function() {
+        expect(new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        })).to.have.property("cooldownTime", 60 * 60 * 1000);
+    });
+
+    it("has a default maxTimes parameter which is 1", function() {
+        expect(new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        })).to.have.property("maxTimes", 1);
+    });
+    
+    it("has a default maxTimes parameter which is 1", function() {
+        expect(new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        })).to.have.property("maxTimes", 1);
+    });
+
+    it("has a default cooldownHashKey which is bots.commands.cooldown", function() {
+        const store1 = new RedisCooldownStore({
+            cooldownTime: 1 * 1000, // 1 second
+            store: new IORedis(),
+            cooldownIdentifierKey: "test",
+        });
+
+        expect(store1).to.have.property("cooldownHashKey", "bot.commands.cooldown.test"); // due to the fact that cooldownHashKey and cooldownIdentifierKey get joint with a dot, they are tested joint
+    });
+
     it("throws error if no store has been provided", function() {
         expect(function() {
             //@ts-ignore
@@ -293,26 +370,16 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         }).to.throw("store");
     });
 
-    it("works even if no cooldown hash key has been provided", function() {
-        //@ts-ignore
-        const store1 = new RedisCooldownStore({
-            cooldownTime: 1 * 1000, // 1 second
-            store: new IORedis(),
-            cooldownIdentifierKey: "test"
-        });
-
-        expect(store1).to.have.property("cooldownHashKey").which.equals("bot.commands.cooldown.test");
-
-        //@ts-ignore
-        const store2 = new RedisCooldownStore({
-            cooldownTime: 1 * 1000, // 1 second
-            store: new IORedis(),
-        });
-
-        expect(store2).to.have.property("cooldownHashKey");
+    it("throws error if no cooldownIdentifierKey is provided", function() {
+        expect(function() {
+            //@ts-ignore
+            new RedisCooldownStore({
+                store: new IORedis(),
+            });
+        }).to.throw("cooldownIdentifierKey");
     });
 
-    it("has set class properties", function(done) {
+    it("joins cooldownHashKey with cooldownIdentifierKey", function(done) {
         const store = new RedisCooldownStore({
             cooldownTime: 1 * 1000, // 1 second
             store: new IORedis(),
@@ -320,18 +387,69 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
             cooldownIdentifierKey: "test"
         });
 
-        //@ts-ignore
-        expect(store.store).to.be.instanceOf(IORedis);
-        //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(1 * 1000);
-        //@ts-ignore
-        expect(store.maxTimes).to.be.equal(1);
-
         /* Ends with "test" because of constructor concatenation of cooldownHashKey+cooldownIdentifierKey */
         //@ts-ignore
         expect(store.cooldownHashKey).to.be.equal("TEST.bot.commands.cooldown.test");
 
         done();
+    });
+
+    it("getCooldown returns null if no userId is passed", async function() {
+        const store = new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        //@ts-ignore
+        expect(await store.getCooldown()).to.be.null;
+    });
+
+    it("getCooldown returns undefined if unexisting userId is passed", async function() {
+        const store = new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        //@ts-ignore
+        expect(await store.getCooldown("blahblah")).to.be.undefined;
+    });
+
+    it("isInCooldown returns false if no userId is passed", async function() {
+        const store = new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        //@ts-ignore
+        expect(await store.isInCooldown()).to.be.false;
+    });
+
+    it("isInCooldown returns false if unexisting userId is passed", async function() {
+        const store = new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        expect(await store.isInCooldown("blahblah")).to.be.false;
+    });
+
+    it("deleteCooldown returns false if no userId is passed", async function() {
+        const store = new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        //@ts-ignore
+        expect(await store.deleteCooldown()).to.be.false;
+    });
+
+    it("deleteCooldown returns false if unexisting userId is passed", async function() {
+        const store = new RedisCooldownStore({
+            store: new IORedis(),
+            cooldownIdentifierKey: "test"
+        });
+
+        expect(await store.deleteCooldown("blahblah")).to.be.false;
     });
 
     it("adds user in cooldown correctly", async function() {
@@ -363,6 +481,22 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
         user = JSON.parse(user);
         expect(user).to.include({ times: 1 });
         expect(user).to.have.property('called');
+    });
+
+    it("sets different called date correctly when increasing cooldown", async function() {
+        const store = new RedisCooldownStore({
+            cooldownTime: 1 * 1000, // 1 second
+            store: new IORedis(),
+            cooldownHashKey: "TEST.bot.commands.cooldown",
+            cooldownIdentifierKey: "test"
+        });
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        await store.increaseCooldown("testUserID", tomorrow);
+
+        expect(await store.getCooldown("testUserID")).to.have.property("called", tomorrow.toJSON()); // dates in JSONs are converted with toJSON to be saved in Redis, so let's compare them using toJSON
     });
 
     it("resets correctly if cooldown is increased but max limits is reached", async function() {
@@ -432,9 +566,9 @@ describe("Redis Cooldown Store (with max times = 1)", function() {
 
         await store.increaseCooldown("testUserID");
 
-        const cooldown: CooldownStoreObject|null = await store.getCooldown("testUserID");
-        expect(cooldown).to.include({ times: 1 });
-        expect(cooldown).to.have.property('called');
+        const cooldown: CooldownStoreObject|null|undefined = await store.getCooldown("testUserID");
+        expect(cooldown).to.be.ok.and.to.include({ times: 1 });
+        expect(cooldown).to.be.ok.and.to.have.property('called');
     });
 
     it("expires user in cooldown correctly", function(done) {
@@ -499,29 +633,6 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
         }).to.throw("store");
     });
 
-    it("has set class properties", function(done) {
-        const store = new RedisCooldownStore({
-            cooldownTime: 1 * 1000, // 1 second
-            maxTimes: 3,
-            store: new IORedis(),
-            cooldownHashKey: "TEST.bot.commands.cooldown",
-            cooldownIdentifierKey: "test"
-        });
-
-        //@ts-ignore
-        expect(store.store).to.be.instanceOf(IORedis);
-        //@ts-ignore
-        expect(store.cooldownTime).to.be.equal(1 * 1000);
-        //@ts-ignore
-        expect(store.maxTimes).to.be.equal(3);
-
-        /* Ends with "test" because of constructor concatenation of cooldownHashKey+cooldownIdentifierKey */
-        //@ts-ignore
-        expect(store.cooldownHashKey).to.be.equal("TEST.bot.commands.cooldown.test");
-
-        done();
-    });
-
     it("adds user in cooldown correctly", async function() {
         const store = new RedisCooldownStore({
             cooldownTime: 1 * 1000, // 1 second
@@ -568,9 +679,9 @@ describe("Redis Cooldown Store (with max times = 3)", function() {
         await store.increaseCooldown("testUserID");
         await store.increaseCooldown("testUserID");
 
-        const cooldown: CooldownStoreObject|null = await store.getCooldown("testUserID");
-        expect(cooldown).to.include({ times: 2 });
-        expect(cooldown).to.have.property('called');
+        const cooldown: CooldownStoreObject|null|undefined = await store.getCooldown("testUserID");
+        expect(cooldown).to.be.ok.and.to.include({ times: 2 });
+        expect(cooldown).to.be.ok.and.to.have.property('called');
     });
 
     it("invalidates user in cooldown correctly due to max times reached", async function() {
