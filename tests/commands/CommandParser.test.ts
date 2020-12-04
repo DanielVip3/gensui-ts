@@ -25,10 +25,18 @@ const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: fals
 const commandContextMock = (command) => { return { command, message: messageMock, call: commandCallOptionsMock } as CommandContext };
 
 describe("CommandParser and Command's parser usage", function() {
-    it("accepts a parser", function() {
-        const parser: CommandArgsParser = new CommandArgsParser([{
+    it("CommandParser instantiates", function() {
+        expect(new CommandArgsParser({id: "test"})).to.be.an.instanceof(CommandArgsParser);
+    });
+
+    it("CommandParser also accepts multiple arguments", function() {
+        expect(new CommandArgsParser({id: "test"}, {id: "test1"})).to.have.property("test").which.is.an("array").which.has.lengthOf(2);
+    });
+
+    it("command accepts a parser", function() {
+        const parser: CommandArgsParser = new CommandArgsParser({
             id: "test",
-        }]);
+        });
 
         expect(new Command({
             id: "test",
@@ -38,7 +46,7 @@ describe("CommandParser and Command's parser usage", function() {
         })).to.have.property("parser").and.to.be.equal(parser);
     });
 
-    it("calls parser and returns raw arguments if no parser was passed", async function() {
+    it("command calls parser and returns raw arguments if no parser was passed", async function() {
         const command: Command = new Command({
             id: "test",
             names: "test",
