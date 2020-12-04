@@ -8,7 +8,7 @@ const customTypes: {[key: string]: (value: string, message: Message) => any} = {
 export class CommandArgsParser {
     private readonly test: PrimitiveArg[]|DiscordArg[];
 
-    constructor(test: PrimitiveArg[]|DiscordArg[]) {
+    constructor(...test: PrimitiveArg[]|DiscordArg[]) {
         this.test = test;
     }
 
