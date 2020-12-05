@@ -85,7 +85,7 @@ export class CommandArgsParser {
             case "emoji":
                 if (!message || !message.guild) return null;
 
-                return await message.guild.emojis.resolveIdentifier(value);
+                return await message.guild.emojis.resolve(value);
             case "guild":
                 if (!client) return null;
 
