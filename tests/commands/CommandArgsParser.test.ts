@@ -113,6 +113,16 @@ describe("CommandArgs types casting", function() {
     it("casts valid value to URL correctly", async function() {
         expect(await parser.castType("https://test.com", "url", messageMock)).to.be.instanceof(URL);
     });
+
+    describe("date casting", function() {
+        it("casts valid value to Date correctly", async function() {
+            expect(await parser.castType("01/01/1970", "date", messageMock)).to.be.instanceof(Date);
+        });
+    
+        it("casts invalid value to null correctly", async function() {
+            expect(await parser.castType("test", "date", messageMock)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
