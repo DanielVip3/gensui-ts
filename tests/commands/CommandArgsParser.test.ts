@@ -2,17 +2,16 @@ import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
 import { CommandArgsParser, customTypes } from '../../classes/commands/args/CommandArgsParser';
 
-import Bot from '../../classes/Bot';
-
 import * as chai from 'chai';
 import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
-import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
+import { Client, DMChannel, Guild, GuildMember, Message, SnowflakeUtil, TextChannel, User } from 'discord.js';
 
 import * as sinon from 'sinon';
+import { getDefaultLibFilePath } from 'typescript';
 
 const testRawArguments = ["test", "test1"];
 
@@ -89,6 +88,30 @@ describe("CommandArgsParser", function() {
         const parser = new CommandArgsParser();
         
         expect(await parser.castType("value", "unexistingtype", messageMock)).to.be.null;
+    });
+});
+
+describe("CommandArgs types casting", function() {
+    const parser = new CommandArgsParser();
+
+    it("casts valid value to string correctly", async function() {
+        expect(await parser.castType("test", "string", messageMock)).to.be.a("string").which.is.equal("test");
+    });
+
+    it("casts valid value to number correctly", async function() {
+        expect(await parser.castType("1", "number", messageMock)).to.be.a("number").which.is.equal(1);
+    });
+
+    it("casts valid value to int correctly", async function() {
+        expect(await parser.castType("1.2", "int", messageMock)).to.be.a("number").which.is.equal(1);
+    });
+
+    it("casts valid value to float correctly", async function() {
+        expect(await parser.castType("1.2", "float", messageMock)).to.be.a("number").which.is.equal(1.2);
+    });
+
+    it("casts valid value to URL correctly", async function() {
+        expect(await parser.castType("https://test.com", "url", messageMock)).to.be.instanceof(URL);
     });
 });
 
