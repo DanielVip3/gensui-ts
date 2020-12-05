@@ -372,6 +372,40 @@ describe("CommandArgs types casting", function() {
             expect(await parser.castType(roleIdMock, "role", messageNoGuild)).to.be.null;
         });
     });
+
+    describe("discord emoji casting", function() {
+        const emojiIdMock = SnowflakeUtil.generate();
+        const userIdMock = SnowflakeUtil.generate();
+
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
+        const emojiMock = new GuildEmoji(client, { id: emojiIdMock, partial: false }, guild);
+
+        guild.emojis.cache.set(emojiIdMock, emojiMock);
+
+        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
+        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
+
+        it("casts valid emoji id to emoji correctly", async function() {
+            expect(await parser.castType(emojiIdMock, "emoji", message, client)).to.be.instanceof(GuildEmoji);
+        });
+
+        it("casts to null correctly if no message is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(emojiIdMock, "emoji", undefined)).to.be.null;
+        });
+
+        it("casts to null correctly if message passed has no guild", async function() {
+            const dmChannel = new DMChannel(client, { recipient: userMock });
+            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
+
+            expect(await parser.castType(emojiIdMock, "emoji", messageNoGuild)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
