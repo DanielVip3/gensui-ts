@@ -8,10 +8,9 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
-import { Client, DMChannel, Guild, GuildMember, Message, SnowflakeUtil, TextChannel, User } from 'discord.js';
+import { Client, DMChannel, Guild, GuildChannel, GuildEmoji, GuildMember, Message, Role, SnowflakeUtil, TextChannel, User, VoiceChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
-import { getDefaultLibFilePath } from 'typescript';
 
 const testRawArguments = ["test", "test1"];
 
@@ -184,6 +183,12 @@ describe("CommandArgs types casting", function() {
     * - GuildMember should define the joined_at property
     */
 
+    /* 
+    * Also, from Discord API, all channels' types are expressed as numbers instead of a string ("text"), so we use:
+    * - 0 for "text" channels testing
+    * - 1 for "voice" channels testing
+    */
+
    describe("discord user casting", function() {
         const userIdMock = SnowflakeUtil.generate();
         const client = new Client();
@@ -230,6 +235,73 @@ describe("CommandArgs types casting", function() {
             const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
 
             expect(await parser.castType(userIdMock, "member", messageNoGuild)).to.be.null;
+        });
+    });
+
+    describe("discord guild channel casting", function() {
+        const channelIdMock = SnowflakeUtil.generate();
+        const userIdMock = SnowflakeUtil.generate();
+
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
+        const channelMock = new GuildChannel(guild, { id: channelIdMock, user: userMock, partial: false, type: "text" });
+
+        guild.channels.cache.set(channelIdMock, channelMock);
+
+        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
+        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
+
+        it("casts valid user id to channel correctly", async function() {
+            expect(await parser.castType(channelIdMock, "channel", message, client)).to.be.instanceof(GuildChannel);
+        });
+
+        it("casts to null correctly if no message is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(channelIdMock, "channel", undefined)).to.be.null;
+        });
+
+        it("casts to null correctly if message passed has no guild", async function() {
+            const dmChannel = new DMChannel(client, { recipient: userMock });
+            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
+
+            expect(await parser.castType(channelIdMock, "channel", messageNoGuild)).to.be.null;
+        });
+    });
+
+    describe("discord text channel casting", function() {
+        const channelIdMock = SnowflakeUtil.generate();
+        const userIdMock = SnowflakeUtil.generate();
+
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
+        const channelMock = new TextChannel(guild, { id: channelIdMock, type: 0 /* "text" */, partial: false });
+
+        guild.channels.cache.set(channelIdMock, channelMock);
+
+        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channelMock);
+
+        it("casts valid channel id to text channel correctly", async function() {
+            expect(await parser.castType(channelIdMock, "textChannel", message, client)).to.be.instanceof(TextChannel);
+        });
+
+        it("casts to null correctly if no message is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(channelIdMock, "textChannel", undefined)).to.be.null;
+        });
+
+        it("casts to null correctly if message passed has no guild", async function() {
+            const dmChannel = new DMChannel(client, { recipient: userMock });
+            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
+
+            expect(await parser.castType(channelIdMock, "textChannel", messageNoGuild)).to.be.null;
         });
     });
 });
