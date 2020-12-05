@@ -137,6 +137,44 @@ describe("CommandArgs types casting", function() {
             expect(await parser.castType("test", "color", messageMock)).to.be.null;
         });
     });
+
+    describe("boolean casting", function() {
+        it("casts valid 'on' to true correctly", async function() {
+            expect(await parser.castType("on", "boolean", messageMock)).to.be.true;
+        });
+    
+        it("casts valid '1' to true correctly", async function() {
+            expect(await parser.castType("1", "boolean", messageMock)).to.be.true;
+        });
+
+        it("casts valid 'yes' to true correctly", async function() {
+            expect(await parser.castType("yes", "boolean", messageMock)).to.be.true;
+        });
+
+        it("casts valid 'true' to true correctly", async function() {
+            expect(await parser.castType("true", "boolean", messageMock)).to.be.true;
+        });
+
+        it("casts valid 'off' to false correctly", async function() {
+            expect(await parser.castType("off", "boolean", messageMock)).to.be.false;
+        });
+    
+        it("casts valid '0' to false correctly", async function() {
+            expect(await parser.castType("0", "boolean", messageMock)).to.be.false;
+        });
+
+        it("casts valid 'no' to false correctly", async function() {
+            expect(await parser.castType("no", "boolean", messageMock)).to.be.false;
+        });
+
+        it("casts valid 'false' to false correctly", async function() {
+            expect(await parser.castType("false", "boolean", messageMock)).to.be.false;
+        });
+
+        it("casts invalid value to null correctly", async function() {
+            expect(await parser.castType("test", "boolean", messageMock)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
