@@ -123,6 +123,20 @@ describe("CommandArgs types casting", function() {
             expect(await parser.castType("test", "date", messageMock)).to.be.null;
         });
     });
+
+    describe("color casting", function() {
+        it("casts valid hex color with # to number correctly", async function() {
+            expect(await parser.castType("#ffffff", "color", messageMock)).to.be.a("number").which.is.equal(16777215); // 16777215 is white (#ffffff) in decimal
+        });
+
+        it("casts valid hex color without to number correctly", async function() {
+            expect(await parser.castType("ffffff", "color", messageMock)).to.be.a("number").which.is.equal(16777215); // 16777215 is white (#ffffff) in decimal
+        });
+
+        it("casts invalid value to null correctly", async function() {
+            expect(await parser.castType("test", "color", messageMock)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
