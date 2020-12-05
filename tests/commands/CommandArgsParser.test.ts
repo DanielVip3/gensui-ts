@@ -175,6 +175,30 @@ describe("CommandArgs types casting", function() {
             expect(await parser.castType("test", "boolean", messageMock)).to.be.null;
         });
     });
+
+    /* I can't test deep fetching Discord without a cache because it needs a token and tests can't be made; so I won't test invalid value casting to null for all Discord structures */
+
+    /*
+    * Most fetch calls do throw an error when an object is defined as a partial from discord.js; so, to avoid them to be defined as partials, we must declare the following properties:
+    * - User should define the username property
+    * - GuildMember should define the joined_at property
+    */
+
+   describe("discord user casting", function() {
+        const userIdMock = SnowflakeUtil.generate();
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        it("casts valid user id to user correctly", async function() {
+            expect(await parser.castType(userIdMock, "user", messageMock, client)).to.be.instanceof(User);
+        });
+
+        it("casts to null correctly if no client is passed", async function() {
+            expect(await parser.castType(userIdMock, "user", messageMock)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
