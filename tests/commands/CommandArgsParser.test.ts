@@ -406,6 +406,32 @@ describe("CommandArgs types casting", function() {
             expect(await parser.castType(emojiIdMock, "emoji", messageNoGuild)).to.be.null;
         });
     });
+
+    describe("discord guild casting", function() {
+        const guildIdMock = SnowflakeUtil.generate();
+        const userIdMock = SnowflakeUtil.generate();
+
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        const guildMock = new Guild(client, { id: guildIdMock, partial: false });
+
+        client.guilds.cache.set(guildIdMock, guildMock);
+
+        const channel = new TextChannel(guildMock, { id: SnowflakeUtil.generate() });
+        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guildMock }, channel);
+
+        it("casts valid emoji id to emoji correctly", async function() {
+            expect(await parser.castType(guildIdMock, "guild", message, client)).to.be.instanceof(Guild);
+        });
+
+        it("casts to null correctly if no client is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(guildIdMock, "guild", undefined)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
