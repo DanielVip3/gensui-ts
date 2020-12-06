@@ -805,6 +805,30 @@ describe("Command's CommandArgsParser usage", function() {
             sinon.assert.calledWith(processor2Callback, processorPayloadMock("test", "test", "string", commandCallOptionsMock()));
             expect(processor2Callback.calledImmediatelyAfter(processorCallback)).to.be.true;
         });
+
+        it("parser accepts an array of processors even if at least one is not valid and executes the rest", async function() {
+            const processorCallback = sinon.stub().returns("test");
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+                processor: [processorCallback, undefined],
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            await command.callParser(commandContextMock(command));
+    
+            sinon.assert.called(processorCallback);
+        });
     
         describe("processor function sets argument to its default value", function() {
             it("if it doesn't return anything", async function() {
