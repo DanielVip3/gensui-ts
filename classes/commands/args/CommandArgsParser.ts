@@ -32,11 +32,16 @@ export class CommandArgsParser {
             case "number":
                 return Number(value);
             case "int":
-                if (!Number.isInteger(value)) return null; // we accept ONLY ints, but including n.0 because it basically is an int (ex. 2.0 is 2)
-
                 return parseInt(value);
             case "float":
-                if (Number.isInteger(value)) return null; // we accept ONLY floats, not even n.0 because it basically is an int (ex. 2.0 is 2)
+                return parseFloat(value);
+            case "whole":
+            case "wholeNumber":
+                if (!Number.isInteger(Number(value))) return null; // we accept ONLY integers, but including n.0 because it basically is an int (ex. 2.0 is 2)
+
+                return parseInt(value);
+            case "decimal":
+                if (Number.isInteger(Number(value))) return null; // we accept ONLY floats, not even n.0 because it basically is an int (ex. 2.0 is 2)
 
                 return parseFloat(value);
             case "url":
