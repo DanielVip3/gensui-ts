@@ -16,7 +16,8 @@ export const PrimitiveTypes = {
     decimal: "decimal",
     url: "url",
     date: "date",
-    color: "color"
+    color: "color",
+    boolean: "boolean"
 } as const;
 
 export const DiscordTypes = {
