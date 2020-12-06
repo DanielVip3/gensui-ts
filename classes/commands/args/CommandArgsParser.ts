@@ -101,8 +101,10 @@ export class CommandArgsParser {
                 for (const channel of message.guild.channels.cache.values()) {
                     if (channel.type !== 'text') continue;
                     try {
-                        return await (channel as TextChannel).messages.fetch(value);
-                    } catch (err) {
+                        const message = await (channel as TextChannel).messages.fetch(value);
+                        if (message) return message;
+                        else continue;
+                    } catch (err) /* istanbul ignore next */ {
                         if (/^Invalid Form Body/.test(err.message)) return null;
                     }
                 }
