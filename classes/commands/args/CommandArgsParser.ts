@@ -103,7 +103,6 @@ export class CommandArgsParser {
                     try {
                         const message = await (channel as TextChannel).messages.fetch(value);
                         if (message) return message;
-                        else continue;
                     } catch (err) /* istanbul ignore next */ {
                         if (/^Invalid Form Body/.test(err.message)) return null;
                     }
