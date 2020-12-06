@@ -178,6 +178,7 @@ export class CommandArgsParser {
 
                     return;
                 } else {
+                    /* istanbul ignore next */
                     args[type.id] = isValueValid(val) ? val : await getDefaultValue(type);
 
                     return;
@@ -187,17 +188,17 @@ export class CommandArgsParser {
             if (type.processor) {
                 if (Array.isArray(type.processor)) {
                     for (let processor of type.processor) {
-                        if (processor) {
-                            value = await processor({
-                                originalValue: calledFrom[i],
-                                value: args[type.id],
-                                message,
-                                type: type.type,
-                                callOptions: options
-                            } as ProcessorPayload);
+                        if (!processor) continue;
 
-                            await updateArgumentWithProcessedValue(value);
-                        }
+                        value = await processor({
+                            originalValue: calledFrom[i],
+                            value: args[type.id],
+                            message,
+                            type: type.type,
+                            callOptions: options
+                        } as ProcessorPayload);
+
+                        await updateArgumentWithProcessedValue(value);
                     }
                 } else {
                     value = await type.processor({
