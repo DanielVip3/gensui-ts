@@ -35,14 +35,14 @@ abstract class Commands {
     @bot.Metadata({ showHelp: false })
     @bot.Command({
         id: "testf",
-        parser: new CommandArgsParser([
+        parser: new CommandArgsParser(
             {
                 id: "a",
                 type: "number",
                 default: 1,
                 processor: ({ value }) => value > 3,
             }
-        ])
+        )
     })
     testf({ command, message, data, call }: CommandContext): void {
         console.log(call.arguments);
