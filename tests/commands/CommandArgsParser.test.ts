@@ -467,6 +467,7 @@ describe("CommandArgs types casting", function() {
     
     describe("discord same guild message casting", function() {
         const channelIdMock = SnowflakeUtil.generate();
+        const channelId2Mock = SnowflakeUtil.generate();
         const messageIdMock = SnowflakeUtil.generate();
         const userIdMock = SnowflakeUtil.generate();
 
@@ -476,13 +477,20 @@ describe("CommandArgs types casting", function() {
         client.users.cache.set(userIdMock, userMock);
 
         const guild = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
-        const channel = new TextChannel(guild, { id: channelIdMock, guild: guild, type: 0 /* text */, partial: false });
+        const channel = new TextChannel(guild, { id: channelIdMock, guild: guild, type: 0 /* text */, partial: false, n: 1 });
         const message = new Message(client, { id: messageIdMock, author: userMock, guild: guild, channel: channel, content: "test" }, channel);
+
+        /* I add another channel to guilds' channels cache to test if the message is found even when the guild has multiple text channels */
+        const channel2 = new TextChannel(guild, { id: channelId2Mock, guild: guild, type: 0 /* text */, partial: false, n: 2 });
         
         channel.messages.cache.set(messageIdMock, message);
+
+        /* I set the channels in reverse order in cache to make the challenge harder and test if it actually works and doesn't only take the first channel */
+        guild.channels.cache.set(channelId2Mock, channel2);
         guild.channels.cache.set(channelIdMock, channel);
 
         it("casts valid message id to message correctly", async function() {
+            console.log("id1, id2", channelIdMock, channelId2Mock)
             expect(await parser.castType(messageIdMock, "guildMessage", message, client)).to.be.instanceof(Message);
         });
 
@@ -493,7 +501,7 @@ describe("CommandArgs types casting", function() {
 
         it("casts to null correctly if no textchannel is found from passed message's guild", async function() {
             const guildNoText = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
-            const channelNoText = new TextChannel(guildNoText, { id: channelIdMock, guild: guildNoText, type: 5 /* news */, partial: false });
+            const channelNoText = new TextChannel(guildNoText, { id: channelIdMock, guild: guildNoText, type: 5 /* news */, partial: false }); /* the channel is NOT text even though the class is TextChannel, because the type is 5 (news) */
             const messageNoText = new Message(client, { id: messageIdMock, author: userMock, guild: guildNoText, channel: channelNoText, content: "test" }, channelNoText);
 
             channelNoText.messages.cache.set(messageIdMock, messageNoText);
