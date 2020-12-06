@@ -175,6 +175,8 @@ describe("CommandArgs types casting", function() {
         });
     });
 
+    /* DISCORD TYPES TESTING */
+
     /* I can't test deep fetching Discord without a cache because it needs a token and tests can't be made; so I won't test invalid value casting to null for all Discord structures */
 
     /*
@@ -191,13 +193,56 @@ describe("CommandArgs types casting", function() {
     * - 5 for "news" channels testing
     */
 
-   describe("discord user casting", function() {
-        const userIdMock = SnowflakeUtil.generate();
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+    /* Declaring all structures needed for all kind of tests */
 
-        client.users.cache.set(userIdMock, userMock);
+    /* IDs for all structures and tests */
+    const userIdMock = SnowflakeUtil.generate();
+    const guildIdMock = SnowflakeUtil.generate();
+    const guildChannelIdMock = SnowflakeUtil.generate();
+    const dmChannelIdMock = SnowflakeUtil.generate();
+    const textChannelIdMock = SnowflakeUtil.generate();
+    const voiceChannelIdMock = SnowflakeUtil.generate();
+    const messageChannelIdMock = SnowflakeUtil.generate();
+    const messageIdMock = SnowflakeUtil.generate();
+    const messageNoGuildIdMock = SnowflakeUtil.generate();
+    const roleIdMock = SnowflakeUtil.generate();
+    const emojiIdMock = SnowflakeUtil.generate();
 
+    /* Structures */
+    const client = new Client();
+    const userMock = new User(client, { id: userIdMock, username: "test" }); // username to prevent it from being a partial
+    const guildMock = new Guild(client, { id: guildIdMock });
+
+    const memberMock = new GuildMember(client, { user: userMock, joined_at: Date.parse(new Date().toString()) }, guildMock); // joined_at to prevent it from being a partial
+
+    const messageChannelMock = new TextChannel(guildMock, { id: messageChannelIdMock, type: 0 /* "text" */ });
+    const messageMock = new Message(client, { id: messageIdMock, guild: guildMock, channel: messageChannelMock, content: "test", author: userMock }, messageChannelMock); // content and author to prevent it from being a partial
+
+    const dmChannelMock = new DMChannel(client, { id: dmChannelIdMock, recipient: userMock });
+    const messageNoGuildMock = new Message(client, { id: messageNoGuildIdMock, content: "test", author: userMock }, dmChannelMock); // content and author to prevent it from being a partial
+
+    const guildChannelMock = new GuildChannel(guildMock, { id: guildChannelIdMock, type: 0 /* "text" */, user: userMock });
+    const textChannelMock = new TextChannel(guildMock, { id: textChannelIdMock, type: 0 /* "text" */ });
+    const voiceChannelMock = new VoiceChannel(guildMock, { id: voiceChannelIdMock, type: 2 /* "voice" */ });
+
+    const roleMock = new Role(client, { id: roleIdMock }, guildMock);
+    const emojiMock = new GuildEmoji(client, { id: emojiIdMock }, guildMock);
+
+    /* Relationships between structures */
+    client.users.cache.set(userIdMock, userMock);
+    client.guilds.cache.set(guildIdMock, guildMock);
+
+    messageChannelMock.messages.cache.set(messageIdMock, messageMock);
+
+    guildMock.members.cache.set(userIdMock, memberMock);
+    guildMock.channels.cache.set(guildChannelIdMock, guildChannelMock);
+    guildMock.channels.cache.set(textChannelIdMock, textChannelMock);
+    guildMock.channels.cache.set(voiceChannelIdMock, voiceChannelMock);
+    guildMock.channels.cache.set(messageChannelIdMock, messageChannelMock); // added last to test if for loop iterations do reach
+    guildMock.roles.cache.set(roleIdMock, roleMock);
+    guildMock.emojis.cache.set(emojiIdMock, emojiMock);
+
+   describe("Discord user casting", function() {
         it("casts valid user id to user correctly", async function() {
             expect(await parser.castType(userIdMock, "user", messageMock, client)).to.be.instanceof(User);
         });
@@ -207,24 +252,9 @@ describe("CommandArgs types casting", function() {
         });
     });
 
-    describe("discord guild member casting", function() {
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
-        const memberMock = new GuildMember(client, { user: userMock, partial: false, joined_at: Date.parse(new Date().toString()) }, guild);
-
-        guild.members.cache.set(userIdMock, memberMock);
-
-        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
-
+    describe("Discord guild member casting", function() {
         it("casts valid user id to member correctly", async function() {
-            expect(await parser.castType(userIdMock, "member", message, client)).to.be.instanceof(GuildMember);
+            expect(await parser.castType(userIdMock, "member", messageMock, client)).to.be.instanceof(GuildMember);
         });
 
         it("casts to null correctly if no message is passed", async function() {
@@ -240,126 +270,54 @@ describe("CommandArgs types casting", function() {
         });
     });
 
-    describe("discord guild channel casting", function() {
-        const channelIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
-        const channelMock = new GuildChannel(guild, { id: channelIdMock, user: userMock, partial: false, type: "text" });
-
-        guild.channels.cache.set(channelIdMock, channelMock);
-
-        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
-
+    describe("Discord guild channel casting", function() {
         it("casts valid user id to channel correctly", async function() {
-            expect(await parser.castType(channelIdMock, "channel", message, client)).to.be.instanceof(GuildChannel);
+            expect(await parser.castType(guildChannelIdMock, "channel", messageMock, client)).to.be.instanceof(GuildChannel);
         });
 
         it("casts to null correctly if no message is passed", async function() {
             //@ts-ignore
-            expect(await parser.castType(channelIdMock, "channel", undefined)).to.be.null;
+            expect(await parser.castType(guildChannelIdMock, "channel", undefined)).to.be.null;
         });
 
         it("casts to null correctly if message passed has no guild", async function() {
-            const dmChannel = new DMChannel(client, { recipient: userMock });
-            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
-
-            expect(await parser.castType(channelIdMock, "channel", messageNoGuild)).to.be.null;
+            expect(await parser.castType(guildChannelIdMock, "channel", messageNoGuildMock)).to.be.null;
         });
     });
 
-    describe("discord text channel casting", function() {
-        const channelIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
-        const channelMock = new TextChannel(guild, { id: channelIdMock, type: 0 /* "text" */, partial: false });
-
-        guild.channels.cache.set(channelIdMock, channelMock);
-
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channelMock);
-
+    describe("Discord text channel casting", function() {
         it("casts valid channel id to text channel correctly", async function() {
-            expect(await parser.castType(channelIdMock, "textChannel", message, client)).to.be.instanceof(TextChannel);
+            expect(await parser.castType(textChannelIdMock, "textChannel", messageMock, client)).to.be.instanceof(TextChannel);
         });
 
         it("casts to null correctly if no message is passed", async function() {
             //@ts-ignore
-            expect(await parser.castType(channelIdMock, "textChannel", undefined)).to.be.null;
+            expect(await parser.castType(textChannelIdMock, "textChannel", undefined)).to.be.null;
         });
 
         it("casts to null correctly if message passed has no guild", async function() {
-            const dmChannel = new DMChannel(client, { recipient: userMock });
-            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
-
-            expect(await parser.castType(channelIdMock, "textChannel", messageNoGuild)).to.be.null;
+            expect(await parser.castType(textChannelIdMock, "textChannel", messageNoGuildMock)).to.be.null;
         });
     });
 
-    describe("discord voice channel casting", function() {
-        const channelIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
-        const channelMock = new VoiceChannel(guild, { id: channelIdMock, type: 2 /* "voice" */, partial: false });
-
-        guild.channels.cache.set(channelIdMock, channelMock);
-
-        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
-
+    describe("Discord voice channel casting", function() {
         it("casts valid channel id to voice channel correctly", async function() {
-            expect(await parser.castType(channelIdMock, "voiceChannel", message, client)).to.be.instanceof(VoiceChannel);
+            expect(await parser.castType(voiceChannelIdMock, "voiceChannel", messageMock, client)).to.be.instanceof(VoiceChannel);
         });
 
         it("casts to null correctly if no message is passed", async function() {
             //@ts-ignore
-            expect(await parser.castType(channelIdMock, "voiceChannel", undefined)).to.be.null;
+            expect(await parser.castType(voiceChannelIdMock, "voiceChannel", undefined)).to.be.null;
         });
 
         it("casts to null correctly if message passed has no guild", async function() {
-            const dmChannel = new DMChannel(client, { recipient: userMock });
-            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
-
-            expect(await parser.castType(channelIdMock, "voiceChannel", messageNoGuild)).to.be.null;
+            expect(await parser.castType(voiceChannelIdMock, "voiceChannel", messageNoGuildMock)).to.be.null;
         });
     });
 
-    describe("discord role casting", function() {
-        const roleIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
-        const roleMock = new Role(client, { id: roleIdMock, partial: false }, guild);
-
-        guild.roles.cache.set(roleIdMock, roleMock);
-
-        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
-
+    describe("Discord role casting", function() {
         it("casts valid role id to role correctly", async function() {
-            expect(await parser.castType(roleIdMock, "role", message, client)).to.be.instanceof(Role);
+            expect(await parser.castType(roleIdMock, "role", messageMock, client)).to.be.instanceof(Role);
         });
 
         it("casts to null correctly if no message is passed", async function() {
@@ -368,32 +326,13 @@ describe("CommandArgs types casting", function() {
         });
 
         it("casts to null correctly if message passed has no guild", async function() {
-            const dmChannel = new DMChannel(client, { recipient: userMock });
-            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
-
-            expect(await parser.castType(roleIdMock, "role", messageNoGuild)).to.be.null;
+            expect(await parser.castType(roleIdMock, "role", messageNoGuildMock)).to.be.null;
         });
     });
 
-    describe("discord emoji casting", function() {
-        const emojiIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate() });
-        const emojiMock = new GuildEmoji(client, { id: emojiIdMock, partial: false }, guild);
-
-        guild.emojis.cache.set(emojiIdMock, emojiMock);
-
-        const channel = new TextChannel(guild, { id: SnowflakeUtil.generate() });
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guild }, channel);
-
+    describe("Discord emoji casting", function() {
         it("casts valid emoji id to emoji correctly", async function() {
-            expect(await parser.castType(emojiIdMock, "emoji", message, client)).to.be.instanceof(GuildEmoji);
+            expect(await parser.castType(emojiIdMock, "emoji", messageMock, client)).to.be.instanceof(GuildEmoji);
         });
 
         it("casts to null correctly if no message is passed", async function() {
@@ -402,31 +341,13 @@ describe("CommandArgs types casting", function() {
         });
 
         it("casts to null correctly if message passed has no guild", async function() {
-            const dmChannel = new DMChannel(client, { recipient: userMock });
-            const messageNoGuild = new Message(client, { id: SnowflakeUtil.generate(), author: userMock }, dmChannel);
-
-            expect(await parser.castType(emojiIdMock, "emoji", messageNoGuild)).to.be.null;
+            expect(await parser.castType(emojiIdMock, "emoji", messageNoGuildMock)).to.be.null;
         });
     });
 
-    describe("discord guild casting", function() {
-        const guildIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guildMock = new Guild(client, { id: guildIdMock, partial: false });
-
-        client.guilds.cache.set(guildIdMock, guildMock);
-
-        const channel = new TextChannel(guildMock, { id: SnowflakeUtil.generate() });
-        const message = new Message(client, { id: SnowflakeUtil.generate(), author: userMock, guild: guildMock }, channel);
-
+    describe("Discord guild casting", function() {
         it("casts valid emoji id to emoji correctly", async function() {
-            expect(await parser.castType(guildIdMock, "guild", message, client)).to.be.instanceof(Guild);
+            expect(await parser.castType(guildIdMock, "guild", messageMock, client)).to.be.instanceof(Guild);
         });
 
         it("casts to null correctly if no client is passed", async function() {
@@ -435,28 +356,13 @@ describe("CommandArgs types casting", function() {
         });
     });
 
-    describe("discord same channel message casting", function() {
-        const channelIdMock = SnowflakeUtil.generate();
-        const messageIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
-        const channel = new TextChannel(guild, { id: channelIdMock });
-        const message = new Message(client, { id: messageIdMock, author: userMock, guild: guild, channel: channel, content: "test" }, channel);
-        
-        channel.messages.cache.set(messageIdMock, message);
-
+    describe("Discord same channel message casting", function() {
         it("casts valid message id to message correctly", async function() {
-            expect(await parser.castType(messageIdMock, "message", message, client)).to.be.instanceof(Message);
+            expect(await parser.castType(messageIdMock, "message", messageMock, client)).to.be.instanceof(Message);
         });
 
         it("casts valid message id to message correctly using the other type name, 'channelMessage'", async function() {
-            expect(await parser.castType(messageIdMock, "channelMessage", message, client)).to.be.instanceof(Message);
+            expect(await parser.castType(messageIdMock, "channelMessage", messageMock, client)).to.be.instanceof(Message);
         });
 
         it("casts to null correctly if no message is passed", async function() {
@@ -465,33 +371,9 @@ describe("CommandArgs types casting", function() {
         });
     });
     
-    describe("discord same guild message casting", function() {
-        const channelIdMock = SnowflakeUtil.generate();
-        const channelId2Mock = SnowflakeUtil.generate();
-        const messageIdMock = SnowflakeUtil.generate();
-        const userIdMock = SnowflakeUtil.generate();
-
-        const client = new Client();
-        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
-
-        client.users.cache.set(userIdMock, userMock);
-
-        const guild = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
-        const channel = new TextChannel(guild, { id: channelIdMock, guild: guild, type: 0 /* text */, partial: false, n: 1 });
-        const message = new Message(client, { id: messageIdMock, author: userMock, guild: guild, channel: channel, content: "test" }, channel);
-
-        /* I add another channel to guilds' channels cache to test if the message is found even when the guild has multiple text channels */
-        const channel2 = new TextChannel(guild, { id: channelId2Mock, guild: guild, type: 0 /* text */, partial: false, n: 2 });
-        
-        channel.messages.cache.set(messageIdMock, message);
-
-        /* I set the channels in reverse order in cache to make the challenge harder and test if it actually works and doesn't only take the first channel */
-        guild.channels.cache.set(channelId2Mock, channel2);
-        guild.channels.cache.set(channelIdMock, channel);
-
+    describe("Discord same guild message casting", function() {
         it("casts valid message id to message correctly", async function() {
-            console.log("id1, id2", channelIdMock, channelId2Mock)
-            expect(await parser.castType(messageIdMock, "guildMessage", message, client)).to.be.instanceof(Message);
+            expect(await parser.castType(messageIdMock, "guildMessage", messageMock, client)).to.be.instanceof(Message);
         });
 
         it("casts to null correctly if no message is passed", async function() {
@@ -500,12 +382,14 @@ describe("CommandArgs types casting", function() {
         });
 
         it("casts to null correctly if no textchannel is found from passed message's guild", async function() {
-            const guildNoText = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
-            const channelNoText = new TextChannel(guildNoText, { id: channelIdMock, guild: guildNoText, type: 5 /* news */, partial: false }); /* the channel is NOT text even though the class is TextChannel, because the type is 5 (news) */
+            const messageNoTextIdMock = SnowflakeUtil.generate();
+
+            const guildNoText = new Guild(client, { id: SnowflakeUtil.generate() });
+            const channelNoText = new TextChannel(guildNoText, { id: messageNoTextIdMock, guild: guildNoText, type: 5 /* news */ }); /* the channel is NOT text even though the class is TextChannel, because the type is 5 (news) */
             const messageNoText = new Message(client, { id: messageIdMock, author: userMock, guild: guildNoText, channel: channelNoText, content: "test" }, channelNoText);
 
             channelNoText.messages.cache.set(messageIdMock, messageNoText);
-            guildNoText.channels.cache.set(channelIdMock, channelNoText);
+            guildNoText.channels.cache.set(messageNoTextIdMock, channelNoText);
 
             expect(await parser.castType(messageIdMock, "guildMessage", messageNoText, client)).to.be.null;
         });
