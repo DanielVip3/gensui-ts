@@ -332,6 +332,10 @@ describe("CommandArgs types casting", function() {
         it("casts to null correctly if message passed has no guild", async function() {
             expect(await parser.castType(textChannelIdMock, "textChannel", messageNoGuildMock)).to.be.null;
         });
+
+        it("casts to null correctly if passed channel is not text", async function() {
+            expect(await parser.castType(voiceChannelIdMock, "message", messageMock, client)).to.be.null;
+        });
     });
 
     describe("Discord voice channel casting", function() {
@@ -346,6 +350,10 @@ describe("CommandArgs types casting", function() {
 
         it("casts to null correctly if message passed has no guild", async function() {
             expect(await parser.castType(voiceChannelIdMock, "voiceChannel", messageNoGuildMock)).to.be.null;
+        });
+
+        it("casts to null correctly if passed channel is not voice", async function() {
+            expect(await parser.castType(textChannelIdMock, "message", messageMock, client)).to.be.null;
         });
     });
 
@@ -397,11 +405,6 @@ describe("CommandArgs types casting", function() {
 
         it("casts valid message id to message correctly using the other type name, 'channelMessage'", async function() {
             expect(await parser.castType(messageIdMock, "channelMessage", messageMock, client)).to.be.instanceof(Message);
-        });
-
-        it("casts to null correctly if no message is passed", async function() {
-            //@ts-ignore
-            expect(await parser.castType(messageIdMock, "message", undefined)).to.be.null;
         });
     });
     
