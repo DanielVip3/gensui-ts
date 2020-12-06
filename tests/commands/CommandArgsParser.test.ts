@@ -109,6 +109,38 @@ describe("CommandArgs types casting", function() {
         expect(await parser.castType("1.2", "float", messageMock)).to.be.a("number").which.is.equal(1.2);
     });
 
+    describe("whole number casting", function() {
+        it("casts valid whole number value to int correctly", async function() {
+            expect(await parser.castType("1", "whole", messageMock)).to.be.a("number").which.is.equal(1);
+        });
+
+        it("casts valid float whole number value to int correctly", async function() {
+            expect(await parser.castType("1.000", "whole", messageMock)).to.be.a("number").which.is.equal(1);
+        });
+
+        it("casts float decimal value to null correctly", async function() {
+            expect(await parser.castType("1.5", "whole", messageMock)).to.be.null;
+        });
+
+        it("casts valid whole number value to int correctly using the other type name, 'wholeNumber'", async function() {
+            expect(await parser.castType("1", "wholeNumber", messageMock)).to.be.a("number").which.is.equal(1);
+        });
+    });
+
+    describe("decimal casting", function() {
+        it("casts valid decimal float value to float correctly", async function() {
+            expect(await parser.castType("1.5", "decimal", messageMock)).to.be.a("number").which.is.equal(1.5);
+        });
+
+        it("casts non-decimal int value to null correctly", async function() {
+            expect(await parser.castType("1", "decimal", messageMock)).to.be.null;
+        });
+
+        it("casts non-decimal float value to null correctly", async function() {
+            expect(await parser.castType("1.000", "decimal", messageMock)).to.be.null;
+        });
+    });
+
     it("casts valid value to URL correctly", async function() {
         expect(await parser.castType("https://test.com", "url", messageMock)).to.be.instanceof(URL);
     });
