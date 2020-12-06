@@ -676,4 +676,287 @@ describe("Command's CommandArgsParser usage", function() {
             expect(response).to.have.property("arg3", null);
         });
     });
+
+    
+    describe("Processor", function() {
+        it("parser accepts and calls the processor function with correct arguments", async function() {
+            const processorCallback = sinon.stub();
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+                processor: processorCallback,
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            await command.callParser(commandContextMock(command));
+    
+            sinon.assert.calledWith(processorCallback, processorPayloadMock("test", "test", "string", commandCallOptionsMock()));
+        });
+    
+        it("parser accepts and calls an array of processor functions with correct arguments and in correct order", async function() {
+            const processorCallback = sinon.stub().returns("test");
+            const processor2Callback = sinon.stub();
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+                processor: [processorCallback, processor2Callback],
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            await command.callParser(commandContextMock(command));
+    
+            sinon.assert.calledWith(processorCallback, processorPayloadMock("test", "test", "string", commandCallOptionsMock()));
+            sinon.assert.calledWith(processor2Callback, processorPayloadMock("test", "test", "string", commandCallOptionsMock()));
+            expect(processor2Callback.calledImmediatelyAfter(processorCallback)).to.be.true;
+        });
+    
+        describe("processor function sets argument to its default value", function() {
+            it("if it doesn't return anything", async function() {
+                const processorCallback = sinon.stub();
+        
+                const parser: CommandArgsParser = new CommandArgsParser({
+                    id: "arg1",
+                    type: "string",
+                    processor: processorCallback,
+                    default: "defaultValue"
+                }, {
+                    id: "arg2",
+                    type: "string",
+                });
+        
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    parser: parser,
+                    handler: sinon.fake(),
+                });
+        
+                const response = await command.callParser(commandContextMock(command));
+        
+                expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor doesn't return anything thus setting the arg to its default value
+            });
+    
+            it("if processor returns null", async function() {
+                const processorCallback = sinon.stub().returns(null);
+        
+                const parser: CommandArgsParser = new CommandArgsParser({
+                    id: "arg1",
+                    type: "string",
+                    processor: processorCallback,
+                    default: "defaultValue"
+                }, {
+                    id: "arg2",
+                    type: "string",
+                });
+        
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    parser: parser,
+                    handler: sinon.fake(),
+                });
+        
+                const response = await command.callParser(commandContextMock(command));
+        
+                expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor returns false
+            });
+    
+            it("if processor returns undefined", async function() {
+                const processorCallback = sinon.stub().returns(undefined);
+        
+                const parser: CommandArgsParser = new CommandArgsParser({
+                    id: "arg1",
+                    type: "string",
+                    processor: processorCallback,
+                    default: "defaultValue"
+                }, {
+                    id: "arg2",
+                    type: "string",
+                });
+        
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    parser: parser,
+                    handler: sinon.fake(),
+                });
+        
+                const response = await command.callParser(commandContextMock(command));
+        
+                expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor returns false
+            });
+    
+            it("if processor returns null even as a boolean type", async function() {
+                const processorCallback = sinon.stub().returns(null);
+        
+                const parser: CommandArgsParser = new CommandArgsParser({
+                    id: "arg1",
+                    type: "boolean",
+                    processor: processorCallback,
+                    default: "defaultValue"
+                }, {
+                    id: "arg2",
+                    type: "string",
+                });
+        
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    parser: parser,
+                    handler: sinon.fake(),
+                });
+        
+                const response = await command.callParser(commandContextMock(command));
+        
+                expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor returns false
+            });
+    
+            it("if processor returns undefined even as a boolean type", async function() {
+                const processorCallback = sinon.stub().returns(undefined);
+        
+                const parser: CommandArgsParser = new CommandArgsParser({
+                    id: "arg1",
+                    type: "boolean",
+                    processor: processorCallback,
+                    default: "defaultValue"
+                }, {
+                    id: "arg2",
+                    type: "string",
+                });
+        
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    parser: parser,
+                    handler: sinon.fake(),
+                });
+        
+                const response = await command.callParser(commandContextMock(command));
+        
+                expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor returns false
+            });
+    
+            it("if processor returns false and it's not a boolean type", async function() {
+                const processorCallback = sinon.stub().returns(false);
+        
+                const parser: CommandArgsParser = new CommandArgsParser({
+                    id: "arg1",
+                    type: "string",
+                    processor: processorCallback,
+                    default: "defaultValue"
+                }, {
+                    id: "arg2",
+                    type: "string",
+                });
+        
+                const command: Command = new Command({
+                    id: "test",
+                    names: "test",
+                    parser: parser,
+                    handler: sinon.fake(),
+                });
+        
+                const response = await command.callParser(commandContextMock(command));
+        
+                expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor returns false
+            });
+        });
+    
+        it("processor function can process arguments and edit them", async function() {
+            const processorCallback = sinon.stub().returns("test2");
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+                processor: processorCallback,
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg1", "test2"); // "test2" because the processor changes value "test" to "test2" by returning "test2"
+        });
+    
+        it("multiple processor functions have correct data passed following the processor flow", async function() {
+            const processorCallback = sinon.stub().returns("test2");
+            const processor2Callback = sinon.stub();
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+                processor: [processorCallback, processor2Callback],
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            await command.callParser(commandContextMock(command));
+    
+            sinon.assert.calledWith(processor2Callback, processorPayloadMock("test", "test2", "string", commandCallOptionsMock())); // "test2" because processor 1 changes value "test" to "test2" by returning "test2"
+        });
+    
+        it("doesn't get called if arg fallbacks to default value", async function() {
+            const processorCallback = sinon.stub();
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                type: "string",
+                processor: processorCallback,
+                default: "defaultValue"
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            await command.callParser(commandContextMock(command));
+    
+            sinon.assert.notCalled(processorCallback);
+        });
+    });
 });
