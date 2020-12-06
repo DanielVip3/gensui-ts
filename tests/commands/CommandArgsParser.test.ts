@@ -543,4 +543,137 @@ describe("Command's CommandArgsParser usage", function() {
             expect(response).to.be.deep.equal({ "arg1": "string", "arg2": 2 });
         });
     });
+
+    describe("Default values", function() {
+        it("parser accepts and uses default values if argument is not passed", async function() {
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                type: "string",
+                default: "testDefault"
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg3", "testDefault");
+        });
+    
+        it("default values can be a function which gets called with correct parameters", async function() {
+            const defaultCallback = sinon.spy();
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                type: "string",
+                default: defaultCallback
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            await command.callParser(commandContextMock(command));
+    
+            sinon.assert.calledWith(defaultCallback, messageMock, commandCallOptionsMock());
+        });
+    
+        it("default values' function return is set correctly as the default parameter", async function() {
+            const defaultCallback = sinon.stub().returns("testDefault");
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                type: "string",
+                default: defaultCallback
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg3", "testDefault");
+        });
+    
+        it("if default value is undefined becomes null", async function() {
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                type: "string",
+                default: undefined
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg3", null);
+        });
+    
+        it("if default value returned from function is undefined becomes null", async function() {
+            const defaultCallback = sinon.stub().returns(undefined);
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                type: "string",
+                default: defaultCallback
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg3", null);
+        });
+    });
 });
