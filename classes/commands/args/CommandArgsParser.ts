@@ -164,6 +164,25 @@ export class CommandArgsParser {
                 }
             } else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
 
+
+            /*
+            * This function takes the returned value from a processor and if it's null, undefined or false (for non-boolean types), sets the argument value to its default value;
+            * else, it updates the argument value with the processed value.
+            */
+            async function updateArgumentWithProcessedValue(val): Promise<void> {
+                if (type.type !== "boolean") {
+                    if (val === false) args[type.id] = await getDefaultValue(type);
+                    else if (val === true) return;
+                    else args[type.id] = isValueValid(val) ? val : await getDefaultValue(type);
+
+                    return;
+                } else {
+                    args[type.id] = isValueValid(val) ? val : await getDefaultValue(type);
+
+                    return;
+                }
+            }
+
             if (type.processor) {
                 if (Array.isArray(type.processor)) {
                     for (let processor of type.processor) {
@@ -176,17 +195,7 @@ export class CommandArgsParser {
                                 callOptions: options
                             } as ProcessorPayload);
 
-                            if (type.type !== "boolean") {
-                                if (value === false) args[type.id] = await getDefaultValue(type);
-                                else if (value === true) continue;
-                                else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
-
-                                continue;
-                            } else {
-                                args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
-
-                                continue;
-                            }
+                            await updateArgumentWithProcessedValue(value);
                         }
                     }
                 } else {
@@ -198,17 +207,7 @@ export class CommandArgsParser {
                         callOptions: options
                     } as ProcessorPayload);
 
-                    if (type.type !== "boolean") {
-                        if (value === false) args[type.id] = await getDefaultValue(type);
-                        else if (value === true) continue;
-                        else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
-
-                        continue;
-                    } else {
-                        args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
-
-                        continue;
-                    }
+                    await updateArgumentWithProcessedValue(value);
                 }
             }
             
