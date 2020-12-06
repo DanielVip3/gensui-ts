@@ -406,6 +406,11 @@ describe("CommandArgs types casting", function() {
         it("casts valid message id to message correctly using the other type name, 'channelMessage'", async function() {
             expect(await parser.castType(messageIdMock, "channelMessage", messageMock, client)).to.be.instanceof(Message);
         });
+
+        it("casts to null correctly if no message is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(messageIdMock, "guild", undefined)).to.be.null;
+        });
     });
     
     describe("Discord same guild message casting", function() {
