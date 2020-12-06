@@ -130,11 +130,11 @@ export class CommandArgsParser {
         const isValueValid = (value: any): boolean => value !== null && value !== undefined;
 
         async function getDefaultValue(type: PrimitiveArg|DiscordArg): Promise<any> {
-            if (type.default) {
+            if (type.default && isValueValid(type.default)) {
                 if (type.default instanceof Function) {
                     const defaultR = await type.default(message, options);
                     return isValueValid(defaultR) ? defaultR : null;
-                } else return isValueValid(type.default) ? type.default : null;
+                } else return type.default;
             } else return null;
         }
 
