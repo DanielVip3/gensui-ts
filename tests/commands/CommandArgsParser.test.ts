@@ -181,12 +181,14 @@ describe("CommandArgs types casting", function() {
     * Most fetch calls do throw an error when an object is defined as a partial from discord.js; so, to avoid them to be defined as partials, we must declare the following properties:
     * - User should define the username property
     * - GuildMember should define the joined_at property
+    * - Message should define content property as a string and author property as a User
     */
 
     /* 
     * Also, from Discord API, all channels' types are expressed as numbers instead of a string ("text"), so we use:
     * - 0 for "text" channels testing
     * - 1 for "voice" channels testing
+    * - 5 for "news" channels testing
     */
 
    describe("discord user casting", function() {
@@ -430,6 +432,36 @@ describe("CommandArgs types casting", function() {
         it("casts to null correctly if no client is passed", async function() {
             //@ts-ignore
             expect(await parser.castType(guildIdMock, "guild", undefined)).to.be.null;
+        });
+    });
+
+    describe("discord same channel message casting", function() {
+        const channelIdMock = SnowflakeUtil.generate();
+        const messageIdMock = SnowflakeUtil.generate();
+        const userIdMock = SnowflakeUtil.generate();
+
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        const guild = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
+        const channel = new TextChannel(guild, { id: channelIdMock });
+        const message = new Message(client, { id: messageIdMock, author: userMock, guild: guild, channel: channel, content: "test" }, channel);
+        
+        channel.messages.cache.set(messageIdMock, message);
+
+        it("casts valid message id to message correctly", async function() {
+            expect(await parser.castType(messageIdMock, "message", message, client)).to.be.instanceof(Message);
+        });
+
+        it("casts valid message id to message correctly using the other type name, 'channelMessage'", async function() {
+            expect(await parser.castType(messageIdMock, "channelMessage", message, client)).to.be.instanceof(Message);
+        });
+
+        it("casts to null correctly if no message is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(messageIdMock, "message", undefined)).to.be.null;
         });
     });
 });
