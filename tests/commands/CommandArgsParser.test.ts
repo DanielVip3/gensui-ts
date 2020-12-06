@@ -684,10 +684,32 @@ describe("Command's CommandArgsParser usage", function() {
             expect(response).to.have.property("arg3", null);
         });
 
-        it("default values are used if argument gets casted to null by its type", async function() {
+        it("default values are used if argument gets casted to null by the type casting", async function() {
             const parser: CommandArgsParser = new CommandArgsParser({
                 id: "arg1",
                 type: "boolean", // it casts to null because it's not a boolean
+                default: "defaultValue"
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg1", "defaultValue");
+        });
+
+        it("default values are used if argument gets casted to null by the type casting when using multiple (array) types", async function() {
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: ["whole", "boolean"], // it casts to null because it's not a whole number neither boolean
                 default: "defaultValue"
             }, {
                 id: "arg2",
