@@ -409,7 +409,7 @@ describe("CommandArgs types casting", function() {
 
         it("casts to null correctly if no message is passed", async function() {
             //@ts-ignore
-            expect(await parser.castType(messageIdMock, "guild", undefined)).to.be.null;
+            expect(await parser.castType(messageIdMock, "message", undefined)).to.be.null;
         });
     });
     
