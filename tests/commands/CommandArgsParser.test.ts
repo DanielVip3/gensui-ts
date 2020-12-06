@@ -577,7 +577,7 @@ describe("Command's CommandArgsParser usage", function() {
     
             expect(response).to.have.property("arg3", "testDefault");
         });
-    
+
         it("default values can be a function which gets called with correct parameters", async function() {
             const defaultCallback = sinon.spy();
     
@@ -682,6 +682,30 @@ describe("Command's CommandArgsParser usage", function() {
             const response = await command.callParser(commandContextMock(command));
     
             expect(response).to.have.property("arg3", null);
+        });
+
+        it("default values are used even if non-passed argument has no type", async function() {
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+            }, {
+                id: "arg2",
+                type: "string",
+            }, {
+                id: "arg3", // arg3 is not defined in mock raw arguments so it will be default
+                default: "testDefault"
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg3", "testDefault");
         });
 
         it("default values are used if argument gets casted to null by the type casting", async function() {
@@ -932,6 +956,31 @@ describe("Command's CommandArgsParser usage", function() {
         
                 expect(response).to.have.property("arg1", "defaultValue"); // "defaultValue" because the processor returns false
             });
+        });
+
+        it("processor arguments doesn't change argument if returns true and it's not a boolean type", async function() {
+            const processorCallback = sinon.stub().returns(true);
+    
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: "string",
+                processor: processorCallback,
+                default: "defaultValue"
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg1", "test"); // "test" because the processor returns true thus not changing original raw argument
         });
     
         it("processor function can process arguments and edit them", async function() {
