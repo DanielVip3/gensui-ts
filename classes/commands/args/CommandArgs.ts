@@ -11,6 +11,9 @@ export const PrimitiveTypes = {
     number: "number",
     int: "int",
     float: "float",
+    whole: "whole",
+    wholeNumber: "wholeNumber",
+    decimal: "decimal",
     url: "url",
     date: "date",
     color: "color"

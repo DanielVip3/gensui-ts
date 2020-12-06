@@ -101,7 +101,7 @@ export class CommandArgsParser {
                 return await client.guilds.fetch(value);
             case "message":
             case "channelMessage":
-                if (!message || !message.channel) return null;
+                if (!message /* istanbul ignore next */ || !message.channel) return null;
 
                 return await message.channel.messages.fetch(value);
             case "guildMessage":
@@ -111,6 +111,7 @@ export class CommandArgsParser {
                     if (channel.type !== 'text') continue;
                     try {
                         const message = await (channel as TextChannel).messages.fetch(value);
+                        /* istanbul ignore else */
                         if (message) return message;
                     } catch (err) /* istanbul ignore next */ {
                         if (/^Invalid Form Body/.test(err.message)) return null;
