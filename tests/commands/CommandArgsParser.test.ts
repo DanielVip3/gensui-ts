@@ -464,6 +464,44 @@ describe("CommandArgs types casting", function() {
             expect(await parser.castType(messageIdMock, "message", undefined)).to.be.null;
         });
     });
+    
+    describe("discord same guild message casting", function() {
+        const channelIdMock = SnowflakeUtil.generate();
+        const messageIdMock = SnowflakeUtil.generate();
+        const userIdMock = SnowflakeUtil.generate();
+
+        const client = new Client();
+        const userMock = new User(client, { id: userIdMock, partial: false, username: "test" });
+
+        client.users.cache.set(userIdMock, userMock);
+
+        const guild = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
+        const channel = new TextChannel(guild, { id: channelIdMock, guild: guild, type: 0 /* text */, partial: false });
+        const message = new Message(client, { id: messageIdMock, author: userMock, guild: guild, channel: channel, content: "test" }, channel);
+        
+        channel.messages.cache.set(messageIdMock, message);
+        guild.channels.cache.set(channelIdMock, channel);
+
+        it("casts valid message id to message correctly", async function() {
+            expect(await parser.castType(messageIdMock, "guildMessage", message, client)).to.be.instanceof(Message);
+        });
+
+        it("casts to null correctly if no message is passed", async function() {
+            //@ts-ignore
+            expect(await parser.castType(messageIdMock, "guildMessage", undefined)).to.be.null;
+        });
+
+        it("casts to null correctly if no textchannel is found from passed message's guild", async function() {
+            const guildNoText = new Guild(client, { id: SnowflakeUtil.generate(), partial: false });
+            const channelNoText = new TextChannel(guildNoText, { id: channelIdMock, guild: guildNoText, type: 5 /* news */, partial: false });
+            const messageNoText = new Message(client, { id: messageIdMock, author: userMock, guild: guildNoText, channel: channelNoText, content: "test" }, channelNoText);
+
+            channelNoText.messages.cache.set(messageIdMock, messageNoText);
+            guildNoText.channels.cache.set(channelIdMock, channelNoText);
+
+            expect(await parser.castType(messageIdMock, "guildMessage", messageNoText, client)).to.be.null;
+        });
+    });
 });
 
 describe("Command's parser usage", function() {
