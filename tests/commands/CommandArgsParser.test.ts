@@ -459,4 +459,52 @@ describe("Command's parser usage", function() {
 
         expect(response).to.include.all.keys("arg1", "arg2");
     });
+
+    it("parser accepts types", async function() {
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+            type: "string",
+        }, {
+            id: "arg2",
+            type: "string",
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callParser(commandContextMock(command));
+
+        expect(response).to.have.property("arg1", "test");
+    });
+
+    it("parser accepts multiple types and fallbacks to them in order", async function() {
+        /* Here I'll use custom raw arguments to test fallbacks and types */
+        const customRawArguments = [
+            "string", // this should be represented as a string
+            2 // this should be represented as an int
+        ];
+
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+            type: ["float", "int", "string"],
+        }, {
+            id: "arg2",
+            type: ["float", "int", "string"],
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callParser(commandContextMock(command, customRawArguments));
+
+        expect(response).to.be.deep.equal({ "arg1": "string", "arg2": 2 });
+    });
 });
