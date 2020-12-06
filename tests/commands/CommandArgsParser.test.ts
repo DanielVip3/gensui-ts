@@ -334,7 +334,7 @@ describe("CommandArgs types casting", function() {
         });
 
         it("casts to null correctly if passed channel is not text", async function() {
-            expect(await parser.castType(voiceChannelIdMock, "message", messageMock, client)).to.be.null;
+            expect(await parser.castType(voiceChannelIdMock, "textChannel", messageMock, client)).to.be.null;
         });
     });
 
@@ -353,7 +353,7 @@ describe("CommandArgs types casting", function() {
         });
 
         it("casts to null correctly if passed channel is not voice", async function() {
-            expect(await parser.castType(textChannelIdMock, "message", messageMock, client)).to.be.null;
+            expect(await parser.castType(textChannelIdMock, "voiceChannel", messageMock, client)).to.be.null;
         });
     });
 
