@@ -17,8 +17,8 @@ const testRawArguments = ["test", "test1"];
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
 
-const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: false, rawArguments: testRawArguments } as CommandCallOptions;
-const commandContextMock = (command) => { return { command, message: messageMock, call: commandCallOptionsMock } as CommandContext };
+const commandCallOptionsMock = (customRawArguments?) => { return { prefix: "!", name: "test", mentionHandled: false, rawArguments: customRawArguments || testRawArguments } as CommandCallOptions };
+const commandContextMock = (command, customRawArguments?) => { return { command, message: messageMock, call: commandCallOptionsMock(customRawArguments || testRawArguments) } as CommandContext };
 
 describe("CommandArgsParser", function() {
     it("instantiates", function() {
@@ -399,7 +399,7 @@ describe("CommandArgs types casting", function() {
 describe("Command's parser usage", function() {
     it("accepts a parser", function() {
         const parser: CommandArgsParser = new CommandArgsParser({
-            id: "test",
+            id: "arg1",
         });
 
         expect(new Command({
@@ -422,5 +422,41 @@ describe("Command's parser usage", function() {
         /* raw arguments object is like an array, where "0" property is the first passed, "1" is the second and so on; in this case we have "0": "test" */
 
         expect(response).to.have.property("0", "test");
+    });
+
+    it("calls parser and returns arguments parsed correctly", async function() {
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callParser(commandContextMock(command));
+
+        expect(response).to.have.property("arg1", "test");
+    });
+
+    it("calls parser and returns multiple arguments parsed correctly", async function() {
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+        }, {
+            id: "arg2",
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callParser(commandContextMock(command));
+
+        expect(response).to.include.all.keys("arg1", "arg2");
     });
 });
