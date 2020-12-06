@@ -1,3 +1,5 @@
+require('dotenv').config({ path: __dirname+'/.env' });
+
 import './config/yup-locale';
 import Bot from './classes/Bot';
 
@@ -11,7 +13,7 @@ import { CommandArgsParser } from './classes/commands/args/CommandArgsParser';
 
 const bot: Bot = new Bot({
     name: "Genshiro Bot",
-    token: "NzcyNDg2NjE5ODkzNTk2MTcx.X57YOg.QqPsSuoblV__rY-sbXP7YkaFdwE",
+    token: process.env.TEST_BOT_TOKEN as string,
     prefix: "!"
 }, () => {
     console.log("Bot startato!");
@@ -19,13 +21,13 @@ const bot: Bot = new Bot({
 
 bot.constant({
     roles: {
-        Espresso: "776798598402277397",
+        test: "776798598402277397",
     }
 });
 
 abstract class Commands {
     @bot.Scope(1) id: CommandIdentifier;
-    @bot.Inject(bot.get("roles", "Espresso")) static espresso: string;
+    @bot.Inject(bot.get("roles", "test")) static test: string;
 
     @bot.Apply(
         Filters.Commands._NSFW,
