@@ -452,7 +452,28 @@ describe("Command's CommandArgsParser usage", function() {
         })).to.have.property("parser").and.to.be.equal(parser);
     });
 
-    it("calls parser and returns null if no commandCallOptions are passed", async function() {
+    it("parser never gets called if command handler is called and no commandCallOptions are passed", async function() {
+        const typeCastingCallback = sinon.fake();
+
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+            type: typeCastingCallback
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            handler: sinon.fake(),
+        });
+
+        //@ts-ignore
+        const response = await command.call(messageMock);
+
+        sinon.assert.notCalled(typeCastingCallback);
+    });
+
+    it("direct call to parser returns null if no commandCallOptions are passed", async function() {
         const command: Command = new Command({
             id: "test",
             names: "test",
