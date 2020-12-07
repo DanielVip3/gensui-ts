@@ -544,6 +544,27 @@ describe("Command's CommandArgsParser usage", function() {
     
             expect(response).to.have.property("arg1", "test");
         });
+
+        it("parser accepts inline function types", async function() {
+            const parser: CommandArgsParser = new CommandArgsParser({
+                id: "arg1",
+                type: () => null,
+            }, {
+                id: "arg2",
+                type: "string",
+            });
+    
+            const command: Command = new Command({
+                id: "test",
+                names: "test",
+                parser: parser,
+                handler: sinon.fake(),
+            });
+    
+            const response = await command.callParser(commandContextMock(command));
+    
+            expect(response).to.have.property("arg1", null);
+        });
     
         it("parser accepts multiple types and fallbacks to them in order", async function() {
             /* Here I'll use custom raw arguments to test fallbacks and types */

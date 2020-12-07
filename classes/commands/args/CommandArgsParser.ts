@@ -2,6 +2,7 @@ import { Client, GuildChannel, Message, TextChannel } from "discord.js";
 import { ArgTypes, CommandArgs, DiscordArg, PrimitiveArg, ProcessorPayload } from "./CommandArgs";
 import { CommandCallOptions } from "../CommandCallOptions";
 
+export type inlineType = (value: string, type: ArgTypes, message: Message, client?: Client) => any;
 export const customTypes: {[key: string]: (value: string, message: Message) => any} = {};
 
 export class CommandArgsParser {
@@ -25,6 +26,7 @@ export class CommandArgsParser {
 
     async castType(value: string, type: ArgTypes, message: Message, client?: Client): Promise<any> {
         if (!value) return null;
+        if (type instanceof Function) return type(value, type, message, client);
 
         switch(type) {
             case "string":

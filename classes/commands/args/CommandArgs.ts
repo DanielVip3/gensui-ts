@@ -35,18 +35,18 @@ export const DiscordTypes = {
     invite: "invite"
 } as const;
 
-export type ArgTypes = (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes]|string;
+export type ArgTypes = (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes]|string|Function;
 
 export interface PrimitiveArg {
     id: string,
-    type?: (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof PrimitiveTypes)[keyof typeof PrimitiveTypes][]|string,
+    type?: (typeof PrimitiveTypes)[keyof typeof PrimitiveTypes]|(typeof PrimitiveTypes)[keyof typeof PrimitiveTypes][]|string|Function,
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
     processor?: Processor[]|Processor|InlineProcessor[]|InlineProcessor,
 };
 
 export interface DiscordArg {
     id: string,
-    type?: (typeof DiscordTypes)[keyof typeof DiscordTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes][]|string,
+    type?: (typeof DiscordTypes)[keyof typeof DiscordTypes]|(typeof DiscordTypes)[keyof typeof DiscordTypes][]|string|Function,
     default?: any|((message: Message, callOptions?: CommandCallOptions) => any),
     processor?: Processor[]|Processor|InlineProcessor[]|InlineProcessor,
 };
