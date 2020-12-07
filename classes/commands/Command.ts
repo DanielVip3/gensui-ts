@@ -75,6 +75,7 @@ export class Command {
 
         /* Checks names for eventual errors and sets the _names array */
         const checkForNames: Function = () => {
+            /* istanbul ignore next */
             if (!options.names || options.names.length <= 0) throw new CommandNoNameError(`Command${this.id ? ` (id ${this.id})` : (options && options.methodName ? ` (method ${options.methodName})` : "")} must have at least one name.`, this.id);
 
             if (!Array.isArray(options.names)) this._names = [options.names];
