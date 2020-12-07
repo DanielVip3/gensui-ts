@@ -23,12 +23,6 @@ const botMockID = new Bot({ // a bot mock to test repeating ids error
     prefix: "!"
 });
 
-const botMockGlobals = new Bot({ // a bot mock to test global hooks
-    name: "mock",
-    token: "test-token",
-    prefix: "!"
-});
-
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
 
@@ -122,6 +116,14 @@ describe("Command", function() {
             handler: sinon.fake(),
             metadata: { test: true },
         })).to.have.property("metadata").which.has.property("test", true);
+    });
+
+    it("accepts a different arguments divider (argumentsDivider)", function() {
+        expect(new Command({
+            names: ["test"],
+            handler: sinon.fake(),
+            argumentsDivider: " | ",
+        })).to.have.property("argumentsDivider", " | ");
     });
 
     it("handler gets called correctly", async function() {
