@@ -172,8 +172,7 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(target, propertyKey, {
                 configurable: false,
-                get: () => value,
-                set: (val) => {}
+                value: value,
             });
         };
     }
@@ -189,8 +188,7 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(target, propertyKey, {
                 configurable: false,
-                get: () => id,
-                set: (val) => {}
+                value: id,
             });
         };
     }
@@ -207,8 +205,7 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(descriptor, "decoratedMetadata", {
                 configurable: false,
-                get: () => value,
-                set: (val) => {},
+                value: value,
             });
         };
     }
@@ -223,8 +220,7 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(descriptor, "decoratedDescription", {
                 configurable: false,
-                get: () => description,
-                set: (val) => {},
+                value: description,
             });
         };
     }
@@ -255,9 +251,11 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(descriptor, "decoratedFilters", {
                 configurable: true,
-                get: () => value,
-                set: (val) => val,
+                enumerable: true,
+                value: value,
             });
+
+            return descriptor;
         };
     }
 
@@ -273,8 +271,8 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(descriptor, "decoratedInterceptors", {
                 configurable: true,
-                get: () => value,
-                set: (val) => val,
+                enumerable: true,
+                value: value,
             });
         };
     }
@@ -291,8 +289,8 @@ export default class Bot extends BotCommands {
 
             Object.defineProperty(descriptor, "decoratedConsumers", {
                 configurable: true,
-                get: () => value,
-                set: (val) => val,
+                enumerable: true,
+                value: value,
             });
         };
     }
@@ -306,8 +304,7 @@ export default class Bot extends BotCommands {
         ) => {
             Object.defineProperty(descriptor, "functionHandleType", {
                 configurable: false,
-                get: () => "command",
-                set: (val) => {},
+                value: "command",
             });
 
             let commandNames: string[] = [];
@@ -380,8 +377,7 @@ export default class Bot extends BotCommands {
         if (!options) options = { once: true };
         else Object.defineProperty(options, "once", {
             configurable: false,
-            get: () => true,
-            set: (val) => val,
+            value: true,
         });
 
         return this.Event(options, useFunctionNameAsEventType);
@@ -401,8 +397,7 @@ export default class Bot extends BotCommands {
         ) => {
             Object.defineProperty(descriptor, "functionHandleType", {
                 configurable: false,
-                get: () => "event",
-                set: (val) => {},
+                value: "event",
             });
 
             if (!options && useFunctionNameAsEventType === undefined) useFunctionNameAsEventType = true;
