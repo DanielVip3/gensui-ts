@@ -77,7 +77,7 @@ export class Command {
         const checkForNames: Function = () => {
             if (!options.names || options.names.length <= 0) throw new CommandNoNameError(`Command${this.id ? ` (id ${this.id})` : (options && options.methodName ? ` (method ${options.methodName})` : "")} must have at least one name.`, this.id);
 
-            if (typeof options.names === "string") this._names = [options.names];
+            if (!Array.isArray(options.names)) this._names = [options.names];
             else this._names = options.names;
         };
 
@@ -85,9 +85,9 @@ export class Command {
         else if (options.id) {
             this.id = options.id;
             checkForNames();
-        } else if (options.names || options.names.length >= 1) {
+        } else if (options.names) {
             checkForNames();
-            this.id = options.names[0];
+            this.id = this._names[0];
         }
 
         if (this.bot && this.bot.getAllCommands && this.bot.getAllCommands().some(e => e.id === options.id)) throw new CommandAlreadyExistingIDError(`A command already exists with the same id: ${options.id}.`);
