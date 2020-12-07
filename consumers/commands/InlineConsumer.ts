@@ -9,10 +9,12 @@ export interface InlineCommandConsumerCallback {
 A simple consumer which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this consumer (for now).
 */
-export default class InlineCommandConsumer implements CommandConsumer {
+export default class InlineCommandConsumer extends CommandConsumer {
     private readonly callback: InlineCommandConsumerCallback;
     
     constructor(callback: InlineCommandConsumerCallback) {
+        super();
+        
         this.callback = callback;
     }
 

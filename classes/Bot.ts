@@ -1,4 +1,4 @@
-import Discord, { ClientEvents } from 'discord.js';
+import { Client } from 'discord.js';
 import * as yup from 'yup';
 
 import BotCommands from './bot/BotCommands';
@@ -48,7 +48,7 @@ type BotOptions = yup.InferType<typeof BotOptionsSchema>;
 export default class Bot extends BotCommands {
     protected errored: boolean = false;
     public readonly options: BotOptions;
-    public client: Discord.Client;
+    public client: Client;
     public constants: BotConstants;
     public sandboxes: Sandbox[] = [];
 
@@ -57,7 +57,7 @@ export default class Bot extends BotCommands {
 
         try {
             this.options = BotOptionsSchema.validateSync(options);
-            this.client = new Discord.Client();
+            this.client = new Client();
 
             this.client.on('ready', () => {
                 if (readyHandler && typeof readyHandler === "function") readyHandler();
@@ -163,7 +163,7 @@ export default class Bot extends BotCommands {
     }
 
     /* Injects a constant to a property */
-    Inject(value) {
+    Inject(value): any {
         return (
             target: any,
             propertyKey: string,
@@ -179,7 +179,7 @@ export default class Bot extends BotCommands {
     }
     
     /* Declares a readonly ID which will be scoped and tied to the entire class */
-    Scope(id: CommandIdentifier) {
+    Scope(id: CommandIdentifier): any {
         return (
             target: any,
             propertyKey: string,
@@ -195,7 +195,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Metadata(metadata: CommandMetadata) {
+    Metadata(metadata: CommandMetadata): any {
         return (
             target: any,
             propertyKey: string,
@@ -213,7 +213,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Description(description: string) {
+    Description(description: string): any {
         return (
             target: any,
             propertyKey: string,
@@ -229,21 +229,21 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Apply(...hooks: (CommandFilter|EventFilter<any>|CommandInterceptor|EventInterceptor<any>|CommandConsumer|EventConsumer<any>)[]) {
+    Apply(...hooks: (CommandFilter|EventFilter<any>|CommandInterceptor|EventInterceptor<any>|CommandConsumer|EventConsumer<any>)[]): any {
         return (
             target: any,
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
             for (let hook of hooks) {
-                if (hook instanceof CommandFilter || hook instanceof EventFilter) this.Filter(...hook);
-                else if (hook instanceof CommandInterceptor || hook instanceof EventInterceptor) this.Interceptor(...hook);
-                else if (hook instanceof CommandConsumer || hook instanceof EventConsumer) this.Consumer(...hook);
+                if (hook instanceof CommandFilter || hook instanceof EventFilter) this.Filter(hook)(target, propertyKey, descriptor);
+                else if (hook instanceof CommandInterceptor || hook instanceof EventInterceptor) this.Interceptor(hook)(target, propertyKey, descriptor);
+                else if (hook instanceof CommandConsumer || hook instanceof EventConsumer) this.Consumer(hook)(target, propertyKey, descriptor);
             }
         };
     }
 
-    Filter(...filters: CommandFilter[]|EventFilter<any>[]) {
+    Filter(...filters: CommandFilter[]|EventFilter<any>[]): any {
         return (
             target: any,
             propertyKey: string,
@@ -254,14 +254,14 @@ export default class Bot extends BotCommands {
             else descriptor["decoratedFilters"] = value = descriptor["decoratedFilters"].concat(filters);
 
             Object.defineProperty(descriptor, "decoratedFilters", {
-                configurable: false,
+                configurable: true,
                 get: () => value,
-                set: (val) => {},
+                set: (val) => val,
             });
         };
     }
 
-    Interceptor(...interceptors: CommandInterceptor[]|EventInterceptor<any>[]) {
+    Interceptor(...interceptors: CommandInterceptor[]|EventInterceptor<any>[]): any {
         return (
             target: any,
             propertyKey: string,
@@ -272,14 +272,14 @@ export default class Bot extends BotCommands {
             else descriptor["decoratedInterceptors"] = value = descriptor["decoratedInterceptors"].concat(interceptors);
 
             Object.defineProperty(descriptor, "decoratedInterceptors", {
-                configurable: false,
+                configurable: true,
                 get: () => value,
-                set: (val) => {},
+                set: (val) => val,
             });
         };
     }
 
-    Consumer(...consumers: CommandConsumer[]|EventConsumer<any>[]) {
+    Consumer(...consumers: CommandConsumer[]|EventConsumer<any>[]): any {
         return (
             target: any,
             propertyKey: string,
@@ -290,15 +290,15 @@ export default class Bot extends BotCommands {
             else descriptor["decoratedConsumers"] = value = descriptor["decoratedConsumers"].concat(consumers);
 
             Object.defineProperty(descriptor, "decoratedConsumers", {
-                configurable: false,
+                configurable: true,
                 get: () => value,
-                set: (val) => {},
+                set: (val) => val,
             });
         };
     }
 
     /* Fancy decorator to declare a bot command (basically syntactical sugar to Bot.addCommand) */
-    Command(options?: CommandDecoratorOptions, useFunctionNameAsCommandName: boolean = true) {
+    Command(options?: CommandDecoratorOptions, useFunctionNameAsCommandName: boolean = true): any {
         return (
             target: any,
             propertyKey: string,
@@ -376,7 +376,7 @@ export default class Bot extends BotCommands {
     }
 
     /* Translates to Event decorator */
-    On(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean) {
+    On(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean): any {
         if (!options) options = { once: true };
         else Object.defineProperty(options, "once", {
             configurable: false,
@@ -388,12 +388,12 @@ export default class Bot extends BotCommands {
     }
 
     /* Translates to Event decorator with { "once": true } */
-    Once(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean) {
+    Once(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean): any {
         return this.Event(options, useFunctionNameAsEventType);
     }
 
     /* Fancy decorator to declare a bot event (basically syntactical sugar to Bot.addEvent) */
-    Event(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean) {
+    Event(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean): any {
         return (
             target: any,
             propertyKey: string,
@@ -468,7 +468,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Except(options: ExceptionInlineDecoratorOptions) {
+    Except(options: ExceptionInlineDecoratorOptions): any {
         return (
             target: any,
             propertyKey: string,
@@ -489,7 +489,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    ExceptCommand(options: ExceptionDecoratorOptions) {
+    ExceptCommand(options: ExceptionDecoratorOptions): any {
         return (
             target: any,
             propertyKey: string,
@@ -518,7 +518,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    ExceptEvent(options: ExceptionDecoratorOptions) {
+    ExceptEvent(options: ExceptionDecoratorOptions): any {
         return (
             target: any,
             propertyKey: string,
@@ -547,7 +547,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Sandbox() {
+    Sandbox(): any {
         return (
             target: any,
             propertyKey: string,

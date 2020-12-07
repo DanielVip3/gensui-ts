@@ -2,10 +2,12 @@ import { CommandFilter } from '../../classes/commands/CommandFilter';
 import { CommandContext } from '../../classes/commands/Command';
 import { NSFWError } from '../../errors';
 
-export default class NSFWFilter implements CommandFilter {
+export default class NSFWFilter extends CommandFilter {
     public readonly whitelist: boolean;
     
     constructor(whitelist: boolean = true) {
+        super();
+
         this.whitelist = whitelist;
     }
 

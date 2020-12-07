@@ -10,10 +10,12 @@ export interface InlineEventConsumerCallback {
 A simple consumer which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this consumer (for now).
 */
-export default class InlineEventConsumer<K extends keyof ClientEvents> implements EventConsumer<K> {
+export default class InlineEventConsumer<K extends keyof ClientEvents> extends EventConsumer<K> {
     private readonly callback: InlineEventConsumerCallback;
     
     constructor(callback: InlineEventConsumerCallback) {
+        super();
+
         this.callback = callback;
     }
 

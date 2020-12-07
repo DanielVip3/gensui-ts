@@ -9,10 +9,12 @@ export interface InlineCommandInterceptorCallback {
 A simple interceptor which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this interceptor (for now).
 */
-export default class InlineCommandInterceptor implements CommandInterceptor {
+export default class InlineCommandInterceptor extends CommandInterceptor {
     private readonly callback: InlineCommandInterceptorCallback;
     
     constructor(callback: InlineCommandInterceptorCallback) {
+        super();
+
         this.callback = callback;
     }
 

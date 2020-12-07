@@ -9,7 +9,7 @@ export abstract class CommandInterceptor {
     public abstract intercept(context: CommandContext, ...any: []): CommandInterceptorResponse|Promise<CommandInterceptorResponse>;
 };
 
-export abstract class CommandTransformer implements CommandInterceptor {
+export abstract class CommandTransformer extends CommandInterceptor {
     public async intercept(context: CommandContext): Promise<CommandInterceptorResponse> {
         await this.transform(context);
 

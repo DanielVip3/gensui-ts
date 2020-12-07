@@ -9,11 +9,13 @@ export interface InlineCommandFilterCallback {
 A simple filter which allows an inline callback function to determine if to execute the command handler.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this filter (for now).
 */
-export default class InlineCommandFilter implements CommandFilter {
+export default class InlineCommandFilter extends CommandFilter {
     private readonly callback: InlineCommandFilterCallback;
     public readonly whitelist: boolean;
     
     constructor(callback: InlineCommandFilterCallback, whitelist: boolean = true) {
+        super();
+
         this.callback = callback;
         this.whitelist = whitelist;
     }

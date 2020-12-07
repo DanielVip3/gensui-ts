@@ -1,11 +1,13 @@
 import { CommandContext } from "../../classes/commands/Command";
 import { CommandConsumer, CommandConsumerResponse } from "../../classes/commands/CommandConsumer";
 
-export default class LogConsumer implements CommandConsumer {
+export default class LogConsumer extends CommandConsumer {
     private readonly customText?: string;
     private readonly logFunction: Function = console.log;
 
     constructor(customText?: string, customLogFunction?: Function) {
+        super();
+
         this.customText = customText;
         if (customLogFunction) this.logFunction = customLogFunction;
     }

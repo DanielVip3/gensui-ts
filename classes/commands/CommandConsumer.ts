@@ -9,7 +9,7 @@ export abstract class CommandConsumer {
     public abstract consume(context: CommandContext, returnData: any, ...any: []): CommandConsumerResponse|Promise<CommandConsumerResponse>;
 };
 
-export abstract class CommandSideEffect implements CommandConsumer {
+export abstract class CommandSideEffect extends CommandConsumer {
     public async consume(context: CommandContext): Promise<CommandConsumerResponse> {
         await this.effect(context);
 

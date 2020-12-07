@@ -3,10 +3,12 @@ import { CooldownStore, CooldownStoreObject } from "../../classes/utils/Cooldown
 import { CommandInterceptor, CommandInterceptorResponse } from "../../classes/commands/CommandInterceptor";
 import { CooldownError } from "../../errors";
 
-export default class CooldownInterceptor implements CommandInterceptor {
+export default class CooldownInterceptor extends CommandInterceptor {
     store: CooldownStore;
 
     constructor(store: CooldownStore) {
+        super();
+
         this.store = store;
     }
 

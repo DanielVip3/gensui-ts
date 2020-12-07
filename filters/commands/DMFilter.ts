@@ -3,10 +3,12 @@ import { CommandContext } from '../../classes/commands/Command';
 import { DMError } from '../../errors';
 import { DMChannel } from 'discord.js';
 
-export default class DMFilter implements CommandFilter {
+export default class DMFilter extends CommandFilter {
     public readonly whitelist: boolean;
     
     constructor(whitelist: boolean = true) {
+        super();
+
         this.whitelist = whitelist;
     }
 

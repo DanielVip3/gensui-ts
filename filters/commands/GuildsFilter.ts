@@ -2,11 +2,13 @@ import { CommandFilter } from '../../classes/commands/CommandFilter';
 import { CommandContext } from '../../classes/commands/Command';
 import { GuildsError } from '../../errors';
 
-export default class GuildsFilter implements CommandFilter {
+export default class GuildsFilter extends CommandFilter {
     private readonly guilds: string[]|string;
     public readonly whitelist: boolean;
 
     constructor(guilds: string[]|string, whitelist: boolean = true) {
+        super();
+
         this.guilds = guilds;
         if (this.guilds && !Array.isArray(this.guilds) && typeof this.guilds === "string") this.guilds = [this.guilds];
 

@@ -10,10 +10,12 @@ export interface InlineEventInterceptorCallback {
 A simple interceptor which accepts an inline callback function.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this interceptor (for now).
 */
-export default class InlineEventInterceptor<K extends keyof ClientEvents> implements EventInterceptor<K> {
+export default class InlineEventInterceptor<K extends keyof ClientEvents> extends EventInterceptor<K> {
     private readonly callback: InlineEventInterceptorCallback;
     
     constructor(callback: InlineEventInterceptorCallback) {
+        super();
+
         this.callback = callback;
     }
 

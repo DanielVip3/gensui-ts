@@ -10,11 +10,13 @@ export interface InlineEventFilterCallback<K extends keyof ClientEvents> {
 A simple filter which allows an inline callback function to determine if to execute the event handler.
 DOES NOT pair with exceptions - i.e. you can't catch exceptions called inside this filter (for now).
 */
-export default class InlineEventFilter<K extends keyof ClientEvents> implements EventFilter<K> {
+export default class InlineEventFilter<K extends keyof ClientEvents> extends EventFilter<K> {
     private readonly callback: InlineEventFilterCallback<K>;
     public readonly whitelist: boolean;
     
     constructor(callback: InlineEventFilterCallback<K>, whitelist: boolean = true) {
+        super();
+
         this.callback = callback;
         this.whitelist = whitelist;
     }

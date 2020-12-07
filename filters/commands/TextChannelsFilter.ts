@@ -3,11 +3,13 @@ import { CommandContext } from '../../classes/commands/Command';
 import { DMChannel } from 'discord.js';
 import { TextChannelsError } from '../../errors';
 
-export default class TextChannelsFilter implements CommandFilter {
+export default class TextChannelsFilter extends CommandFilter {
     private readonly channels: string[]|string;
     public readonly whitelist: boolean;
 
     constructor(channels: string[]|string, whitelist: boolean = true) {
+        super();
+
         this.channels = channels;
         if (this.channels && !Array.isArray(this.channels) && typeof this.channels === "string") this.channels = [this.channels];
 

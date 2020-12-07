@@ -11,7 +11,7 @@ export abstract class EventInterceptor<K extends keyof ClientEvents> {
     public abstract intercept(payload?: EventArgsOf<K>, context?: EventContext): EventInterceptorResponse|Promise<EventInterceptorResponse>;
 };
 
-export abstract class EventTransformer<K extends keyof ClientEvents> implements EventInterceptor<K> {
+export abstract class EventTransformer<K extends keyof ClientEvents> extends EventInterceptor<K> {
     public async intercept(payload?: EventArgsOf<K>, context?: EventContext): Promise<EventInterceptorResponse> {
         await this.transform(payload, context);
 
