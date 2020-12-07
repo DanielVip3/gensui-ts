@@ -69,9 +69,9 @@ describe("EventFilter and Event's filter usage", function() {
         expect(response).to.be.true;
     });
 
-    it("calls filters, in order, with correct parameters", async function() {
-        const callback1 = sinon.spy();
-        const callback2 = sinon.spy();
+    it("calls filters, in order, with correct parameters; flow goes fine if the first filter returns true", async function() {
+        const callback1 = sinon.stub().returns(true);
+        const callback2 = sinon.stub().returns(true);
 
         const filter1: InlineEventFilter<"message"> = Filters.Events.Inline(callback1);
         const filter2: InlineEventFilter<"message"> = Filters.Events.Inline(callback2);
@@ -91,6 +91,50 @@ describe("EventFilter and Event's filter usage", function() {
         sinon.assert.calledWith(callback2, payload, context);
 
         expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
+    });
+
+    it("stops flow to next filter if the first returns false", async function() {
+        const callback1 = sinon.stub().returns(false);
+        const callback2 = sinon.stub();
+
+        const filter1: InlineEventFilter<"message"> = Filters.Events.Inline(callback1);
+        const filter2: InlineEventFilter<"message"> = Filters.Events.Inline(callback2);
+
+        const event: Event = new Event({
+            id: "test",
+            type: "message",
+            filters: [filter1, filter2],
+            handler: sinon.fake(),
+        });
+
+        const payload = [messageMock] as EventPayload<"message">;
+        const context = { event, } as EventContext;
+        await event.callFilters(payload, context);
+
+        sinon.assert.calledWith(callback1, payload, context);
+        sinon.assert.notCalled(callback2);
+    });
+
+    it("stops flow to next filter if the first returns a falsy value (null/undefined/0)", async function() {
+        const callback1 = sinon.stub().returns(undefined);
+        const callback2 = sinon.stub();
+
+        const filter1: InlineEventFilter<"message"> = Filters.Events.Inline(callback1);
+        const filter2: InlineEventFilter<"message"> = Filters.Events.Inline(callback2);
+
+        const event: Event = new Event({
+            id: "test",
+            type: "message",
+            filters: [filter1, filter2],
+            handler: sinon.fake(),
+        });
+
+        const payload = [messageMock] as EventPayload<"message">;
+        const context = { event, } as EventContext;
+        await event.callFilters(payload, context);
+
+        sinon.assert.calledWith(callback1, payload, context);
+        sinon.assert.notCalled(callback2);
     });
     
     it("stops flow to interceptors if one returns false", async function() {

@@ -92,6 +92,46 @@ describe("CommandFilter and Command's filter usage", function() {
 
         expect(callback2.calledImmediatelyAfter(callback1)).to.be.true;
     });
+    
+    it("stops flow to next filter if the first returns false", async function() {
+        const callback1 = sinon.stub().returns(false);
+        const callback2 = sinon.stub();
+
+        const filter1: InlineCommandFilter = Filters.Commands.Inline(callback1);
+        const filter2: InlineCommandFilter = Filters.Commands.Inline(callback2);
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            filters: [filter1, filter2],
+            handler: sinon.fake(),
+        });
+
+        await command.callFilters(commandContextMock(command));
+
+        sinon.assert.calledWith(callback1, commandContextMock(command));
+        sinon.assert.notCalled(callback2);
+    });
+
+    it("stops flow to next filter if the first returns a falsy value (null/undefined/0)", async function() {
+        const callback1 = sinon.stub().returns(undefined);
+        const callback2 = sinon.stub();
+
+        const filter1: InlineCommandFilter = Filters.Commands.Inline(callback1);
+        const filter2: InlineCommandFilter = Filters.Commands.Inline(callback2);
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            filters: [filter1, filter2],
+            handler: sinon.fake(),
+        });
+
+        await command.callFilters(commandContextMock(command));
+
+        sinon.assert.calledWith(callback1, commandContextMock(command));
+        sinon.assert.notCalled(callback2);
+    });
 
     it("stops flow to interceptors if one returns false", async function() {
         const filterH = sinon.stub().returns(false);
