@@ -125,6 +125,8 @@ export class Event {
                 try {
                     valid = !!await filter.filter(payload, ctx) || false;
                     await filter.handleError(valid, ctx);
+
+                    if (!valid) return false;
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);
                     valid = false;

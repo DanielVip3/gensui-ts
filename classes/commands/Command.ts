@@ -167,6 +167,8 @@ export class Command {
                 try {
                     valid = !!await filter.filter(ctx) || false;
                     await filter.handleError(valid, ctx);
+
+                    if (!valid) return false;
                 } catch(err) {
                     await this.callExceptionHandlers(ctx, err);
                     valid = false;
