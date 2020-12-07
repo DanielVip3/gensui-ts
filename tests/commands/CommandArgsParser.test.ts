@@ -502,6 +502,27 @@ describe("Command's CommandArgsParser usage", function() {
         expect(response).to.include.all.keys("arg1", "arg2");
     });
 
+    it("parser ignores args without an id", async function() {
+        //@ts-ignore
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+            type: "string",
+        }, {
+            // empty arg
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callParser(commandContextMock(command));
+
+        expect(response).to.be.deep.equal({ arg1: "test" });
+    });
+
     describe("Types", function() {
         it("parser accepts types", async function() {
             const parser: CommandArgsParser = new CommandArgsParser({
@@ -522,27 +543,6 @@ describe("Command's CommandArgsParser usage", function() {
             const response = await command.callParser(commandContextMock(command));
     
             expect(response).to.have.property("arg1", "test");
-        });
-
-        it("parser ignores args without an id", async function() {
-            //@ts-ignore
-            const parser: CommandArgsParser = new CommandArgsParser({
-                id: "arg1",
-                type: "string",
-            }, {
-                // empty arg
-            });
-    
-            const command: Command = new Command({
-                id: "test",
-                names: "test",
-                parser: parser,
-                handler: sinon.fake(),
-            });
-    
-            const response = await command.callParser(commandContextMock(command));
-    
-            expect(response).to.be.deep.equal({ arg1: "test" });
         });
     
         it("parser accepts multiple types and fallbacks to them in order", async function() {
