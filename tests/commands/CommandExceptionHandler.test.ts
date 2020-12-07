@@ -14,11 +14,12 @@ chai.use(chaiAsPromised);
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
 
 import * as sinon from 'sinon';
+import { CommandArgsParser } from '../../classes/commands/args/CommandArgsParser';
 
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));
 
-const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: false, rawArguments: [], arguments: [] } as CommandCallOptions;
+const commandCallOptionsMock = { prefix: "!", name: "test", mentionHandled: false, rawArguments: ["test"], arguments: [] } as CommandCallOptions;
 const commandContextMock = (command) => { return { command, message: messageMock, call: commandCallOptionsMock } as CommandContext };
 
 describe("CommandExceptionHandler and Command's exception handlers usage", function() {
@@ -306,6 +307,34 @@ describe("CommandExceptionHandler and Command's exception handlers usage", funct
         });
 
         await command.callConsumers(commandContextMock(command), "return data by command test");
+
+        sinon.assert.calledOnce(callbackExceptionHandler);
+    });
+
+    it("calls exception handlers when the args parser does have an error", async function() {
+        const callbackExceptionHandler = sinon.spy();
+        const callbackTypeCasting = sinon.stub().throws(new SyntaxError("test"));
+
+        const exceptionH: CommandExceptionHandler = {
+            id: "test",
+            exceptions: [SyntaxError],
+            handler: callbackExceptionHandler,
+        };
+
+        const parser: CommandArgsParser = new CommandArgsParser({
+            id: "arg1",
+            type: callbackTypeCasting,
+        });
+
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            parser: parser,
+            exceptions: [exceptionH],
+            handler: sinon.fake(),
+        });
+
+        await command.callParser(commandContextMock(command));
 
         sinon.assert.calledOnce(callbackExceptionHandler);
     });
