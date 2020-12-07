@@ -196,7 +196,6 @@ export class Command {
         try {
             return await this.parser.parse(ctx.message, ctx.call);
         } catch(err) {
-            console.error(err);
             await this.callExceptionHandlers(ctx, err);
             
             return null;
