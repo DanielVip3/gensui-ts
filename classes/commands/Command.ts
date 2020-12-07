@@ -81,14 +81,13 @@ export class Command {
             else this._names = options.names;
         };
 
-        if ((options.id === null || options.id === undefined) && ((!options.names || options.names.length <= 0))) throw new CommandNoIDError(`A command${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id or at least a name.`);
-        else if (options.id) {
+        if (options.id) {
             this.id = options.id;
             checkForNames();
         } else if (options.names) {
             checkForNames();
             this.id = this._names[0];
-        }
+        } else throw new CommandNoIDError(`A command${options && options.methodName ? ` (method ${options.methodName})` : ""} has been created without an id or at least a name.`);
 
         if (this.bot && this.bot.getAllCommands && this.bot.getAllCommands().some(e => e.id === options.id)) throw new CommandAlreadyExistingIDError(`A command already exists with the same id: ${options.id}.`);
 
