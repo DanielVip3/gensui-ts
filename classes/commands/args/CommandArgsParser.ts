@@ -145,7 +145,7 @@ export class CommandArgsParser {
         for (let type of this.test) {
             if (!type || !type.id || !type.id.length || type.id.length <= 0) continue;
 
-            if (!calledFrom[i]) {
+            if (!isValueValid(calledFrom[i])) {
                 args[type.id] = await getDefaultValue(type);
                 continue;
             }
@@ -163,7 +163,7 @@ export class CommandArgsParser {
                     const casted = await this.castType(value, type.type, message);
                     args[type.id] = isValueValid(casted) ? casted : await getDefaultValue(type);
                 }
-            } else args[type.id] = isValueValid(value) ? value : await getDefaultValue(type);
+            } else args[type.id] = value;
 
 
             /*
