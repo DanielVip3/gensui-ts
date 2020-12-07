@@ -129,26 +129,35 @@ export default class BotCommands extends BotEvents {
         }
 
         let calledName: string|undefined = undefined;
+        let mentionHandled: boolean = false;
         let command: Command|undefined;
         let callOptions: CommandCallOptions|undefined;
         if (startsWithPrefix) {
             command = await this.findCommand(firstWord.replace(actualCommandPrefix, ""));
 
             calledName = firstWord.replace(actualCommandPrefix, "");
-        } else if (this.enableMentionHandling && client && client.user && message.mentions && message.mentions.has(client.user.id) && message.content.startsWith(`<@${client.user.id}>`)) {
-            command = await this.findCommand(firstWord.replace(`<@${client.user.id}> `, ""));
+            mentionHandled = false;
+        } else if (this.enableMentionHandling && client && client.user && message.mentions && message.mentions.users.has(client.user.id) && (message.content.startsWith(`<@${client.user.id}>`) || message.content.startsWith(`<@!${client.user.id}>`))) {            
+            command = await this.findCommand(message.content.replace(`<@${client.user.id}> `, "").replace(`<@!${client.user.id}> `, ""));
 
-            calledName = firstWord.replace(`<@${client.user.id}> `, "");
+            calledName = firstWord.replace(`<@${client.user.id}> `, "").replace(`<@!${client.user.id}> `, "");
+            mentionHandled = true;
         }
 
         if (command && calledName) {
-            if (command.argumentsDivider && command.argumentsDivider !== " ") args = message.content.trim().split(command.argumentsDivider);
-            args.shift(); // removes the command name who called the command
+            if (mentionHandled) {
+                if (command.argumentsDivider && command.argumentsDivider !== " ") args = message.content.trim().split(" ");
+                args.shift(); // removes the tag to the bot
+                args.shift(); // removes the command name who called the command
+            } else {
+                if (command.argumentsDivider && command.argumentsDivider !== " ") args = message.content.trim().split(command.argumentsDivider);
+                args.shift(); // removes the command name who called the command
+            }
 
             callOptions = {
                 prefix: actualCommandPrefix,
                 name: calledName,
-                mentionHandled: true,
+                mentionHandled,
                 rawArguments: args,
             } as CommandCallOptions;
         }
