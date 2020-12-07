@@ -452,6 +452,18 @@ describe("Command's CommandArgsParser usage", function() {
         })).to.have.property("parser").and.to.be.equal(parser);
     });
 
+    it("calls parser and returns null if no commandCallOptions are passed", async function() {
+        const command: Command = new Command({
+            id: "test",
+            names: "test",
+            handler: sinon.fake(),
+        });
+
+        const response = await command.callParser({ command, message: messageMock } as CommandContext);
+
+        expect(response).to.be.null;
+    });
+
     it("calls parser and returns raw arguments if no parser was passed", async function() {
         const command: Command = new Command({
             id: "test",
