@@ -7,14 +7,14 @@
 */
 export default function exceptionShouldBeHandled(exception, error): boolean {
     function standardPrototypeCheck(): boolean { // a standard prototype check which handles all possible mainstream cases
-        if (exception === true && error === false) console.log(exception, error, exception.prototype, error.prototype);
+        /* istanbul ignore else */
         if (exception.prototype === undefined && error.prototype === undefined) return Object.getPrototypeOf(exception) === Object.getPrototypeOf(error);
-        if (Object.getPrototypeOf(exception) === undefined && Object.getPrototypeOf(error) === undefined) return exception.prototype === error.prototype;
 
-        return exception.prototype === error.prototype
-            || Object.getPrototypeOf(exception) === error.prototype
+        /* istanbul ignore next */
+        return Object.getPrototypeOf(exception) === error.prototype
             || exception.prototype === Object.getPrototypeOf(error)
-            || Object.getPrototypeOf(exception) === Object.getPrototypeOf(error);
+            || Object.getPrototypeOf(exception) === Object.getPrototypeOf(error)
+            || exception.prototype === error.prototype;
     }
 
     if (exception === undefined || error === undefined) return false;
@@ -28,7 +28,7 @@ export default function exceptionShouldBeHandled(exception, error): boolean {
     } else if (typeof error === "object") { // maybe the accepted error is specified as an instance of a class
         errorComparisonValue = Object.getPrototypeOf(error);
     } else if (typeof error === "function") { // the accepted error is probably specified as a constructor
-        errorComparisonValue = error.prototype || error;
+        errorComparisonValue = error.prototype || /* istanbul ignore next */ error;
     } else return standardPrototypeCheck();
 
     /* Here, we should handle both cases like for "error"; "exception" can be both an instantance of the error or the constructor/class of it. */
