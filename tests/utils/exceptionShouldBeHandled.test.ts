@@ -36,4 +36,14 @@ describe("exceptionShouldBeHandled function", function() {
     it("returns false if passed error is the constructor and accepted error is an instance, but not both of the same class", function() {
         expect(exceptionShouldBeHandled(SyntaxError, new TypeError())).to.be.false;
     });
+
+    describe("Error message", function() {
+        it("returns true if accepted error is a string and passed error's message contains that string", function() {
+            expect(exceptionShouldBeHandled(new SyntaxError("test value"), "test")).to.be.true;
+        });
+
+        it("returns false if accepted error is a string and passed error's message doesn't contain that string", function() {
+            expect(exceptionShouldBeHandled(new SyntaxError("try value"), "test")).to.be.false;
+        });
+    });
 });
