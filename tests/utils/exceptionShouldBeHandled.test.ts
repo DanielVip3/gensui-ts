@@ -70,4 +70,10 @@ describe("exceptionShouldBeHandled function", function() {
     it("returns false if passed error is any random object and accepted error is an error", function() {
         expect(exceptionShouldBeHandled(true, new SyntaxError())).to.be.false;
     });
+
+    it("returns false if at least one of passed error and accepted error is undefined", function() {
+        expect(exceptionShouldBeHandled(undefined, new SyntaxError())).to.be.false;
+        expect(exceptionShouldBeHandled(new SyntaxError(), undefined)).to.be.false;
+        expect(exceptionShouldBeHandled(undefined, undefined)).to.be.false;
+    });
 });
