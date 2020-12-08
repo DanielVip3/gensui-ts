@@ -46,4 +46,28 @@ describe("exceptionShouldBeHandled function", function() {
             expect(exceptionShouldBeHandled(new SyntaxError("try value"), "test")).to.be.false;
         });
     });
+
+    it("returns true if passed error and accepted error are an instance of the same object which isn't an error", function() {
+        expect(exceptionShouldBeHandled(true, false)).to.be.true;
+    });
+
+    it("returns true if passed error and accepted error are the constructor of the same class which isn't an error", function() {
+        expect(exceptionShouldBeHandled(Boolean, Boolean)).to.be.true;
+    });
+
+    it("returns false if both passed error and accepted error are two random objects", function() {
+        expect(exceptionShouldBeHandled(true, "true")).to.be.false;
+    });
+
+    it("returns false if both passed error and accepted error are two random constructors", function() {
+        expect(exceptionShouldBeHandled(Boolean, String)).to.be.false;
+    });
+
+    it("returns false if passed error is an error and accepted error is any other random object", function() {
+        expect(exceptionShouldBeHandled(new SyntaxError(), true)).to.be.false;
+    });
+
+    it("returns false if passed error is any random object and accepted error is an error", function() {
+        expect(exceptionShouldBeHandled(true, new SyntaxError())).to.be.false;
+    });
 });
