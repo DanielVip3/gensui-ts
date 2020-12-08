@@ -7,6 +7,9 @@
 */
 export default function exceptionShouldBeHandled(exception, error): boolean {
     function standardPrototypeCheck(): boolean { // a standard prototype check which handles all possible mainstream cases
+        if (exception.prototype === undefined && error.prototype === undefined) return Object.getPrototypeOf(exception) === Object.getPrototypeOf(error);
+        if (Object.getPrototypeOf(exception) === undefined && Object.getPrototypeOf(error) === undefined) return exception.prototype === error.prototype;
+
         return exception.prototype === error.prototype
             || Object.getPrototypeOf(exception) === error.prototype
             || exception.prototype === Object.getPrototypeOf(error)
@@ -19,7 +22,7 @@ export default function exceptionShouldBeHandled(exception, error): boolean {
     let errorComparisonValue = error;
 
     if (typeof error === "string" && exception.message) { // the accepted error is an error message which should match
-        if (Array.isArray(exception.message) && exception.message.length >= 1) return exception.message.some(m => m.includes(error));
+        /* istanbul ignore next */ if (Array.isArray(exception.message) && exception.message.length >= 1) return exception.message.some(m => m.includes(error));
         else if (typeof exception.message === "string") return exception.message.includes(error);
         else return standardPrototypeCheck();
     } else if (typeof error === "object") { // maybe the accepted error is specified as an instance of a class
