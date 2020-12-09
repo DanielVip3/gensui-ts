@@ -1,7 +1,7 @@
 {
   "name": "gensui",
   "version": "1.0.0",
-  "description": "A Discord bot framework which supports Discord.js and TypeScript.",
+  "description": "An opinionated and DRY-oriented Discord bot framework written in TypeScript and works with Discord.js.",
   "main": "index.js",
   "scripts": {
     "test": "mocha --exit -r ts-node/register 'tests/**/*.ts'",
