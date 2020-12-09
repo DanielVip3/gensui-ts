@@ -1,6 +1,6 @@
 import exceptionShouldBeHandled from "../../classes/utils/exceptionShouldBeHandled";
 
-import { expect } from "chai";
+import { expect } from 'chai';
 
 /* The first parameter to this method is the thrown exception, and the second is the accepted exception */
 
