@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
 
-import shouldBeAFilter from './FilterTestGenerics';
+import shouldBeAFilter from './FilterTestGenerics.test';
 
 const guildIdMock = SnowflakeUtil.generate();
 const textChannelIdMock = SnowflakeUtil.generate();

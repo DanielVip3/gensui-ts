@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
 
-import shouldBeAnInterceptor from './InterceptorTestGenerics';
+import shouldBeAnInterceptor from './InterceptorTestGenerics.test';
 
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));

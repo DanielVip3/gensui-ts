@@ -1,6 +1,6 @@
 import * as Errors from '../../errors';
 import { expect } from 'chai';
-import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics';
+import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics.test';
 
 describe("Consumers' errors", function() {
     it("exports all existing consumer errors correctly", function() {

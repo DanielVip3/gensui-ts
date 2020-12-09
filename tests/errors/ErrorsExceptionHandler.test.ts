@@ -1,6 +1,6 @@
 import * as Errors from '../../errors';
 import { expect } from 'chai';
-import { shouldBeAnError } from './ErrorTestGenerics';
+import { shouldBeAnError } from './ErrorTestGenerics.test';
 
 describe("Exception Handler's errors", function() {
     it("exports all existing events errors correctly", function() {

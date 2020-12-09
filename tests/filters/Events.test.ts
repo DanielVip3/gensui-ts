@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
 
-import shouldBeAFilter from './FilterTestGenerics';
+import shouldBeAFilter from './FilterTestGenerics.test';
 
 const discordClientMock = new Client();
 const messageMock = new Message(discordClientMock, { id: SnowflakeUtil.generate() }, new TextChannel(new Guild(discordClientMock, { id: SnowflakeUtil.generate() }), { id: SnowflakeUtil.generate() }));

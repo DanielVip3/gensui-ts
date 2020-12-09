@@ -36,8 +36,7 @@
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3",
     "utf-8-validate": "^5.0.2",
-    "yup": "^0.29.3",
-    "zlib-sync": "^0.1.7"
+    "yup": "^0.29.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",

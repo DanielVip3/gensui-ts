@@ -1,6 +1,6 @@
 import * as Errors from '../../errors';
 import { expect } from 'chai';
-import { shouldBeAnError } from './ErrorTestGenerics';
+import { shouldBeAnError } from './ErrorTestGenerics.test';
 
 describe("Bot's errors", function() {
     it("exports all existing bot errors correctly", function() {

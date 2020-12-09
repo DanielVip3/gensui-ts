@@ -1,6 +1,6 @@
 import * as Errors from '../../errors';
 import { expect } from 'chai';
-import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics';
+import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics.test';
 
 describe("Interceptors' errors", function() {
     it("exports all existing interceptor errors correctly", function() {

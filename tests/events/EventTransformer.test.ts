@@ -1,6 +1,6 @@
 import { Event, EventContext } from '../../classes/events/Event';
 
-import shouldBeAConsumer from '../consumers/ConsumerTestGenerics';
+import shouldBeAConsumer from '../consumers/ConsumerTestGenerics.test';
 import EventTransformerMock from '../mocks/EventTransformer.mock';
 
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';

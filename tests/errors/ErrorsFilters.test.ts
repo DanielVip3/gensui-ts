@@ -1,6 +1,6 @@
 import * as Errors from '../../errors';
 import { expect } from 'chai';
-import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics';
+import { shouldBeAGenericError, shouldBeAnError } from './ErrorTestGenerics.test';
 import * as Discord from 'discord.js';
 
 function shouldBeAFilterError(error) {

@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
 
-import shouldBeAConsumer from './ConsumerTestGenerics';
+import shouldBeAConsumer from './ConsumerTestGenerics.test';
 
 const testLog = "test log";
 

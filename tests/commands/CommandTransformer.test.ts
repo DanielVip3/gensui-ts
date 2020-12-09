@@ -1,7 +1,7 @@
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
 
-import shouldBeAnInterceptor from '../interceptors/InterceptorTestGenerics';
+import shouldBeAnInterceptor from '../interceptors/InterceptorTestGenerics.test';
 import CommandTransformerMock from '../mocks/CommandTransformer.mock';
 
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';

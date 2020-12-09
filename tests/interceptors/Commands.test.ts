@@ -15,7 +15,7 @@ chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
 
-import shouldBeAnInterceptor from './InterceptorTestGenerics';
+import shouldBeAnInterceptor from './InterceptorTestGenerics.test';
 
 const authorId = SnowflakeUtil.generate();
 

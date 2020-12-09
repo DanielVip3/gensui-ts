@@ -1,7 +1,7 @@
 import { Command, CommandContext } from '../../classes/commands/Command';
 import { CommandCallOptions } from '../../classes/commands/CommandCallOptions';
 
-import shouldBeAConsumer from '../consumers/ConsumerTestGenerics';
+import shouldBeAConsumer from '../consumers/ConsumerTestGenerics.test';
 import CommandSideEffectMock from '../mocks/CommandSideEffect.mock';
 
 import { Client, Guild, Message, SnowflakeUtil, TextChannel } from 'discord.js';
