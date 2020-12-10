@@ -16,6 +16,10 @@ import { EventConsumer } from './events/EventConsumer';
 import { Sandbox } from './sandboxes/Sandbox';
 import { CommandArgsParser } from './commands/args/CommandArgsParser';
 
+/*
+* TODO: remove yup and refactor options validation using runtime checks
+*/
+
 /* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
 const BotOptionsSchema = yup.object({
     name: yup.string()
