@@ -1,6 +1,5 @@
 import IORedis from 'ioredis';
 import { default as TestIORedis } from 'ioredis-mock';
-import randomstring from 'randomstring';
 
 export interface CooldownStoreObject {
     called: Date,
