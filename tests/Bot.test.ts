@@ -110,6 +110,17 @@ describe("Bot", function() {
             expect(botMock).to.have.property("constants").which.has.property("test3", "test3");
         });
 
+        it("gets undefined if non-nested constant value from constants is not found", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+
+            expect(botMock.get("undefinedTest")).to.be.equal(undefined);
+        });
+
         it("gets a single non-nested constant value from constants", function() {
             const botMock = new Bot({
                 name: "test",
@@ -160,6 +171,21 @@ describe("Bot", function() {
             });
 
             expect(botMock.get("test")).to.be.equal(arr);
+        });
+
+        it("gets undefined if nested constant value from constants is not found", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: "test",
+                }
+            });
+
+            expect(botMock.get("test", "undefinedTest")).to.be.equal(undefined);
         });
 
         it("gets a single nested constant value from constants", function() {
@@ -224,6 +250,28 @@ describe("Bot", function() {
             expect(botMock.get("test", "testN")).to.be.equal(arr);
         });
 
+        it("gets a single constant value if constant method is used as multiple but only has a single return value", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+
+            expect(botMock.get(["test"])).to.be.equal("test");
+        });
+
+        it("gets undefined if multiple non-nested constant value from constants are not found", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+
+            expect(botMock.get(["undefinedTest"], ["undefinedTest2"])).to.be.deep.equal([undefined, undefined]);
+        });
+
         it("gets multiple non-nested constant value from constants", function() {
             const botMock = new Bot({
                 name: "test",
@@ -281,6 +329,21 @@ describe("Bot", function() {
             });
 
             expect(botMock.get(["test"], ["test2"])).to.be.deep.equal([arr1, arr2]);
+        });
+
+        it("gets undefined if multiple nested constant value from constants are not found", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: "test",
+                }
+            });
+
+            expect(botMock.get(["test", "undefinedTest"], ["test2", "undefinedTest2"])).to.be.deep.equal([undefined, undefined]);
         });
 
         it("gets multiple nested constant value from constants", function() {
@@ -376,7 +439,6 @@ describe("Bot", function() {
                     testN: {
                         testN1: arr,
                         "test space": null,
-                        undefined: undefined,
                     }
                 }
             });
