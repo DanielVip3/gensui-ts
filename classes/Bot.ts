@@ -16,41 +16,15 @@ import { EventConsumer } from './events/EventConsumer';
 import { Sandbox } from './sandboxes/Sandbox';
 import { CommandArgsParser } from './commands/args/CommandArgsParser';
 
-/*
-* TODO: remove yup and refactor options validation using runtime checks
-*/
-
-/* I need to validate the options at runtime too so an interface isn't a good option - I opt to use a yup schema and then convert it to an interface automatically. */
-const BotOptionsSchema = yup.object({
-    name: yup.string()
-            .strict(true)
-            .required(),
-    
-    token: yup.string()
-            .strict(true)
-            .required(),
-
-    owner: yup.lazy(value => {
-        if (Array.isArray(value)) return yup.array().of(yup.string().strict(true)).default(undefined);
-        else if (typeof value === "string") return yup.string().strict(true).default(undefined);
-        else return yup.string().strict(true).notRequired();
-    }),
-
-    enableMentionHandling: yup.boolean()
-                            .notRequired()
-                            .default(false),
-
-    prefix: yup.lazy(value => {
-        if (Array.isArray(value)) return yup.array().of(yup.string().strict(true)).required();
-        else if (typeof value === "string") return yup.string().strict(true).required();
-        else return yup.string().strict(true).required();
-    }),
-}).required();
-
-type BotOptions = yup.InferType<typeof BotOptionsSchema>;
+export interface BotOptions {
+    name: string,
+    token: string,
+    owner?: string|string[],
+    enableMentionHandling?: boolean,
+    prefix: string|string[],
+};
 
 export default class Bot extends BotCommands {
-    protected errored: boolean = false;
     public readonly options: BotOptions;
     public client: Client;
     public constants: BotConstants;
@@ -59,35 +33,26 @@ export default class Bot extends BotCommands {
     constructor(options: BotOptions, readyHandler?: Function) {
         super();
 
-        try {
-            this.options = BotOptionsSchema.validateSync(options);
-            this.client = new Client();
+        this.options = BotOptionsSchema.validateSync(options);
+        this.client = new Client();
 
-            this.client.on('ready', () => {
-                if (readyHandler && typeof readyHandler === "function") readyHandler();
-            });
+        this.client.on('ready', () => {
+            if (readyHandler && typeof readyHandler === "function") readyHandler();
+        });
 
-            if (this.options) {
-                if (this.options.enableMentionHandling) this.enableMentionHandling = true;
-                else this.enableMentionHandling = false;
+        if (this.options) {
+            if (this.options.enableMentionHandling) this.enableMentionHandling = true;
+            else this.enableMentionHandling = false;
 
-                if (this.options.prefix) this.prefix = this.options.prefix;
-            }
-        } catch(err) {
-            console.error(err);
-            this.errored = true;
+            if (this.options.prefix) this.prefix = this.options.prefix;
         }
     }
 
     login(token?: string): Promise<string|null> {
-        if (this.errored) return new Promise(function(resolve, reject) { reject(null); });
-
         return this.client.login(token || this.options.token);
     }
 
     start(token?: string): boolean {
-        if (this.errored) return false;
-
         try {
             this.login(token || this.options.token);
             this.startFetchingCommands(this.client);
