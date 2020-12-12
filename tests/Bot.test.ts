@@ -109,5 +109,119 @@ describe("Bot", function() {
 
             expect(botMock).to.have.property("constants").which.has.property("test3", "test3");
         });
+
+        it("gets a single non-nested constant value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+
+            expect(botMock.get("test")).to.be.equal("test");
+        });
+
+        it("gets a single non-nested constant falsy value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: null
+            });
+
+            expect(botMock.get("test")).to.be.equal(null);
+        });
+
+        it("gets a single non-nested constant boolean value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: true
+            });
+
+            expect(botMock.get("test")).to.be.equal(true);
+        });
+
+        it("gets a single non-nested constant array value from constants", function() {
+            const arr = ["test", "test2"];
+
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test:  arr
+            });
+
+            expect(botMock.get("test")).to.be.equal(arr);
+        });
+
+        it("gets a single nested constant value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: "test"
+                }
+            });
+
+            expect(botMock.get("test", "testN")).to.be.equal("test");
+        });
+
+        it("gets a single nested constant falsy value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: null
+                }
+            });
+
+            expect(botMock.get("test", "testN")).to.be.equal(null);
+        });
+
+        it("gets a single nested constant boolean value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: true
+                }
+            });
+
+            expect(botMock.get("test", "testN")).to.be.equal(true);
+        });
+
+        it("gets a single nested constant array value from constants", function() {
+            const arr = ["test", "test2"];
+
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: arr
+                }
+            });
+
+            expect(botMock.get("test", "testN")).to.be.equal(arr);
+        });
     });
 });
