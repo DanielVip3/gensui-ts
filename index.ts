@@ -1,6 +1,5 @@
 require('dotenv').config({ path: __dirname+'/.env' });
 
-import './config/yup-locale';
 import Bot from './classes/Bot';
 
 import { Filters } from './filters/Filters';
@@ -27,7 +26,7 @@ bot.constant({
 
 abstract class Commands {
     @bot.Scope(1) id: CommandIdentifier;
-    @bot.Inject(bot.get("roles", "test")) static test: string;
+    @bot.Constant("roles", "test") static test: string;
 
     @bot.Apply(
         Filters.Commands._NSFW,
