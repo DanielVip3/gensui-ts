@@ -421,6 +421,26 @@ describe("Bot", function() {
             expect(botMock.get(["test", "testN"], ["test2", "testN"])).to.be.deep.equal([arr1, arr2]);
         });
 
+        it("gets mixed multiple and single constants", function() {
+            const arr1 = ["test", "test2"];
+            const arr2 = ["test3", "test4"];
+
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: arr1,
+                },
+                test2: arr2,
+            });
+
+            //@ts-ignore
+            expect(botMock.get(["test", "testN"], "test2")).to.be.equal(undefined);
+        });
+
         it("gets mixed constants", function() {
             const arr = ["test", "test2"];
             const fakeFunction = sinon.fake();
