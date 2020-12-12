@@ -1,5 +1,4 @@
 import { Client } from 'discord.js';
-import * as yup from 'yup';
 
 import BotCommands from './bot/BotCommands';
 import BotConstants from './bot/BotConstants';
