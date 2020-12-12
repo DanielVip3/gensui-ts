@@ -82,23 +82,14 @@ export default class Bot extends BotCommands {
     }
 
     constant(...values: BotConstants[]): BotConstants {
-        if (!values || !Array.isArray(values) || values.length <= 0) return this.constants;
-        else if (values) {
-            if (Array.isArray(values)) {
-                if (values.length === 1) {
-                    this.constants = { ...this.constants, ...values[0] as Object };
-                } else if (values.length > 1) {
-                    Object.assign(this.constants, this.constants, ...values);
-                }
-
-                return this.constants;
-            } else {
+        if (values && Array.isArray(values) && values.length >= 1) {
+            if (values.length === 1) {
                 this.constants = { ...this.constants, ...values[0] as Object };
-
-                return this.constants;
+            } else if (values.length > 1) {
+                Object.assign(this.constants, this.constants, ...values);
             }
         }
-        
+
         return this.constants;
     }
 
