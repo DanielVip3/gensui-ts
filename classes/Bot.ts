@@ -104,7 +104,7 @@ export default class Bot extends BotCommands {
                     if (!returnValue[i]) returnValue[i] = this.constants;
 
                     if (!returnValue[i].hasOwnProperty(value2)) {
-                        returnValue[i] = null;
+                        returnValue[i] = undefined;
                         break;
                     }
 
@@ -114,7 +114,7 @@ export default class Bot extends BotCommands {
                 if (!returnValue[0]) returnValue[0] = this.constants;
 
                 if (!returnValue[0].hasOwnProperty(value)) {
-                    returnValue[0] = null;
+                    returnValue[0] = undefined;
                     break;
                 }
 
