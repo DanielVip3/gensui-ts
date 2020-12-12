@@ -26,7 +26,7 @@ export interface BotOptions {
 export default class Bot extends BotCommands {
     public readonly options: BotOptions;
     public client: Client;
-    public constants: BotConstants;
+    public constants: BotConstants = {};
     public sandboxes: Sandbox[] = [];
 
     constructor(options: BotOptions, readyHandler?: Function) {
@@ -81,9 +81,6 @@ export default class Bot extends BotCommands {
         for (let sandbox of this.sandboxes) sandbox(this.client, this);
     }
 
-    constant();
-    constant(objectv: BotConstants);
-    constant(objectsv: BotConstants);
     constant(...values: BotConstants[]): BotConstants {
         if (!values || !Array.isArray(values) || values.length <= 0) return this.constants;
         else if (values) {
