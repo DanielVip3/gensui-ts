@@ -83,10 +83,12 @@ export default class Bot extends BotCommands {
 
     constant(...values: BotConstants[]): BotConstants {
         if (values && Array.isArray(values) && values.length >= 1) {
-            if (values.length === 1) {
-                this.constants = { ...this.constants, ...values[0] as Object };
-            } else if (values.length > 1) {
-                Object.assign(this.constants, this.constants, ...values);
+            for (let value of values) {
+                for (let key in value) {
+                    if (!(key in this.constants)) { // we won't override existing properties: they're CONSTANTS
+                        this.constants[key] = value[key];
+                    }
+                }
             }
         }
 
