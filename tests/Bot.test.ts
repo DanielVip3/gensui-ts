@@ -110,6 +110,19 @@ describe("Bot", function() {
             expect(botMock).to.have.property("constants").which.has.property("test3", "test3");
         });
 
+        /* Due to the fact that constants are... constants, we test that constants can't be overwritten */
+        it("joins multiple constant objects with multiple function calls but without overwriting constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+            botMock.constant({ test: "test2" }, { test2: "test2" });
+
+            expect(botMock).to.have.property("constants").which.has.property("test", "test");
+        });
+
         it("gets undefined if non-nested constant value from constants is not found", function() {
             const botMock = new Bot({
                 name: "test",
@@ -487,7 +500,5 @@ describe("Bot", function() {
                 true
             ]);
         });
-
-        /* Todo: constant values cannot be overwritten */
     });
 });
