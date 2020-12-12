@@ -21,7 +21,7 @@ export interface BotOptions {
     token: string,
     owner?: string|string[],
     enableMentionHandling?: boolean,
-    prefix: string|string[],
+    prefix?: string|string[],
 };
 
 export default class Bot extends BotCommands {
@@ -33,7 +33,8 @@ export default class Bot extends BotCommands {
     constructor(options: BotOptions, readyHandler?: Function) {
         super();
 
-        this.options = BotOptionsSchema.validateSync(options);
+        this.options = options;
+        // this.options = BotOptionsSchema.validateSync(options);
         this.client = new Client();
 
         this.client.on('ready', () => {
