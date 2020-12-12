@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import BotCommands from './bot/BotCommands';
 import BotConstants from './bot/BotConstants';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandMetadata, CommandOptions } from './commands/Command';
-import { ExceptionNoIDError } from '../errors';
+import { BotError, ExceptionNoIDError } from '../errors';
 import { ExceptionDecoratorOptions, ExceptionHandler, ExceptionInlineDecoratorOptions } from './exception-handler/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
@@ -34,19 +34,27 @@ export default class Bot extends BotCommands {
         super();
 
         this.options = options;
-        // this.options = BotOptionsSchema.validateSync(options);
+
+        if (this.options) {
+            if (!this.options.name || typeof this.options.name !== "string") throw new BotError("Bot options should have string property 'name' which specifies bot's name.");
+            if (!this.options.token || typeof this.options.token !== "string") throw new BotError("Bot options should have string property 'token' which specifies bot's Discord API token.");
+
+            if (this.options.prefix) {
+                if (Array.isArray(this.options.prefix) && !this.options.prefix.every(p => typeof p === "string")) throw new BotError("Bot options's property 'prefix' should be a string or an array of strings.");
+                else if (typeof this.options.prefix !== "string") throw new BotError("Bot options's property 'prefix' should be a string or an array of strings.");
+            }
+
+            if (this.options.enableMentionHandling) this.enableMentionHandling = true;
+            else this.enableMentionHandling = false;
+
+            if (this.options.prefix) this.prefix = this.options.prefix;
+        } else throw new BotError("Bot class requires an options object.");
+
         this.client = new Client();
 
         this.client.on('ready', () => {
             if (readyHandler && typeof readyHandler === "function") readyHandler();
         });
-
-        if (this.options) {
-            if (this.options.enableMentionHandling) this.enableMentionHandling = true;
-            else this.enableMentionHandling = false;
-
-            if (this.options.prefix) this.prefix = this.options.prefix;
-        }
     }
 
     login(token?: string): Promise<string|null> {
