@@ -357,5 +357,55 @@ describe("Bot", function() {
 
             expect(botMock.get(["test", "testN"], ["test2", "testN"])).to.be.deep.equal([arr1, arr2]);
         });
+
+        it("gets mixed constants", function() {
+            const arr = ["test", "test2"];
+            const fakeFunction = sinon.fake();
+
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                function: fakeFunction,
+                test: {
+                    testN: "entire object test",
+                },
+                test2: {
+                    testN: {
+                        testN1: arr,
+                        "test space": null,
+                        undefined: undefined,
+                    }
+                }
+            });
+
+            botMock.constant({
+                test3: {
+                    testN: {
+                        testN: true
+                    },
+                }
+            });
+
+            expect(botMock.get(
+                ["function"],
+                ["test"],
+                ["test2", "testN", "testN1"],
+                ["test2", "testN", "test space"],
+                ["test2", "testN", "undefined"],
+                ["test3", "testN", "testN"],
+            )).to.be.deep.equal([
+                fakeFunction,
+                { testN: "entire object test" },
+                arr,
+                null,
+                undefined,
+                true
+            ]);
+        });
+
+        /* Todo: constant values cannot be overwritten */
     });
 });
