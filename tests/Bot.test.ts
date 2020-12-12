@@ -223,5 +223,139 @@ describe("Bot", function() {
 
             expect(botMock.get("test", "testN")).to.be.equal(arr);
         });
+
+        it("gets multiple non-nested constant value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: "test",
+                test2: "test2"
+            });
+
+            expect(botMock.get(["test"], ["test2"])).to.be.deep.equal(["test", "test2"]);
+        });
+
+        it("gets multiple non-nested constant falsy value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: null,
+                test2: null
+            });
+
+            expect(botMock.get(["test"], ["test2"])).to.be.deep.equal([null, null]);
+        });
+
+        it("gets multiple non-nested constant boolean value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: true,
+                test2: false
+            });
+
+            expect(botMock.get(["test"], ["test2"])).to.be.deep.equal([true, false]);
+        });
+
+        it("gets multiple non-nested constant array value from constants", function() {
+            const arr1 = ["test", "test2"];
+            const arr2 = ["test3", "test4"];
+
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: arr1,
+                test2: arr2
+            });
+
+            expect(botMock.get(["test"], ["test2"])).to.be.deep.equal([arr1, arr2]);
+        });
+
+        it("gets multiple nested constant value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: "test",
+                },
+                test2: {
+                    testN: "test",
+                }
+            });
+
+            expect(botMock.get(["test", "testN"], ["test2", "testN"])).to.be.deep.equal(["test", "test"]);
+        });
+
+        it("gets multiple nested constant falsy value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: null,
+                },
+                test2: {
+                    testN: null,
+                }
+            });
+
+            expect(botMock.get(["test", "testN"], ["test2", "testN"])).to.be.deep.equal([null, null]);
+        });
+
+        it("gets multiple nested constant boolean value from constants", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: true,
+                },
+                test2: {
+                    testN: true,
+                }
+            });
+
+            expect(botMock.get(["test", "testN"], ["test2", "testN"])).to.be.deep.equal([true, true]);
+        });
+
+        it("gets multiple nested constant array value from constants", function() {
+            const arr1 = ["test", "test2"];
+            const arr2 = ["test3", "test4"];
+
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({
+                test: {
+                    testN: arr1,
+                },
+                test2: {
+                    testN: arr2,
+                }
+            });
+
+            expect(botMock.get(["test", "testN"], ["test2", "testN"])).to.be.deep.equal([arr1, arr2]);
+        });
     });
 });
