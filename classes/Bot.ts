@@ -96,6 +96,12 @@ export default class Bot extends BotCommands {
     get(...values: string[]|string[][]): any {
         if (!values || !Array.isArray(values) || values.length <= 0) return this.constants;
 
+        /* Returns undefined if passed parameter is not an array of strings or an array of arrays of strings */
+        /* this returns undefined, for example, when parameters are mixed: (["test", "test"], "test") */
+        if (!( (values as string[]).every(v => typeof v === "string") )
+            &&
+            !( (values as string[][]).every(v => Array.isArray(v) && v.every(v2 => typeof v2 === "string")) ))return undefined;
+
         let returnValue: any[] = [];
         let i = 0;
         for (let value of values) {
