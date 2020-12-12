@@ -137,16 +137,17 @@ export default class Bot extends BotCommands {
     }
 
     /* Injects a constant to a property */
-    Inject(value): any {
+    Constant(...values: string[]|string[][]): any {
         return (
             target: any,
             propertyKey: string,
         ) => {
-            target[propertyKey] = value;
+            const constant = this.get(...values);
+            target[propertyKey] = constant;
 
             Object.defineProperty(target, propertyKey, {
                 configurable: false,
-                value: value,
+                value: constant,
             });
         };
     }
