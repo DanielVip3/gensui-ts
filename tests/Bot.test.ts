@@ -75,6 +75,19 @@ describe("Bot", function() {
         })).to.have.property("prefix", prefixes);
     });
 
+    it("accepts and calls a ready handler when client is ready", function() {
+        const readyHandler = sinon.fake();
+        
+        const bot = new Bot({
+            name: "test",
+            token: "test",
+        }, readyHandler);
+
+        bot.client.emit("ready");
+
+        sinon.assert.called(readyHandler);
+    });
+
     describe("Constants", function() {
         it("accepts a constant object", function() {
             const botMock = new Bot({
