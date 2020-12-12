@@ -40,7 +40,7 @@ describe("Bot", function() {
             name: "test",
             token: "test",
             //@ts-ignore
-            prefix: null
+            prefix: true
         })).to.throw("prefix");
 
         expect(() => new Bot({
@@ -67,10 +67,11 @@ describe("Bot", function() {
     });
 
     it("accepts bot prefix if it's an array of strings", function() {
+        const prefixes = ["test", "blah"];
         expect(new Bot({
             name: "test",
             token: "test",
-            prefix: ["test", "blah"]
-        })).to.have.property("prefix", ["test", "blah"]);
+            prefix: prefixes
+        })).to.have.property("prefix", prefixes);
     });
 });

@@ -40,13 +40,13 @@ export default class Bot extends BotCommands {
 
             if (this.options.prefix) {
                 if (Array.isArray(this.options.prefix) && !this.options.prefix.every(p => typeof p === "string")) throw new BotError("Bot options's property 'prefix' should be a string or an array of strings.");
-                else if (typeof this.options.prefix !== "string") throw new BotError("Bot options's property 'prefix' should be a string or an array of strings.");
+                else if (!Array.isArray(this.options.prefix) && typeof this.options.prefix !== "string") throw new BotError("Bot options's property 'prefix' should be a string or an array of strings.");
+
+                this.prefix = this.options.prefix;
             }
 
             if (this.options.enableMentionHandling) this.enableMentionHandling = true;
             else this.enableMentionHandling = false;
-
-            if (this.options.prefix) this.prefix = this.options.prefix;
         } else throw new BotError("Bot class requires an options object.");
 
         this.client = new Client();
