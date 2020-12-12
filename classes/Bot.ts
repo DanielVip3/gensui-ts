@@ -61,6 +61,7 @@ export default class Bot extends BotCommands {
     }
 
     start(token?: string): boolean {
+        /* istanbul ignore next */
         try {
             this.login(token || this.options.token);
             this.startFetchingCommands(this.client);
