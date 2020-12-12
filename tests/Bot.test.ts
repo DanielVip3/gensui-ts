@@ -514,4 +514,23 @@ describe("Bot", function() {
             ]);
         });
     });
+
+    describe("Decorators", function() {
+        describe("Constant Decorator", function() {
+            it("injects a constant to a property", function() {
+                const objectMock = {};
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.constant({ test: "test", });
+
+                botMock.Constant("test")(objectMock, "injectableProperty");
+
+                expect(objectMock).to.have.property("injectableProperty", "test");
+            });
+        });
+    });
 });
