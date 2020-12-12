@@ -74,4 +74,40 @@ describe("Bot", function() {
             prefix: prefixes
         })).to.have.property("prefix", prefixes);
     });
+
+    describe("Constants", function() {
+        it("accepts a constant object", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+
+            expect(botMock).to.have.property("constants").which.has.property("test", "test");
+        });
+
+        it("accepts multiple constant objects", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" }, { test2: "test2" });
+
+            expect(botMock).to.have.property("constants").which.has.property("test2", "test2");
+        });
+
+        it("joins multiple constant objects with multiple function calls", function() {
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.constant({ test: "test" });
+            botMock.constant({ test2: "test2" }, { test3: "test3" });
+
+            expect(botMock).to.have.property("constants").which.has.property("test3", "test3");
+        });
+    });
 });
