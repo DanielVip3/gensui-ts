@@ -52,14 +52,14 @@ describe("Bot", function() {
     });
 
     it("default bot prefix is '!'", function() {
-        expect(() => new Bot({
+        expect(new Bot({
             name: "test",
             token: "test",
         })).to.have.property("prefix", "!");
     });
 
     it("accepts bot prefix if it's a string", function() {
-        expect(() => new Bot({
+        expect(new Bot({
             name: "test",
             token: "test",
             prefix: "test"
@@ -67,7 +67,7 @@ describe("Bot", function() {
     });
 
     it("accepts bot prefix if it's an array of strings", function() {
-        expect(() => new Bot({
+        expect(new Bot({
             name: "test",
             token: "test",
             prefix: ["test", "blah"]
