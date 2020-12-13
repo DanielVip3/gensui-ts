@@ -542,12 +542,59 @@ describe("Bot", function() {
                     token: "test",
                 });
     
-                botMock.constant({ test: "test", });
-
                 botMock.Scope("test")(objectMock, "injectableProperty");
 
                 expect(objectMock).to.have.property("injectableProperty", "test");
                 expect(objectMock).to.have.property("IDAccessPropertyName", "injectableProperty");
+            });
+        });
+
+        describe("Metadata Decorator", function() {
+            it("sets decoratedMetadata value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const metadata = {
+                    test: "test",
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Metadata(metadata)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedMetadata", metadata);
+            });
+
+            it("joins multiple decoratedMetadata when used multiple times", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const metadata = {
+                    test: "test",
+                };
+
+                const metadata2 = {
+                    test2: "test",
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Metadata(metadata)(objectMock, "injectableProperty", descriptor);
+                botMock.Metadata(metadata2)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedMetadata").which.is.deep.equal({ ...metadata, ...metadata2 });
             });
         });
     });
