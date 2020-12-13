@@ -597,5 +597,26 @@ describe("Bot", function() {
                 expect(descriptor).to.have.property("decoratedMetadata").which.is.deep.equal({ ...metadata, ...metadata2 });
             });
         });
+
+        describe("Description Decorator", function() {
+            it("sets decoratedDescription value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const description = "test";
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Description(description)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedDescription", description);
+            });
+        });
     });
 });
