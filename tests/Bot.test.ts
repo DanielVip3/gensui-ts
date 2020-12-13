@@ -532,5 +532,23 @@ describe("Bot", function() {
                 expect(objectMock).to.have.property("injectableProperty", "test");
             });
         });
+
+        describe("Scope Decorator", function() {
+            it("injects id to property and sets IDAccessPropertyName", function() {
+                const objectMock = {};
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.constant({ test: "test", });
+
+                botMock.Scope("test")(objectMock, "injectableProperty");
+
+                expect(objectMock).to.have.property("injectableProperty", "test");
+                expect(objectMock).to.have.property("IDAccessPropertyName", "injectableProperty");
+            });
+        });
     });
 });
