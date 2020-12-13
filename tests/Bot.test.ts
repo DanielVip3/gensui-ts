@@ -1,6 +1,7 @@
 import Bot from "../classes/Bot";
 import { InlineCommandFilter } from "../filters/Filters";
 import { InlineCommandInterceptor } from "../interceptors/Interceptors";
+import { InlineCommandConsumer } from "../consumers/Consumers";
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -724,7 +725,7 @@ describe("Bot", function() {
                 expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor, interceptor2]);
             });
 
-            it("joins multiple decoratedInterceptorrs when used multiple times", function() {
+            it("joins multiple decoratedInterceptors when used multiple times", function() {
                 const objectMock = {};
                 const descriptor = {
                     value: sinon.fake(),
@@ -744,6 +745,69 @@ describe("Bot", function() {
                 botMock.Interceptor(interceptor3)(objectMock, "injectableProperty", descriptor);
 
                 expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor, interceptor2, interceptor3]);
+            });
+        });
+
+        describe("Consumer Decorator", function() {
+            it("sets decoratedConsumers value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer]);
+            });
+
+            it("accepts and works with multiple consumers", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                const consumer2 = new InlineCommandConsumer(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Consumer(consumer, consumer2)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer, consumer2]);
+            });
+
+            it("joins multiple decoratedConsumers when used multiple times", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                const consumer2 = new InlineCommandConsumer(sinon.fake());
+                const consumer3 = new InlineCommandConsumer(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Consumer(consumer, consumer2)(objectMock, "injectableProperty", descriptor);
+                botMock.Consumer(consumer3)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer, consumer2, consumer3]);
             });
         });
     });
