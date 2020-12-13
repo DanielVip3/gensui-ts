@@ -1,4 +1,5 @@
 import Bot from "../classes/Bot";
+import { InlineCommandFilter } from "../filters/Filters";
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -616,6 +617,69 @@ describe("Bot", function() {
                 botMock.Description(description)(objectMock, "injectableProperty", descriptor);
 
                 expect(descriptor).to.have.property("decoratedDescription", description);
+            });
+        });
+
+        describe("Filter Decorator", function() {
+            it("sets decoratedFilters value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+            });
+
+            it("accepts and works with multiple filters", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                const filter2 = new InlineCommandFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Filter(filter, filter2)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter, filter2]);
+            });
+
+            it("joins multiple decoratedFilters when used multiple times", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                const filter2 = new InlineCommandFilter(sinon.fake());
+                const filter3 = new InlineCommandFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Filter(filter, filter2)(objectMock, "injectableProperty", descriptor);
+                botMock.Filter(filter3)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter, filter2, filter3]);
             });
         });
     });
