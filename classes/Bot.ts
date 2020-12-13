@@ -158,7 +158,7 @@ export default class Bot extends BotCommands {
             target: any,
             propertyKey: string,
         ) => {
-            target.IDAccessValueName = propertyKey;
+            target.IDAccessPropertyName = propertyKey;
             target[propertyKey] = id;
 
             Object.defineProperty(target, propertyKey, {
@@ -333,7 +333,7 @@ export default class Bot extends BotCommands {
             }
 
             this.addCommand(new Command({
-                id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
+                id: !!options && !!options.id ? options.id : (target[target.IDAccessPropertyName] || undefined),
                 names: commandNames,
                 description: !!options && !!options.description ? options.description : (descriptor["decoratedDescription"] || undefined),
                 filters: filters,
@@ -427,7 +427,7 @@ export default class Bot extends BotCommands {
             }
 
             this.addEvent(new Event({
-                id: !!options && !!options.id ? options.id : (target[target.IDAccessValueName] || undefined),
+                id: !!options && !!options.id ? options.id : (target[target.IDAccessPropertyName] || undefined),
                 type: eventTypes,
                 filters: filters,
                 interceptors: interceptors,
