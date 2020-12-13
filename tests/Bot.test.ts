@@ -1,5 +1,6 @@
 import Bot from "../classes/Bot";
 import { InlineCommandFilter } from "../filters/Filters";
+import { InlineCommandInterceptor } from "../interceptors/Interceptors";
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -680,6 +681,69 @@ describe("Bot", function() {
                 botMock.Filter(filter3)(objectMock, "injectableProperty", descriptor);
 
                 expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter, filter2, filter3]);
+            });
+        });
+
+        describe("Interceptor Decorator", function() {
+            it("sets decoratedInterceptors value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor]);
+            });
+
+            it("accepts and works with multiple interceptors", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                const interceptor2 = new InlineCommandInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Interceptor(interceptor, interceptor2)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor, interceptor2]);
+            });
+
+            it("joins multiple decoratedInterceptorrs when used multiple times", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                const interceptor2 = new InlineCommandInterceptor(sinon.fake());
+                const interceptor3 = new InlineCommandInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Interceptor(interceptor, interceptor2)(objectMock, "injectableProperty", descriptor);
+                botMock.Interceptor(interceptor3)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor, interceptor2, interceptor3]);
             });
         });
     });
