@@ -1,6 +1,6 @@
 import Bot from "../classes/Bot";
 import { InlineCommandFilter, InlineEventFilter } from "../filters/Filters";
-import { InlineCommandInterceptor } from "../interceptors/Interceptors";
+import { InlineCommandInterceptor, InlineEventInterceptor } from "../interceptors/Interceptors";
 import { InlineCommandConsumer, InlineEventConsumer } from "../consumers/Consumers";
 
 import * as chai from 'chai';
@@ -683,6 +683,25 @@ describe("Bot", function() {
 
                 expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter, filter2, filter3]);
             });
+
+            it("accepts events filters too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineEventFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+            });
         });
 
         describe("Interceptor Decorator", function() {
@@ -746,6 +765,25 @@ describe("Bot", function() {
 
                 expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor, interceptor2, interceptor3]);
             });
+
+            it("accepts events interceptors too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const interceptor = new InlineEventInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor]);
+            });
         });
 
         describe("Consumer Decorator", function() {
@@ -808,6 +846,25 @@ describe("Bot", function() {
                 botMock.Consumer(consumer3)(objectMock, "injectableProperty", descriptor);
 
                 expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer, consumer2, consumer3]);
+            });
+
+            it("accepts events consumers too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineEventConsumer(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer]);
             });
         });
 
