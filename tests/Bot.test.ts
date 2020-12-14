@@ -1,6 +1,6 @@
 import Bot from "../classes/Bot";
 import { InlineCommandFilter, InlineEventFilter } from "../filters/Filters";
-import { InlineCommandInterceptor } from "../interceptors/Interceptors";
+import { InlineCommandInterceptor, InlineEventInterceptor } from "../interceptors/Interceptors";
 import { InlineCommandConsumer, InlineEventConsumer } from "../consumers/Consumers";
 
 import * as chai from 'chai';
@@ -10,6 +10,8 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
+import { Command } from "../classes/commands/Command";
+import { CommandArgsParser } from "../classes/commands/args/CommandArgsParser";
 
 describe("Bot", function() {
     it("instantiates", function() {
@@ -683,6 +685,25 @@ describe("Bot", function() {
 
                 expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter, filter2, filter3]);
             });
+
+            it("accepts events filters too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineEventFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+            });
         });
 
         describe("Interceptor Decorator", function() {
@@ -746,6 +767,25 @@ describe("Bot", function() {
 
                 expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor, interceptor2, interceptor3]);
             });
+
+            it("accepts events interceptors too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const interceptor = new InlineEventInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor]);
+            });
         });
 
         describe("Consumer Decorator", function() {
@@ -808,6 +848,25 @@ describe("Bot", function() {
                 botMock.Consumer(consumer3)(objectMock, "injectableProperty", descriptor);
 
                 expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer, consumer2, consumer3]);
+            });
+
+            it("accepts events consumers too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineEventConsumer(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer]);
             });
         });
 
@@ -932,6 +991,121 @@ describe("Bot", function() {
 
                 expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
                 expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer]);
+            });
+        });
+
+        describe("Command Decorator", function() {
+            it("adds a command to bot", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Command()(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock).to.have.property("commands").which.has.lengthOf(1);
+            });
+
+            it("accepts and uses an id", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Command({
+                    id: "testId",
+                })(objectMock, "testName", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.instanceof(Command);
+            });
+
+            it("uses function name as command name by default", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Command(undefined, true)(objectMock, "testName", descriptor);
+
+                expect(botMock.getCommand("testName")).to.be.ok.and.to.have.property("names").which.deep.includes.members(["testName"]);
+            });
+
+            it("lets you not use function name as command name", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testName"
+                }, false)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("names").which.not.deep.includes.members(["injectableProperty"]);
+            });
+
+            it("accepts and uses a single name", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                })(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("names").which.deep.includes.members(["testCommand"]);
+            });
+
+            it("accepts and uses multiple names", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Command({
+                    id: "testId",
+                    names: ["testCommand", "testCommand2"],
+                })(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("names").which.deep.includes.members(["testCommand", "testCommand2"]);
             });
         });
     });
