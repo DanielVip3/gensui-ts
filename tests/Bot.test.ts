@@ -1107,6 +1107,320 @@ describe("Bot", function() {
 
                 expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("names").which.deep.includes.members(["testCommand", "testCommand2"]);
             });
+
+            it("accepts and adds a single filter", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const filter = new InlineCommandFilter(sinon.fake());
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    filters: filter,
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter]);
+            });
+
+            it("accepts and adds multiple filters", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                const filter2 = new InlineCommandFilter(sinon.fake());
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    filters: [filter, filter2],
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter, filter2]);
+            });
+
+            it("accepts and adds a single interceptor", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    interceptors: interceptor,
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor]);
+            });
+
+            it("accepts and adds multiple interceptors", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                const interceptor2 = new InlineCommandInterceptor(sinon.fake());
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    interceptors: [interceptor, interceptor2],
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor, interceptor2]);
+            });
+
+            it("accepts and adds a single consumer", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    consumers: consumer
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer]);
+            });
+
+            it("accepts and adds multiple consumers", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                const consumer2 = new InlineCommandConsumer(sinon.fake());
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    consumers: [consumer, consumer2]
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer, consumer2]);
+            });
+
+            it("accepts and adds a parser", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const parser = new CommandArgsParser();
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    parser: parser
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("parser", parser);
+            });
+
+            it("adds filters from Filter decorator", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const filter = new InlineCommandFilter(sinon.fake());
+
+                botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter]);
+            });
+
+            it("joins filters from Filter decorator with passed options' filters", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                const filter2 = new InlineCommandFilter(sinon.fake());
+
+                botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    filters: filter2
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter, filter2]);
+            });
+
+            it("adds interceptors from Interceptor decorator", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+
+                botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor]);
+            });
+
+            it("joins interceptors from Interceptor decorator with passed options' interceptors", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                const interceptor2 = new InlineCommandInterceptor(sinon.fake());
+
+                botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    interceptors: interceptor2
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor, interceptor2]);
+            });
+
+            it("adds consumers from Consumer decorator", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+
+                botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer]);
+            });
+
+            it("joins consumers from Consumer decorator with passed options' consumers", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                const consumer2 = new InlineCommandConsumer(sinon.fake());
+
+                botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+    
+                botMock.Command({
+                    id: "testId",
+                    names: "testCommand",
+                    consumers: consumer2
+                }, true)(objectMock, "injectableProperty", descriptor);
+
+                expect(botMock.getCommand("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer, consumer2]);
+            });
         });
     });
 });
