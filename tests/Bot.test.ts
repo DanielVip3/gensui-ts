@@ -1,7 +1,7 @@
 import Bot from "../classes/Bot";
-import { InlineCommandFilter } from "../filters/Filters";
+import { InlineCommandFilter, InlineEventFilter } from "../filters/Filters";
 import { InlineCommandInterceptor } from "../interceptors/Interceptors";
-import { InlineCommandConsumer } from "../consumers/Consumers";
+import { InlineCommandConsumer, InlineEventConsumer } from "../consumers/Consumers";
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -808,6 +808,130 @@ describe("Bot", function() {
                 botMock.Consumer(consumer3)(objectMock, "injectableProperty", descriptor);
 
                 expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer, consumer2, consumer3]);
+            });
+        });
+
+        describe("Apply Decorator", function() {
+            it("sets decoratedFilters value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Apply(filter)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+            });
+
+            it("sets decoratedInterceptors value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Apply(interceptor)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor]);
+            });
+
+            it("sets decoratedConsumers value", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Apply(consumer)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer]);
+            });
+
+            it("accepts mixed hooks", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const filter = new InlineCommandFilter(sinon.fake());
+                const interceptor = new InlineCommandInterceptor(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Apply(filter, interceptor)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+                expect(descriptor).to.have.property("decoratedInterceptors").which.includes.members([interceptor]);
+            });
+
+            it("joins multiple hooks when used multiple times", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineCommandConsumer(sinon.fake());
+                const consumer2 = new InlineCommandConsumer(sinon.fake());
+                const filter = new InlineCommandFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Apply(consumer)(objectMock, "injectableProperty", descriptor);
+                botMock.Apply(consumer2, filter)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer, consumer2]);
+            });
+
+            it("accepts events hooks too", function() {
+                const objectMock = {};
+                const descriptor = {
+                    value: sinon.fake(),
+                    writable: false,
+                };
+
+                const consumer = new InlineEventConsumer(sinon.fake());
+                const filter = new InlineEventFilter(sinon.fake());
+                
+                const botMock = new Bot({
+                    name: "test",
+                    token: "test",
+                });
+    
+                botMock.Apply(consumer, filter)(objectMock, "injectableProperty", descriptor);
+
+                expect(descriptor).to.have.property("decoratedFilters").which.includes.members([filter]);
+                expect(descriptor).to.have.property("decoratedConsumers").which.includes.members([consumer]);
             });
         });
     });
