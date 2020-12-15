@@ -1423,4 +1423,121 @@ describe("Bot", function() {
             });
         });
     });
+
+    describe("Event Decorator", function() {
+        /* Due to the fact that a Discord.js Client basically is a Node.js EventEmitter, we have on, once, listeners... methods */
+
+        it("requires an id and throws error if not set", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            expect(() => botMock.Event()(objectMock, "testName", descriptor)).to.throw("id");
+        });
+
+        it("accepts and uses a single type", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.Event({
+                id: "testId",
+                type: "message"
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").which.is.deep.equal(["message"]);
+        });
+
+        it("accepts and uses multiple types", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.Event({
+                id: "testId",
+                type: ["message", "guildMemberAdd"]
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").which.is.deep.equal(["message", "guildMemberAdd"]);
+        });
+
+        it("uses function name as event type by default if event type is not passed", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.Event({
+                id: "testId",
+            })(objectMock, "message", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").which.is.deep.equal(["message"]);
+        });
+
+        it("lets you not use function name as event type", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.Event({
+                id: "testId",
+            }, false)(objectMock, "message", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").to.not.be.deep.equal(["message"]);
+        });
+
+        it("adds an event to bot's client", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            botMock.Event({
+                id: "testId",
+                type: "message"
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.client.listeners("message")).to.have.lengthOf(1);
+        });
+    });
 });
