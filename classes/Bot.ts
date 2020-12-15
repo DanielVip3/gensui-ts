@@ -277,7 +277,7 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            Object.defineProperty(descriptor, "functionHandleType", {
+            Object.defineProperty(target, "functionHandleType", {
                 configurable: false,
                 value: "command",
             });
@@ -370,7 +370,7 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            Object.defineProperty(descriptor, "functionHandleType", {
+            Object.defineProperty(target, "functionHandleType", {
                 configurable: false,
                 value: "event",
             });
@@ -444,17 +444,20 @@ export default class Bot extends BotCommands {
             propertyKey: string,
             descriptor: PropertyDescriptor
         ) => {
-            if (!target || !target["functionHandleType"]) return;
-            else {
-                switch(target["functionHandleType"]) {
-                    case "command":
-                        this.ExceptCommand(options);
-                        break;
-                    case "event":
-                        this.ExceptEvent(options);
-                        break;
-                    default: break;
-                }
+            if (!options.id && (!Array.isArray(options.id) || options.id.length <= 0) && (!target.IDAccessValueName || !target[target.IDAccessValueName])) throw new ExceptionNoIDError(`Exception handler (${propertyKey}) must have an \`id\` property which specifies the function to handle. You can also use @Scope decorator.`);
+            if (!options.id && target[target.IDAccessValueName]) options.id = target[target.IDAccessValueName];
+            if (options.id === undefined || options.id === null) return;
+
+            if (!Array.isArray(options.id)) options.id = [options.id];
+
+            for (let idV of options.id) {
+                if (idV === undefined || idV === null) continue;
+
+                const command = this.getCommand(idV);
+                if (command) this.ExceptCommand({ ...options, id: idV })(target, propertyKey, descriptor);
+
+                const event = this.getEvent(idV);
+                if (event) this.ExceptEvent({ ...options, id: idV })(target, propertyKey, descriptor);
             }
         };
     }
