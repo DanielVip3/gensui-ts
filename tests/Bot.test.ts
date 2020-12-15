@@ -1839,4 +1839,31 @@ describe("Bot", function() {
             sinon.assert.calledWith(spyEventDecorator, options, false);
         });
     });
+
+    describe("Once decorator", function() {
+        it("simply calls Event decorator with 'once' property set as true", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const spyEventDecorator = sinon.spy(botMock, "Event");
+
+            const options = {
+                id: "testId",
+                type: "message",
+            } as EventOptions;
+
+            botMock.Once(options, false)(objectMock, "injectableProperty", descriptor);
+
+            sinon.assert.calledWith(spyEventDecorator, options, false);
+            expect(options).to.have.property("once", true);
+        });
+    });
 });
