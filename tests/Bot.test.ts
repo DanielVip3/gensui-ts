@@ -1482,7 +1482,7 @@ describe("Bot", function() {
             expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").which.is.deep.equal(["message", "guildMemberAdd"]);
         });
 
-        it("uses function name as event type by default if event type is not passed", function() {
+        it("lets you use function name as event type", function() {
             const objectMock = {};
             const descriptor = {
                 value: sinon.fake(),
@@ -1496,28 +1496,9 @@ describe("Bot", function() {
 
             botMock.Event({
                 id: "testId",
-            })(objectMock, "message", descriptor);
+            }, true)(objectMock, "message", descriptor);
 
-            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").which.is.deep.equal(["message"]);
-        });
-
-        it("lets you not use function name as event type", function() {
-            const objectMock = {};
-            const descriptor = {
-                value: sinon.fake(),
-                writable: false,
-            };
-            
-            const botMock = new Bot({
-                name: "test",
-                token: "test",
-            });
-
-            botMock.Event({
-                id: "testId",
-            }, false)(objectMock, "message", descriptor);
-
-            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").to.not.be.deep.equal(["message"]);
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("types").to.be.deep.equal(["message"]);
         });
 
         it("adds an event to bot's client", function() {
