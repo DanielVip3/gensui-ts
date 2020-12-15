@@ -2,6 +2,9 @@ import Bot from "../classes/Bot";
 import { InlineCommandFilter, InlineEventFilter } from "../filters/Filters";
 import { InlineCommandInterceptor, InlineEventInterceptor } from "../interceptors/Interceptors";
 import { InlineCommandConsumer, InlineEventConsumer } from "../consumers/Consumers";
+import { CommandArgsParser } from "../classes/commands/args/CommandArgsParser";
+import { Command } from "../classes/commands/Command";
+import { Event, EventOptions } from "../classes/events/Event";
 
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -10,9 +13,6 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 import * as sinon from 'sinon';
-import { Command } from "../classes/commands/Command";
-import { CommandArgsParser } from "../classes/commands/args/CommandArgsParser";
-import { EventOptions } from "../classes/events/Event";
 
 describe("Bot", function() {
     it("instantiates", function() {
@@ -1944,6 +1944,86 @@ describe("Bot", function() {
 
             expect(commandMock).to.have.property("exceptions").which.has.lengthOf(1);
             expect(commandMock2).to.have.property("exceptions").which.has.lengthOf(1);
+        });
+    });
+
+    describe("ExceptEvent Decorator", function() {
+        it("requires an id and throws error if not set", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            //@ts-ignore
+            expect(() => botMock.ExceptEvent()(objectMock, "testName", descriptor)).to.throw("id");
+        });
+
+        it("adds an exception handler to event", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const eventMock = new Event({
+                id: "test",
+                type: "message",
+                handler: sinon.fake()
+            });
+
+            botMock.addEvent(eventMock);
+
+            botMock.ExceptEvent({
+                id: "test",
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(eventMock).to.have.property("exceptions").which.has.lengthOf(1);
+        });
+
+        it("accepts multiple ids and sets exception handler to multiple commands", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const eventMock = new Event({
+                id: "test",
+                type: "message",
+                handler: sinon.fake()
+            });
+
+            const eventMock2 = new Event({
+                id: "test2",
+                type: "message",
+                handler: sinon.fake()
+            });
+
+            botMock.addEvent(eventMock);
+            botMock.addEvent(eventMock2);
+
+            botMock.ExceptEvent({
+                id: ["test", "test2"],
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(eventMock).to.have.property("exceptions").which.has.lengthOf(1);
+            expect(eventMock2).to.have.property("exceptions").which.has.lengthOf(1);
         });
     });
 });
