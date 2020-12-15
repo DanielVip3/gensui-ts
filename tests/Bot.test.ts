@@ -1814,7 +1814,7 @@ describe("Bot", function() {
         });
     });
 
-    describe("On decorator", function() {
+    describe("On Decorator", function() {
         it("simply calls Event decorator", function() {
             const objectMock = {};
             const descriptor = {
@@ -1840,7 +1840,7 @@ describe("Bot", function() {
         });
     });
 
-    describe("Once decorator", function() {
+    describe("Once Decorator", function() {
         it("simply calls Event decorator with 'once' property set as true", function() {
             const objectMock = {};
             const descriptor = {
