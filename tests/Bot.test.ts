@@ -1520,5 +1520,146 @@ describe("Bot", function() {
 
             expect(botMock.client.listeners("message")).to.have.lengthOf(1);
         });
+
+        it("accepts and adds a single filter", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const filter = new InlineEventFilter(sinon.fake());
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                filters: filter,
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter]);
+        });
+
+        it("accepts and adds multiple filters", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const filter = new InlineEventFilter(sinon.fake());
+            const filter2 = new InlineEventFilter(sinon.fake());
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                filters: [filter, filter2],
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter, filter2]);
+        });
+
+        it("accepts and adds a single interceptor", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const interceptor = new InlineEventInterceptor(sinon.fake());
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                interceptors: interceptor,
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor]);
+        });
+
+        it("accepts and adds multiple interceptors", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const interceptor = new InlineEventInterceptor(sinon.fake());
+            const interceptor2 = new InlineEventInterceptor(sinon.fake());
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                interceptors: [interceptor, interceptor2],
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor, interceptor2]);
+        });
+
+        it("accepts and adds a single consumer", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const consumer = new InlineEventConsumer(sinon.fake());
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                consumers: consumer
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer]);
+        });
+
+        it("accepts and adds multiple consumers", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const consumer = new InlineEventConsumer(sinon.fake());
+            const consumer2 = new InlineEventConsumer(sinon.fake());
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                consumers: [consumer, consumer2]
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer, consumer2]);
+        });
     });
 });
