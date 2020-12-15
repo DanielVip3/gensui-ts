@@ -4,7 +4,7 @@ import BotCommands from './bot/BotCommands';
 import BotConstants from './bot/BotConstants';
 import { Command, CommandDecoratorOptions, CommandIdentifier, CommandMetadata, CommandOptions } from './commands/Command';
 import { BotError, ExceptionNoIDError } from '../errors';
-import { ExceptionDecoratorOptions, ExceptionHandler, ExceptionInlineDecoratorOptions } from './exception-handler/ExceptionHandler';
+import { ExceptionDecoratorOptions, ExceptionHandler } from './exception-handler/ExceptionHandler';
 import { CommandFilter } from './commands/CommandFilter';
 import { CommandInterceptor } from './commands/CommandInterceptor';
 import { CommandConsumer } from './commands/CommandConsumer';
@@ -438,7 +438,7 @@ export default class Bot extends BotCommands {
         };
     }
 
-    Except(options: ExceptionInlineDecoratorOptions): any {
+    Except(options: ExceptionDecoratorOptions): any {
         return (
             target: any,
             propertyKey: string,
