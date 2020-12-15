@@ -10,7 +10,7 @@ export interface ExceptionInlineDecoratorOptions {
 }
 
 export interface ExceptionDecoratorOptions {
-    id?: CommandIdentifier|EventIdentifier,
+    id?: CommandIdentifier|EventIdentifier|CommandIdentifier[]|EventIdentifier[],
     exceptions?: any[],
 }
 
