@@ -1866,4 +1866,84 @@ describe("Bot", function() {
             expect(options).to.have.property("once", true);
         });
     });
+
+    describe("ExceptCommand Decorator", function() {
+        it("requires an id and throws error if not set", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            //@ts-ignore
+            expect(() => botMock.ExceptCommand()(objectMock, "testName", descriptor)).to.throw("id");
+        });
+
+        it("adds an exception handler to command", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const commandMock = new Command({
+                id: "test",
+                names: "test",
+                handler: sinon.fake()
+            });
+
+            botMock.addCommand(commandMock);
+
+            botMock.ExceptCommand({
+                id: "test",
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(commandMock).to.have.property("exceptions").which.has.lengthOf(1);
+        });
+
+        it("accepts multiple ids and sets exception handler to multiple commands", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const commandMock = new Command({
+                id: "test",
+                names: "test",
+                handler: sinon.fake()
+            });
+
+            const commandMock2 = new Command({
+                id: "test2",
+                names: "test2",
+                handler: sinon.fake()
+            });
+
+            botMock.addCommand(commandMock);
+            botMock.addCommand(commandMock2);
+
+            botMock.ExceptCommand({
+                id: ["test", "test2"],
+            })(objectMock, "injectableProperty", descriptor);
+
+            expect(commandMock).to.have.property("exceptions").which.has.lengthOf(1);
+            expect(commandMock2).to.have.property("exceptions").which.has.lengthOf(1);
+        });
+    });
 });
