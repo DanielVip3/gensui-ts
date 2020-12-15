@@ -12,6 +12,7 @@ chai.use(chaiAsPromised);
 import * as sinon from 'sinon';
 import { Command } from "../classes/commands/Command";
 import { CommandArgsParser } from "../classes/commands/args/CommandArgsParser";
+import { EventOptions } from "../classes/events/Event";
 
 describe("Bot", function() {
     it("instantiates", function() {
@@ -1810,6 +1811,32 @@ describe("Bot", function() {
             }, true)(objectMock, "injectableProperty", descriptor);
 
             expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer, consumer2]);
+        });
+    });
+
+    describe("On decorator", function() {
+        it("simply calls Event decorator", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const spyEventDecorator = sinon.spy(botMock, "Event");
+
+            const options = {
+                id: "testId",
+                type: "message",
+            } as EventOptions;
+
+            botMock.On(options, false)(objectMock, "injectableProperty", descriptor);
+
+            sinon.assert.calledWith(spyEventDecorator, options, false);
         });
     });
 });
