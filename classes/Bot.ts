@@ -349,17 +349,17 @@ export default class Bot extends BotCommands {
 
     /* Translates to Event decorator */
     On(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean): any {
+        return this.Event(options, useFunctionNameAsEventType);
+    }
+
+    /* Translates to Event decorator with { "once": true } */
+    Once(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean): any {
         if (!options) options = { once: true };
         else Object.defineProperty(options, "once", {
             configurable: false,
             value: true,
         });
 
-        return this.Event(options, useFunctionNameAsEventType);
-    }
-
-    /* Translates to Event decorator with { "once": true } */
-    Once(options?: EventDecoratorOptions, useFunctionNameAsEventType?: boolean): any {
         return this.Event(options, useFunctionNameAsEventType);
     }
 
