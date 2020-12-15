@@ -1661,5 +1661,155 @@ describe("Bot", function() {
 
             expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer, consumer2]);
         });
+
+        it("adds filters from Filter decorator", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const filter = new InlineEventFilter(sinon.fake());
+
+            botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter]);
+        });
+
+        it("joins filters from Filter decorator with passed options' filters", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const filter = new InlineEventFilter(sinon.fake());
+            const filter2 = new InlineEventFilter(sinon.fake());
+
+            botMock.Filter(filter)(objectMock, "injectableProperty", descriptor);
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                filters: filter2
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("filters").which.deep.includes.members([filter, filter2]);
+        });
+
+        it("adds interceptors from Interceptor decorator", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const interceptor = new InlineEventInterceptor(sinon.fake());
+
+            botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor]);
+        });
+
+        it("joins interceptors from Interceptor decorator with passed options' interceptors", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const interceptor = new InlineEventInterceptor(sinon.fake());
+            const interceptor2 = new InlineEventInterceptor(sinon.fake());
+
+            botMock.Interceptor(interceptor)(objectMock, "injectableProperty", descriptor);
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                interceptors: interceptor2
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("interceptors").which.deep.includes.members([interceptor, interceptor2]);
+        });
+
+        it("adds consumers from Consumer decorator", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const consumer = new InlineEventConsumer(sinon.fake());
+
+            botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer]);
+        });
+
+        it("joins consumers from Consumer decorator with passed options' consumers", function() {
+            const objectMock = {};
+            const descriptor = {
+                value: sinon.fake(),
+                writable: false,
+            };
+            
+            const botMock = new Bot({
+                name: "test",
+                token: "test",
+            });
+
+            const consumer = new InlineEventConsumer(sinon.fake());
+            const consumer2 = new InlineEventConsumer(sinon.fake());
+
+            botMock.Consumer(consumer)(objectMock, "injectableProperty", descriptor);
+
+            botMock.Event({
+                id: "testId",
+                type: "message",
+                consumers: consumer2
+            }, true)(objectMock, "injectableProperty", descriptor);
+
+            expect(botMock.getEvent("testId")).to.be.ok.and.to.have.property("consumers").which.deep.includes.members([consumer, consumer2]);
+        });
     });
 });
