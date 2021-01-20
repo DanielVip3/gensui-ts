@@ -2,8 +2,12 @@
   "name": "gensui",
   "version": "1.0.0",
   "description": "An opinionated and DRY-oriented Discord bot framework written in TypeScript and works with Discord.js.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "prepare": "tsc",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
     "test": "mocha --exit -r ts-node/register 'tests/**/*.ts'",
     "coverage": "nyc --reporter=html --reporter=text --reporter=text-summary npm run test"
   },

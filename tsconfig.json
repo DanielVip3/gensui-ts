@@ -8,6 +8,12 @@
         "esModuleInterop": true,
         "strictNullChecks": true,
         "experimentalDecorators": true,
-        "target": "es6"
-    }
+        "target": "es6",
+        "declaration": true,
+        "outDir": "dist",
+        "sourceMap": true
+    },
+    "exclude": [
+        "tests"
+    ]
 }
