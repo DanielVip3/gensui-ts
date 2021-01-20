@@ -1,5 +1,4 @@
 import IORedis from 'ioredis';
-import { default as TestIORedis } from 'ioredis-mock';
 
 export interface CooldownStoreObject {
     called: Date,
@@ -108,7 +107,8 @@ export class RedisCooldownStore extends CooldownStore {
 
         if (!options) throw "RedisCooldownStore needs an options object with configuration parameters.";
 
-        if (!options.store || (options.store instanceof IORedis === false && options.store instanceof TestIORedis === false)) throw "RedisCooldownStore needs an IORedis Client in the options field `store`.";
+        /* We check if the options store contains the "connect" method to be sure it's a RedisCooldownStore. */
+        if (!options.store || !options.store.connect) throw "RedisCooldownStore needs an IORedis Client in the options field `store`.";
         else this.store = options.store;
 
         if (options.cooldownTime) this.cooldownTime = options.cooldownTime;
